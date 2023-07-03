@@ -3,6 +3,7 @@ package online.partyrun.application.global.security;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -40,7 +41,6 @@ public class WebfluxSecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .build();
-
     }
 
     /**
@@ -68,8 +68,8 @@ public class WebfluxSecurityConfig {
      * @author parkhyeonjun
      * @since 2023.06.29
      */
-    private Customizer<ServerHttpSecurity.AuthorizeExchangeSpec> getAuthorizeExchangeSpecCustomizer() {
+    private Customizer<ServerHttpSecurity.AuthorizeExchangeSpec>
+            getAuthorizeExchangeSpecCustomizer() {
         return r -> r.pathMatchers("/**").permitAll();
     }
-
 }

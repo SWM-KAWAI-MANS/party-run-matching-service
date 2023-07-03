@@ -1,5 +1,7 @@
 package online.partyrun.application.domain.match.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.application.config.redis.RedisTestConfig;
 import online.partyrun.application.domain.match.domain.MatchEvent;
 import online.partyrun.application.domain.match.domain.RunnerStatus;
@@ -8,34 +10,30 @@ import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.repository.MatchRepository;
 import online.partyrun.application.domain.match.repository.RunnerRepository;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @Import(RedisTestConfig.class)
 @DisplayName("MatchService")
 class MatchServiceTest {
 
-    @Autowired
-    MatchService matchService;
+    @Autowired MatchService matchService;
 
-    @Autowired
-    MatchRepository matchRepository;
+    @Autowired MatchRepository matchRepository;
 
-    @Autowired
-    RunnerRepository runnerRepository;
+    @Autowired RunnerRepository runnerRepository;
 
-    @Autowired
-    MatchEventHandler matchEventHandler;
+    @Autowired MatchEventHandler matchEventHandler;
     Mono<String> runner = Mono.just("runnerID");
 
     @Nested
@@ -50,7 +48,6 @@ class MatchServiceTest {
             matchService.setParticipation(runner, request);
         }
     }
-
 
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -69,17 +66,20 @@ class MatchServiceTest {
     void runCreateMatch() {
         List<String> runners = List.of("runner1", "runner2", "runner3");
 
-
         StepVerifier.create(matchService.createMatch(runners, RunningDistance.M1000))
-                .assertNext(res ->
-                        assertThat(res.getDistance()).isEqualTo(RunningDistance.M1000.getMeter()))
+                .assertNext(
+                        res ->
+                                assertThat(res.getDistance())
+                                        .isEqualTo(RunningDistance.M1000.getMeter()))
                 .verifyComplete();
 
         StepVerifier.create(runnerRepository.findByMemberId("runner1"))
-                .assertNext(res -> {
-                    assertThat(res.getMemberId()).isEqualTo("runner1");
-                    assertThat(res.getStatus()).isEqualTo(RunnerStatus.NO_RESPONSE);
-                }).verifyComplete();
+                .assertNext(
+                        res -> {
+                            assertThat(res.getMemberId()).isEqualTo("runner1");
+                            assertThat(res.getStatus()).isEqualTo(RunnerStatus.NO_RESPONSE);
+                        })
+                .verifyComplete();
 
         matchEventHandler.complete("runner1");
 
@@ -98,7 +98,6 @@ class MatchServiceTest {
         matchService.createMatch(runners, RunningDistance.M1000).block();
 
         final Flux<MatchEventResponse> subscribe = matchService.subscribe(runner);
-
 
         // Not Run
         StepVerifier.create(subscribe)

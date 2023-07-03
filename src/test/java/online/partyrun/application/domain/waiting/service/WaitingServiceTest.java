@@ -1,34 +1,32 @@
 package online.partyrun.application.domain.waiting.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.domain.waiting.repository.WaitingRepository;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Arrays;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
-
 @SpringBootTest
 @DisplayName("WaitingService")
 class WaitingServiceTest {
-    @Autowired
-    WaitingService waitingService;
+    @Autowired WaitingService waitingService;
 
-    @Autowired
-    ServerSentEventHandler<String, WaitingEvent> waitingEventHandler;
-    @Autowired
-    WaitingRepository waitingRepository;
+    @Autowired ServerSentEventHandler<String, WaitingEvent> waitingEventHandler;
+    @Autowired WaitingRepository waitingRepository;
 
     Mono<String> runner = Mono.just("userID");
     RunningDistance distance = RunningDistance.M10000;
@@ -47,8 +45,7 @@ class WaitingServiceTest {
 
         assertAll(
                 () -> assertThat(waitingEventHandler.connect(runner.block())).isNotNull(),
-                () -> assertThat(waitingRepository.size(distance)).isEqualTo(1)
-        );
+                () -> assertThat(waitingRepository.size(distance)).isEqualTo(1));
     }
 
     @Test

@@ -7,5 +7,8 @@ package online.partyrun.application.domain.match.domain;
  * @since 2023.06.29
  */
 public enum RunnerStatus {
-    NO_RESPONSE, REDDY, CANCELLED, TIMEOUT
+    NO_RESPONSE,
+    REDDY,
+    CANCELLED,
+    TIMEOUT
 }

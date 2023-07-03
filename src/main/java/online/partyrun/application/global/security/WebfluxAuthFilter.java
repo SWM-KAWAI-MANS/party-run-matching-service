@@ -3,13 +3,16 @@ package online.partyrun.application.global.security;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.jwtmanager.JwtExtractor;
 import online.partyrun.jwtmanager.dto.JwtPayload;
+
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+
 import reactor.core.publisher.Mono;
 
 /**
@@ -25,6 +28,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class WebfluxAuthFilter implements WebFilter {
     JwtExtractor jwtExtractor;
+
     /**
      * filter가 수행할 떄 request header에서 token을 추출하여 해당 정보를 AuthUser로 생성합니다.
      *
@@ -46,11 +50,10 @@ public class WebfluxAuthFilter implements WebFilter {
      * @since 2023.06.29
      */
     private JwtPayload getJwtPayload(final ServerWebExchange exchange) {
-        final String token = exchange.getRequest().getHeaders()
-                .get("Authorization")
-                .stream()
-                .findFirst()
-                .orElseThrow(AuthorizationException::new);
+        final String token =
+                exchange.getRequest().getHeaders().get("Authorization").stream()
+                        .findFirst()
+                        .orElseThrow(AuthorizationException::new);
         final JwtPayload payload = jwtExtractor.extract(token);
         return payload;
     }

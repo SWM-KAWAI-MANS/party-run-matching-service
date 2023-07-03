@@ -1,15 +1,16 @@
 package online.partyrun.application.domain.match.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.application.domain.match.domain.MatchEvent;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @DisplayName("MatchEventHandler")
-
 class MatchEventHandlerTest {
     MatchEventHandler matchEventHandler = new MatchEventHandler();
 
@@ -22,8 +23,8 @@ class MatchEventHandlerTest {
         final Flux<MatchEvent> connect = matchEventHandler.connect(key);
         matchEventHandler.complete(key);
 
-         StepVerifier.create(connect)
-                         .assertNext(res ->  assertThat(res).isEqualTo(MatchEvent.CONNECT))
-                         .verifyComplete();
+        StepVerifier.create(connect)
+                .assertNext(res -> assertThat(res).isEqualTo(MatchEvent.CONNECT))
+                .verifyComplete();
     }
 }

@@ -3,22 +3,23 @@ package online.partyrun.application.domain.match.repository.redis;
 import online.partyrun.application.config.redis.RedisTestConfig;
 import online.partyrun.application.domain.match.domain.Runner;
 import online.partyrun.application.domain.match.domain.RunnerStatus;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-//학습테스트
+// 학습테스트
 @SpringBootTest
 @Import(RedisTestConfig.class)
 class RedisTemplateTest {
 
-    @Autowired
-    ReactiveRedisTemplate<String, Runner> redisTemplate;
+    @Autowired ReactiveRedisTemplate<String, Runner> redisTemplate;
 
     @Test
     @DisplayName("전체 조회 수행")
@@ -34,9 +35,6 @@ class RedisTemplateTest {
 
         final Flux<String> findResult = redisTemplate.keys("runner*");
 
-        StepVerifier.create(findResult)
-                .expectNextCount(3)
-                .verifyComplete();
+        StepVerifier.create(findResult).expectNextCount(3).verifyComplete();
     }
-
 }

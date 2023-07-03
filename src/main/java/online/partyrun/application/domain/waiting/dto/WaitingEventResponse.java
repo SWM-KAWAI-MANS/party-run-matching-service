@@ -1,6 +1,5 @@
 package online.partyrun.application.domain.waiting.dto;
 
-
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 
 /**

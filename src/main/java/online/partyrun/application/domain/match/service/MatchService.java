@@ -3,6 +3,7 @@ package online.partyrun.application.domain.match.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.MatchEvent;
 import online.partyrun.application.domain.match.domain.Runner;
@@ -14,8 +15,10 @@ import online.partyrun.application.domain.match.repository.MatchRepository;
 import online.partyrun.application.domain.match.repository.RunnerRepository;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -24,8 +27,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * match 관련 service를 제공합니다.
- * {@link ServerSentEventHandler}를 이용하여 SSE 통신 register 및 subscribe을 지원합니다.
+ * match 관련 service를 제공합니다. {@link ServerSentEventHandler}를 이용하여 SSE 통신 register 및 subscribe을 지원합니다.
  * 외부 Battle API를 호출하여 Battle 생성을 요청합니다.
  *
  * @author Hyeonjun Park
@@ -40,28 +42,29 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class MatchService {
     ServerSentEventHandler<String, MatchEvent> matchEventHandler;
-    WebClient battleClient = WebClient.create("http://localhost:8080"); //TODO : battle service와 연결
+    WebClient battleClient = WebClient.create("http://localhost:8080"); // TODO : battle service와 연결
     MatchRepository matchRepository;
     RunnerRepository runnerRepository;
 
     /**
      * runner의 참여 여부를 설정합니다. join 여부에 따라 status를 변경하고, 변경 상황을 announce 합니다.
      *
-     * @param runner  유저 ID
+     * @param runner 유저 ID
      * @param request 참여 여부를 설정할 정보
      * @author parkhyeonjun
      * @since 2023.06.29
      */
     public void setParticipation(final Mono<String> runner, final MatchRequest request) {
-        runner.subscribe(runnerId -> {
-            if (request.isJoin()) {
-                changeStatus(runnerId, RunnerStatus.REDDY);
-                announceMatching(runnerId);
-                return;
-            }
-            changeStatus(runnerId, RunnerStatus.CANCELLED);
-            announceCancel(runnerId);
-        });
+        runner.subscribe(
+                runnerId -> {
+                    if (request.isJoin()) {
+                        changeStatus(runnerId, RunnerStatus.REDDY);
+                        announceMatching(runnerId);
+                        return;
+                    }
+                    changeStatus(runnerId, RunnerStatus.CANCELLED);
+                    announceCancel(runnerId);
+                });
     }
 
     /**
@@ -102,9 +105,10 @@ public class MatchService {
      * @author parkhyeonjun
      * @since 2023.06.29
      */
-    private void announce(final String runnerId,
-                          final Function<String, Mono<Boolean>> checkStatus,
-                          final MatchEvent event) {
+    private void announce(
+            final String runnerId,
+            final Function<String, Mono<Boolean>> checkStatus,
+            final MatchEvent event) {
         getMatchIdByRunnerId(runnerId)
                 .subscribe(matchId -> checkMatchStatus(checkStatus, event, matchId));
     }
@@ -116,8 +120,7 @@ public class MatchService {
      * @since 2023.06.29
      */
     private Mono<String> getMatchIdByRunnerId(final String runnerId) {
-        return getRunner(runnerId)
-                .map(Runner::getMatchId);
+        return getRunner(runnerId).map(Runner::getMatchId);
     }
 
     /**
@@ -134,21 +137,22 @@ public class MatchService {
      * @author parkhyeonjun
      * @since 2023.06.29
      */
-    private void checkMatchStatus(final Function<String, Mono<Boolean>> checkStatus,
-                                  final MatchEvent event,
-                                  final String matchId) {
-        checkStatus.apply(matchId).subscribe(checkResult -> {
-                    if (Boolean.TRUE.equals(checkResult)) {
-                        announceAndComplete(event, matchId);
-                    }
-                }
-        );
+    private void checkMatchStatus(
+            final Function<String, Mono<Boolean>> checkStatus,
+            final MatchEvent event,
+            final String matchId) {
+        checkStatus
+                .apply(matchId)
+                .subscribe(
+                        checkResult -> {
+                            if (Boolean.TRUE.equals(checkResult)) {
+                                announceAndComplete(event, matchId);
+                            }
+                        });
     }
 
-
     /**
-     * match에 해당하는 runner들에게 event를 전달하고 완료시킵니다.
-     * 완료시킨 후에 repository에서 match와 runner들을 제거합니다.
+     * match에 해당하는 runner들에게 event를 전달하고 완료시킵니다. 완료시킨 후에 repository에서 match와 runner들을 제거합니다.
      *
      * @author parkhyeonjun
      * @since 2023.06.29
@@ -160,8 +164,7 @@ public class MatchService {
                         runnerId -> {
                             matchEventHandler.addEvent(runnerId, event);
                             runnerRepository.deleteById(runnerId);
-                        }
-                );
+                        });
         matchRepository.deleteById(matchId);
     }
 
@@ -172,13 +175,11 @@ public class MatchService {
      * @since 2023.06.29
      */
     private Mono<Boolean> isCancelled(final String matchId) {
-        return getAllRunnerStatus(matchId)
-                .hasElement(RunnerStatus.CANCELLED);
+        return getAllRunnerStatus(matchId).hasElement(RunnerStatus.CANCELLED);
     }
 
     /**
-     * match의 StandBy 여부를 판단합니다. 모든 runner가 Reddy 상태가 되면 true를 반환합니다.
-     * 동시에, Battle 생성을 요청합니다
+     * match의 StandBy 여부를 판단합니다. 모든 runner가 Reddy 상태가 되면 true를 반환합니다. 동시에, Battle 생성을 요청합니다
      *
      * @author parkhyeonjun
      * @since 2023.06.29
@@ -186,11 +187,12 @@ public class MatchService {
     private Mono<Boolean> isMatchSuccess(final String matchId) {
         return getAllRunnerStatus(matchId)
                 .all(status -> status == RunnerStatus.REDDY)
-                .doOnNext(result -> {
-                    if (Boolean.TRUE.equals(result)) {
-                        createBattle(matchId);
-                    }
-                });
+                .doOnNext(
+                        result -> {
+                            if (Boolean.TRUE.equals(result)) {
+                                createBattle(matchId);
+                            }
+                        });
     }
 
     /**
@@ -200,12 +202,16 @@ public class MatchService {
      * @since 2023.06.29
      */
     private void createBattle(final String matchId) {
-        matchRepository.findById(matchId).map(Match::getDistance).subscribe(distance -> {
-            getRunnersByMatchId(matchId)
-                    .map(Runner::getMemberId)
-                    .collectList()
-                    .subscribe(runners -> requestCreateBattle(runners, distance));
-        });
+        matchRepository
+                .findById(matchId)
+                .map(Match::getDistance)
+                .subscribe(
+                        distance -> {
+                            getRunnersByMatchId(matchId)
+                                    .map(Runner::getMemberId)
+                                    .collectList()
+                                    .subscribe(runners -> requestCreateBattle(runners, distance));
+                        });
     }
 
     /**
@@ -225,8 +231,7 @@ public class MatchService {
      * @since 2023.06.29
      */
     private Flux<RunnerStatus> getAllRunnerStatus(final String matchId) {
-        return getRunnersByMatchId(matchId)
-                .map(Runner::getStatus);
+        return getRunnersByMatchId(matchId).map(Runner::getStatus);
     }
 
     /**
@@ -236,7 +241,8 @@ public class MatchService {
      * @since 2023.06.29
      */
     private void requestCreateBattle(final List<String> runners, int distance) {
-        battleClient.post()
+        battleClient
+                .post()
                 .uri("/api/battle")
                 .bodyValue(new CreateBattleRequest(runners, distance))
                 .retrieve();
@@ -249,7 +255,8 @@ public class MatchService {
      * @since 2023.06.29
      */
     public Mono<Match> createMatch(final List<String> runnerIds, RunningDistance distance) {
-        return matchRepository.save(new Match(distance.getMeter()))
+        return matchRepository
+                .save(new Match(distance.getMeter()))
                 .doOnNext(match -> createRunners(runnerIds, match));
     }
 
@@ -260,10 +267,12 @@ public class MatchService {
      * @since 2023.06.29
      */
     private void createRunners(final List<String> runners, final Match match) {
-        runners.forEach(rid -> runnerRepository
-                .save(new Runner(rid, match.getId(), RunnerStatus.NO_RESPONSE))
-                .doOnNext(runner -> matchEventHandler.addSink(runner.getMemberId()))
-                .subscribe());
+        runners.forEach(
+                rid ->
+                        runnerRepository
+                                .save(new Runner(rid, match.getId(), RunnerStatus.NO_RESPONSE))
+                                .doOnNext(runner -> matchEventHandler.addSink(runner.getMemberId()))
+                                .subscribe());
     }
 
     /**
@@ -273,16 +282,18 @@ public class MatchService {
      * @since 2023.06.29
      */
     public Flux<MatchEventResponse> subscribe(Mono<String> runner) {
-        return runner.map(id -> matchEventHandler.connect(id)
-                        .doOnNext(event -> {
-                            if (!event.equals(MatchEvent.CONNECT)) {
-                                matchEventHandler.complete(id);
-                            }
-                        })
-                        .subscribeOn(Schedulers.boundedElastic())
-                        .map(MatchEventResponse::new)
-
-                )
+        return runner.map(
+                        id ->
+                                matchEventHandler
+                                        .connect(id)
+                                        .doOnNext(
+                                                event -> {
+                                                    if (!event.equals(MatchEvent.CONNECT)) {
+                                                        matchEventHandler.complete(id);
+                                                    }
+                                                })
+                                        .subscribeOn(Schedulers.boundedElastic())
+                                        .map(MatchEventResponse::new))
                 .flatMapMany(f -> f);
     }
 }

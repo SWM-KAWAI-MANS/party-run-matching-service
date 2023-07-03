@@ -1,23 +1,25 @@
 package online.partyrun.application.global.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @DisplayName("MultiSinkHandler")
 class MultiSinkHandlerTest {
-    MultiSinkHandler<String, String> multiSinkHandler = new MultiSinkHandler<>() {
-        @Override
-        public void addSink(final String key) {
-            putSink(key, Sinks.many().replay().all());
-        }
-    };
+    MultiSinkHandler<String, String> multiSinkHandler =
+            new MultiSinkHandler<>() {
+                @Override
+                public void addSink(final String key) {
+                    putSink(key, Sinks.many().replay().all());
+                }
+            };
 
     final String key = "sample";
 
@@ -42,12 +44,8 @@ class MultiSinkHandlerTest {
         multiSinkHandler.addEvent(key, event2);
         multiSinkHandler.complete(key);
 
-        StepVerifier.create(connected)
-                .expectNext(event1, event2)
-                .verifyComplete();
+        StepVerifier.create(connected).expectNext(event1, event2).verifyComplete();
     }
-
-
 
     @Test
     @DisplayName("sink 가져오기를 수행한다")
@@ -56,9 +54,7 @@ class MultiSinkHandlerTest {
         final Sinks.Many<String> sink = multiSinkHandler.getSink(key);
         sink.tryEmitComplete();
 
-        StepVerifier.create(sink.asFlux())
-                .expectNextCount(0)
-                .verifyComplete();
+        StepVerifier.create(sink.asFlux()).expectNextCount(0).verifyComplete();
     }
 
     @Test
@@ -70,7 +66,6 @@ class MultiSinkHandlerTest {
         assertThat(multiSinkHandler.isExists(key)).isTrue();
     }
 
-
     @Test
     @DisplayName("timeout을 반환한다.")
     void runTimeOut() {
@@ -78,6 +73,4 @@ class MultiSinkHandlerTest {
 
         assertThat(timeout).isNotNull();
     }
-
-
 }

@@ -8,5 +8,4 @@ import online.partyrun.application.domain.waiting.domain.RunningDistance;
  * @author parkhyeonjun
  * @since 2023.06.29
  */
-public record CreateWaitingRequest(RunningDistance distance) {
-}
+public record CreateWaitingRequest(RunningDistance distance) {}

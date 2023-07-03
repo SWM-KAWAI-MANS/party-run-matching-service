@@ -1,26 +1,26 @@
 package online.partyrun.application.domain.match.repository.redis;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.application.config.redis.RedisTestConfig;
 import online.partyrun.application.domain.match.domain.Match;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Import(RedisTestConfig.class)
 @DisplayName("RedisMatchRepository")
 class RedisMatchRepositoryTest {
-    @Autowired
-    ReactiveRedisTemplate<String, Match> redisTemplate;
+    @Autowired ReactiveRedisTemplate<String, Match> redisTemplate;
 
-    @Autowired
-    RedisMatchRepository redisMatchRepository;
+    @Autowired RedisMatchRepository redisMatchRepository;
 
     Match match = new Match(1000);
 
@@ -30,10 +30,12 @@ class RedisMatchRepositoryTest {
         final Mono<Match> result = redisMatchRepository.save(match);
 
         StepVerifier.create(result)
-                .assertNext(res -> {
-                    assertThat(res.getDistance()).isEqualTo(match.getDistance());
-                    assertThat(res.getId()).isNotBlank();
-                }).verifyComplete();
+                .assertNext(
+                        res -> {
+                            assertThat(res.getDistance()).isEqualTo(match.getDistance());
+                            assertThat(res.getId()).isNotBlank();
+                        })
+                .verifyComplete();
     }
 
     @Nested
@@ -47,10 +49,12 @@ class RedisMatchRepositoryTest {
             final Mono<Match> result = redisMatchRepository.findById(saveResult.getId());
 
             StepVerifier.create(result)
-                    .assertNext(res -> {
-                        assertThat(res.getId()).isEqualTo(saveResult.getId());
-                        assertThat(res.getDistance()).isEqualTo(saveResult.getDistance());
-                    }).verifyComplete();
+                    .assertNext(
+                            res -> {
+                                assertThat(res.getId()).isEqualTo(saveResult.getId());
+                                assertThat(res.getDistance()).isEqualTo(saveResult.getDistance());
+                            })
+                    .verifyComplete();
         }
 
         @Test
@@ -59,11 +63,11 @@ class RedisMatchRepositoryTest {
             redisMatchRepository.deleteById(saveResult.getId());
 
             StepVerifier.create(redisTemplate.opsForList().size("*"))
-                    .assertNext(res -> {
-                        assertThat(res).isZero();
-                    }).verifyComplete();
+                    .assertNext(
+                            res -> {
+                                assertThat(res).isZero();
+                            })
+                    .verifyComplete();
         }
     }
-
-
 }

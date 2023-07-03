@@ -2,7 +2,9 @@ package online.partyrun.application.global.handler;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.application.domain.waiting.exception.SseConnectionException;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -11,8 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * MultiSink를 이용해서 {@link ServerSentEventHandler} 를 구현합니다.
- * 각 sink는 Map을 통해서 관리합니다.
+ * MultiSink를 이용해서 {@link ServerSentEventHandler} 를 구현합니다. 각 sink는 Map을 통해서 관리합니다.
  *
  * @author parkhyeonjun
  * @since 2023.06.29
@@ -29,14 +30,16 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public Flux<V> connect(final K key) {
-        return getSink(key).asFlux()
+        return getSink(key)
+                .asFlux()
                 .doOnComplete(() -> sinks.remove(key))
                 .doOnCancel(() -> sinks.remove(key))
                 .timeout(timeout())
-                .doOnError(e -> {
-                    sinks.remove(key);
-                    throw new SseConnectionException();
-                });
+                .doOnError(
+                        e -> {
+                            sinks.remove(key);
+                            throw new SseConnectionException();
+                        });
     }
 
     /**

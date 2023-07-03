@@ -6,5 +6,4 @@ package online.partyrun.application.domain.match.dto;
  * @author parkhyeonjun
  * @since 2023.06.29
  */
-public record MatchRequest(boolean isJoin) {
-}
+public record MatchRequest(boolean isJoin) {}

@@ -6,5 +6,4 @@ package online.partyrun.application.global.dto;
  * @author parkhyeonjun
  * @since 2023.06.29
  */
-public record MessageResponse(String message) {
-}
+public record MessageResponse(String message) {}

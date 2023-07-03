@@ -8,5 +8,4 @@ import java.util.List;
  * @author parkhyeonjun
  * @since 2023.06.29
  */
-public record CreateBattleRequest(List<String> runnerIds, int distance) {
-}
+public record CreateBattleRequest(List<String> runnerIds, int distance) {}

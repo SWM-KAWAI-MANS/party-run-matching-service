@@ -2,6 +2,7 @@ package online.partyrun.application.global.redis;
 
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.Runner;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
@@ -26,8 +27,10 @@ public class RedisTemplateConfig {
      * @since 2023.06.29
      */
     @Bean
-    public ReactiveRedisTemplate<String, Match> reactiveMatchRedisTemplate(ReactiveRedisConnectionFactory factory) {
-        Jackson2JsonRedisSerializer<Match> serializer = new Jackson2JsonRedisSerializer<>(Match.class);
+    public ReactiveRedisTemplate<String, Match> reactiveMatchRedisTemplate(
+            ReactiveRedisConnectionFactory factory) {
+        Jackson2JsonRedisSerializer<Match> serializer =
+                new Jackson2JsonRedisSerializer<>(Match.class);
 
         RedisSerializationContext.RedisSerializationContextBuilder<String, Match> builder =
                 RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
@@ -44,8 +47,10 @@ public class RedisTemplateConfig {
      * @since 2023.06.29
      */
     @Bean
-    public ReactiveRedisTemplate<String, Runner> reactiveRunnerRedisTemplate(ReactiveRedisConnectionFactory factory) {
-        Jackson2JsonRedisSerializer<Runner> serializer = new Jackson2JsonRedisSerializer<>(Runner.class);
+    public ReactiveRedisTemplate<String, Runner> reactiveRunnerRedisTemplate(
+            ReactiveRedisConnectionFactory factory) {
+        Jackson2JsonRedisSerializer<Runner> serializer =
+                new Jackson2JsonRedisSerializer<>(Runner.class);
 
         RedisSerializationContext.RedisSerializationContextBuilder<String, Runner> builder =
                 RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
