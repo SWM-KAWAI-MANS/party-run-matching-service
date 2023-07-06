@@ -1,15 +1,14 @@
 package online.partyrun.application.global.handler;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("MultiSinkHandler")
 class MultiSinkHandlerTest {
@@ -40,8 +39,8 @@ class MultiSinkHandlerTest {
         String event2 = "hello2";
         multiSinkHandler.addSink(key);
         final Flux<String> connected = multiSinkHandler.connect(key);
-        multiSinkHandler.addEvent(key, event1);
-        multiSinkHandler.addEvent(key, event2);
+        multiSinkHandler.sendEvent(key, event1);
+        multiSinkHandler.sendEvent(key, event2);
         multiSinkHandler.complete(key);
 
         StepVerifier.create(connected).expectNext(event1, event2).verifyComplete();

@@ -15,10 +15,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public enum WaitingEvent {
-    CONNECT(false, "connection success"),
-    MATCHED(true, "match completed"),
-    TIMEOUT(false, "timeout");
+    CONNECT("CONNECT", "connection success"),
+    MATCHED("MATCHED", "match completed"),
+    TIMEOUT("TIMEOUT", "timeout");
 
-    boolean isSuccess;
+    String status;
     String message;
 }

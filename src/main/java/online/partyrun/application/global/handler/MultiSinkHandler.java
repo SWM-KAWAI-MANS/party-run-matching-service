@@ -3,6 +3,7 @@ package online.partyrun.application.global.handler;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
+import lombok.extern.slf4j.Slf4j;
 import online.partyrun.application.domain.waiting.exception.SseConnectionException;
 
 import reactor.core.publisher.Flux;
@@ -19,6 +20,7 @@ import java.util.Map;
  * @since 2023.06.29
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     Map<K, Sinks.Many<V>> sinks = new HashMap<>();
 
@@ -32,7 +34,6 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
     public Flux<V> connect(final K key) {
         return getSink(key)
                 .asFlux()
-                .doOnComplete(() -> sinks.remove(key))
                 .doOnCancel(() -> sinks.remove(key))
                 .timeout(timeout())
                 .doOnError(
@@ -49,7 +50,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @since 2023.06.29
      */
     @Override
-    public void addEvent(final K key, final V value) {
+    public void sendEvent(final K key, final V value) {
         sinks.get(key).tryEmitNext(value);
     }
 
@@ -62,6 +63,12 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
     @Override
     public void complete(final K key) {
         sinks.get(key).tryEmitComplete();
+    }
+
+    @Override
+    public void disconnect(final K key) {
+        log.info("{}", sinks.keySet());
+        sinks.remove(key);
     }
 
     /**

@@ -13,7 +13,9 @@ public interface ServerSentEventHandler<K, V> {
 
     void addSink(K key);
 
-    void addEvent(K key, V value);
+    void sendEvent(K key, V value);
 
     void complete(K key);
+
+    void disconnect(K key);
 }

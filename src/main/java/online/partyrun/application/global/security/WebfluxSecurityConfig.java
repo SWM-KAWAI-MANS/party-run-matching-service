@@ -3,7 +3,6 @@ package online.partyrun.application.global.security;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -37,8 +36,8 @@ public class WebfluxSecurityConfig {
     @Bean
     public SecurityWebFilterChain configure(ServerHttpSecurity http) {
         return http.authorizeExchange(getAuthorizeExchangeSpecCustomizer())
-                .addFilterAfter(webfluxAuthFilter, SecurityWebFiltersOrder.AUTHORIZATION)
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .addFilterBefore(webfluxAuthFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .build();
     }
@@ -54,7 +53,7 @@ public class WebfluxSecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.addAllowedMethod("*");
-        config.addAllowedOrigin("https://*");
+        config.addAllowedOrigin("https://**");
         config.addAllowedHeader("*");
         config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

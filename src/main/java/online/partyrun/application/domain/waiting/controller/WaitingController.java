@@ -3,17 +3,14 @@ package online.partyrun.application.domain.waiting.controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.domain.waiting.service.WaitingService;
 import online.partyrun.application.global.dto.MessageResponse;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,8 +43,7 @@ public class WaitingController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<MessageResponse> postWaitingRunner(
             Mono<Authentication> auth, @RequestBody CreateWaitingRequest request) {
-        waitingService.register(auth.map(Principal::getName), request);
-        return Mono.just(new MessageResponse("대기열 등록"));
+        return waitingService.register(auth.map(Principal::getName), request);
     }
 
     /**

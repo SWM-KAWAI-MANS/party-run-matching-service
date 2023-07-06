@@ -4,7 +4,6 @@ import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.application.domain.waiting.service.WaitingService;
 import online.partyrun.application.global.security.WebfluxAuthFilter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.test.web.reactive.server.WebTestClient;
-
 import reactor.core.publisher.Mono;
 
 @WebFluxTest(
@@ -31,7 +29,8 @@ import reactor.core.publisher.Mono;
         })
 @AutoConfigureRestDocs
 class WaitingControllerTest {
-    @MockBean WaitingService waitingService;
+    @MockBean
+    WaitingService waitingService;
 
     private WebTestClient webTestClient;
 

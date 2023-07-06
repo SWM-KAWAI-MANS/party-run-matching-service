@@ -8,8 +8,8 @@ import online.partyrun.application.domain.waiting.domain.WaitingEvent;
  * @author parkhyeonjun
  * @since 2023.06.29
  */
-public record WaitingEventResponse(boolean isSuccess, String message) {
+public record WaitingEventResponse(String status, String message) {
     public WaitingEventResponse(WaitingEvent event) {
-        this(event.isSuccess(), event.getMessage());
+        this(event.getStatus(), event.getMessage());
     }
 }

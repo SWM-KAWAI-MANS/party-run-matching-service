@@ -1,9 +1,10 @@
-package online.partyrun.application.domain.waiting.service;
+package online.partyrun.application.domain.waiting.handler;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import lombok.extern.slf4j.Slf4j;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.global.handler.MultiSinkHandler;
 
@@ -24,6 +25,7 @@ import java.time.Duration;
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class WaitEventHandler extends MultiSinkHandler<String, WaitingEvent> {
 
     /**
@@ -36,6 +38,7 @@ public class WaitEventHandler extends MultiSinkHandler<String, WaitingEvent> {
     @Override
     public void addSink(final String key) {
         putSink(key, Sinks.many().replay().all());
+        log.info("{}", key);
         getSink(key).tryEmitNext(WaitingEvent.CONNECT);
     }
 

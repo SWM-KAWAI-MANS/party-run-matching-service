@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import lombok.extern.slf4j.Slf4j;
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.MatchEvent;
 import online.partyrun.application.domain.match.domain.Runner;
@@ -40,6 +41,7 @@ import java.util.function.Function;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class MatchService {
     ServerSentEventHandler<String, MatchEvent> matchEventHandler;
     WebClient battleClient = WebClient.create("http://localhost:8080"); // TODO : battle service와 연결
@@ -162,7 +164,7 @@ public class MatchService {
                 .map(Runner::getMemberId)
                 .subscribe(
                         runnerId -> {
-                            matchEventHandler.addEvent(runnerId, event);
+                            matchEventHandler.sendEvent(runnerId, event);
                             runnerRepository.deleteById(runnerId);
                         });
         matchRepository.deleteById(matchId);
