@@ -1,18 +1,20 @@
 package online.partyrun.application.domain.waiting.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("WaitingService")
@@ -21,14 +23,9 @@ class WaitingServiceTest {
 
     @Autowired ServerSentEventHandler<String, WaitingEvent> waitingEventHandler;
 
-
     Mono<String> runner = Mono.just("userID");
     RunningDistance distance = RunningDistance.M10000;
     CreateWaitingRequest request = new CreateWaitingRequest(distance);
-
-
-
-
 
     @Test
     @DisplayName("구독을 수행한다")

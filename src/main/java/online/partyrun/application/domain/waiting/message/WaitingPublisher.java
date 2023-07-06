@@ -3,8 +3,10 @@ package online.partyrun.application.domain.waiting.message;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
 import online.partyrun.application.global.redis.RedisChannel;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,5 +19,4 @@ public class WaitingPublisher {
     public void publish(WaitingUser user) {
         redisTemplate.convertAndSend(RedisChannel.WAITING.getChannel(), user);
     }
-
 }

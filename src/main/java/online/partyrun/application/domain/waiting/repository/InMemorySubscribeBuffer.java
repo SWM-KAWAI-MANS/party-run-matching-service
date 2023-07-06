@@ -2,8 +2,10 @@ package online.partyrun.application.domain.waiting.repository;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -22,9 +24,7 @@ public class InMemorySubscribeBuffer implements SubscribeBuffer {
 
     @Override
     public List<String> flush(RunningDistance distance, int count) {
-        return IntStream.range(0, count)
-                .mapToObj(i -> map.get(distance).poll())
-                .toList();
+        return IntStream.range(0, count).mapToObj(i -> map.get(distance).poll()).toList();
     }
 
     @Override

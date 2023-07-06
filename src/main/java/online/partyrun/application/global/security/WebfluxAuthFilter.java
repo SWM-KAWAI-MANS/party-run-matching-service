@@ -4,22 +4,24 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.application.global.security.jwt.JwtExtractor;
 import online.partyrun.application.global.security.jwt.JwtPayload;
+
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+
 import reactor.core.publisher.Mono;
 
 /**
  * Webflux 환경에서 인가 필터를 구성합니다. JWT 토큰 기반으로 인가를 진행합니다.
  *
- * @author parkhyeonjun
- * // * @see JwtExtractor
- * // * @see online.partyrun.jwtmanager.manager.JwtManager
+ * @author parkhyeonjun // * @see JwtExtractor // * @see
+ *     online.partyrun.jwtmanager.manager.JwtManager
  * @since 2023.06.29
  */
 @Component
@@ -40,7 +42,8 @@ public class WebfluxAuthFilter implements WebFilter {
         final JwtPayload payload = getJwtPayload(exchange.getRequest());
         log.info("{}", payload.id());
         return chain.filter(exchange)
-                .contextWrite(ReactiveSecurityContextHolder.withAuthentication(new AuthUser(payload)));
+                .contextWrite(
+                        ReactiveSecurityContextHolder.withAuthentication(new AuthUser(payload)));
     }
 
     /**

@@ -3,8 +3,8 @@ package online.partyrun.application.domain.waiting.handler;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.global.handler.MultiSinkHandler;
 

@@ -1,6 +1,7 @@
 package online.partyrun.application.domain.waiting.service;
 
 import online.partyrun.application.domain.waiting.handler.WaitEventHandler;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,5 +16,4 @@ class WaitEventHandlerTest {
     void successAddSink() {
         handler.addSink(key);
     }
-
 }

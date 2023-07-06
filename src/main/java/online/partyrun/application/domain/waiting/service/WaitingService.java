@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
@@ -11,7 +12,9 @@ import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.domain.waiting.message.WaitingPublisher;
 import online.partyrun.application.global.dto.MessageResponse;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -24,14 +27,13 @@ public class WaitingService {
     WaitingPublisher waitingPublisher;
     ServerSentEventHandler<String, WaitingEvent> waitingEventHandler;
 
-
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
         return runner.doOnNext(
-                id -> {
-                    log.info("{}", id);
-                    waitingEventHandler.addSink(id);
-                    waitingPublisher.publish(new WaitingUser(id, request.distance()));
-                })
+                        id -> {
+                            log.info("{}", id);
+                            waitingEventHandler.addSink(id);
+                            waitingPublisher.publish(new WaitingUser(id, request.distance()));
+                        })
                 .map(id -> new MessageResponse(id + "님 대기열 등록"));
     }
 
@@ -49,12 +51,13 @@ public class WaitingService {
                                 waitingEventHandler
                                         .connect(id)
                                         .subscribeOn(Schedulers.boundedElastic())
-                                        .doOnNext(event -> {
-                                            log.info("{}", event.getMessage());
-                                            if(!event.equals(WaitingEvent.CONNECT)) {
-                                                waitingEventHandler.disconnect(id);
-                                            }
-                                        })
+                                        .doOnNext(
+                                                event -> {
+                                                    log.info("{}", event.getMessage());
+                                                    if (!event.equals(WaitingEvent.CONNECT)) {
+                                                        waitingEventHandler.disconnect(id);
+                                                    }
+                                                })
                                         .map(WaitingEventResponse::new))
                 .flatMapMany(f -> f);
     }

@@ -2,8 +2,8 @@ package online.partyrun.application.global.handler;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.application.domain.waiting.exception.SseConnectionException;
 
 import reactor.core.publisher.Flux;

@@ -2,6 +2,7 @@ package online.partyrun.application.domain.waiting.message;
 
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
 import online.partyrun.application.global.redis.RedisChannel;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -16,7 +17,8 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 public class WaitingMessageConfig {
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory, WaitingListener subscriber) {
+    public RedisMessageListenerContainer redisMessageListenerContainer(
+            RedisConnectionFactory connectionFactory, WaitingListener subscriber) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(subscriber, RedisChannel.WAITING.getTopic());
@@ -29,7 +31,8 @@ public class WaitingMessageConfig {
     }
 
     @Bean
-    public RedisTemplate<String, WaitingUser> redisMemberTemplate(RedisConnectionFactory connectionFactory) {
+    public RedisTemplate<String, WaitingUser> redisMemberTemplate(
+            RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, WaitingUser> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         setSerializer(template);
@@ -50,7 +53,8 @@ public class WaitingMessageConfig {
     }
 
     private void setKeySerializer(final RedisTemplate<String, WaitingUser> template) {
-        final StringRedisSerializer keySerializer = new StringRedisSerializer(StandardCharsets.UTF_8);
+        final StringRedisSerializer keySerializer =
+                new StringRedisSerializer(StandardCharsets.UTF_8);
         template.setKeySerializer(keySerializer);
         template.setHashKeySerializer(keySerializer);
     }

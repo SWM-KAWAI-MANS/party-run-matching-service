@@ -3,8 +3,8 @@ package online.partyrun.application.domain.match.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.MatchEvent;
 import online.partyrun.application.domain.match.domain.Runner;
