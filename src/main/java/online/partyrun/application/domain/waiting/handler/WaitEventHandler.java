@@ -38,7 +38,7 @@ public class WaitEventHandler extends MultiSinkHandler<String, WaitingEvent> {
     @Override
     public void addSink(final String key) {
         putSink(key, Sinks.many().replay().all());
-        log.info("{}", key);
+        log.info("addSink 실행 {}", key);
         getSink(key).tryEmitNext(WaitingEvent.CONNECT);
     }
 

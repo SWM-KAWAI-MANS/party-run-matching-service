@@ -51,6 +51,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public void sendEvent(final K key, final V value) {
+        log.info("sendEvent {}", key);
         sinks.get(key).tryEmitNext(value);
     }
 
@@ -62,12 +63,8 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public void complete(final K key) {
+        log.info("complete {}", key);
         sinks.get(key).tryEmitComplete();
-    }
-
-    @Override
-    public void disconnect(final K key) {
-        log.info("{}", sinks.keySet());
         sinks.remove(key);
     }
 
@@ -78,6 +75,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @since 2023.06.29
      */
     protected void putSink(K key, Sinks.Many<V> sink) {
+        log.info("putSink {}", key);
         sinks.put(key, sink);
     }
 
@@ -88,6 +86,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @since 2023.06.29
      */
     protected Sinks.Many<V> getSink(K key) {
+        log.info("getSink {}", key);
         return sinks.get(key);
     }
 

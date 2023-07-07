@@ -39,21 +39,18 @@ public class WaitingListener implements MessageListener {
 
     private void processMessages() {
         log.info("processMessages started");
-        Arrays.stream(RunningDistance.values())
-                .forEach(
-                        distance -> {
-                            if (buffer.satisfyCount(distance, SATISFY_COUNT)) {
-                                List<String> memberIds = buffer.flush(distance, SATISFY_COUNT);
-                                // 매칭 생성 보내기
-                                matchService.createMatch(memberIds, distance).subscribe();
-                                log.info("{}", memberIds);
-                                // Event 추가하기
-                                memberIds.forEach(
-                                        m -> {
-                                            waitingEventHandler.sendEvent(m, WaitingEvent.MATCHED);
-                                            waitingEventHandler.complete(m);
-                                        });
-                            }
-                        });
+        Arrays.stream(RunningDistance.values()).forEach(distance -> {
+                    if (buffer.satisfyCount(distance, SATISFY_COUNT)) {
+                        List<String> memberIds = buffer.flush(distance, SATISFY_COUNT);
+                        // 매칭 생성 보내기
+                        matchService.createMatch(memberIds, distance).subscribe();
+                        // Event 추가하기
+                        memberIds.forEach(m ->
+                                waitingEventHandler.sendEvent(m, WaitingEvent.MATCHED)
+                        );
+                    }
+                }
+        );
+
     }
 }

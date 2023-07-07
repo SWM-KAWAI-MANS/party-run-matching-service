@@ -59,6 +59,7 @@ public class MatchService {
     public void setParticipation(final Mono<String> runner, final MatchRequest request) {
         runner.subscribe(
                 runnerId -> {
+                    log.info("setParticipation 실행 {}", runnerId);
                     if (request.isJoin()) {
                         changeStatus(runnerId, RunnerStatus.REDDY);
                         announceMatching(runnerId);
@@ -76,6 +77,7 @@ public class MatchService {
      * @since 2023.06.29
      */
     private void changeStatus(final String runnerId, final RunnerStatus status) {
+        log.info("changeStatus 실행 {}", runnerId);
         getRunner(runnerId)
                 .doOnNext(runner -> runner.changeStatus(status))
                 .subscribe(runner -> runnerRepository.save(runner).subscribe());

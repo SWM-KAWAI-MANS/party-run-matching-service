@@ -29,11 +29,11 @@ public class WaitingService {
 
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
         return runner.doOnNext(
-                        id -> {
-                            log.info("{}", id);
-                            waitingEventHandler.addSink(id);
-                            waitingPublisher.publish(new WaitingUser(id, request.distance()));
-                        })
+                id -> {
+                    log.info("do on next 실행 {}", id);
+                    waitingEventHandler.addSink(id);
+                    waitingPublisher.publish(new WaitingUser(id, request.distance()));
+                })
                 .map(id -> new MessageResponse(id + "님 대기열 등록"));
     }
 
@@ -51,13 +51,12 @@ public class WaitingService {
                                 waitingEventHandler
                                         .connect(id)
                                         .subscribeOn(Schedulers.boundedElastic())
-                                        .doOnNext(
-                                                event -> {
-                                                    log.info("{}", event.getMessage());
-                                                    if (!event.equals(WaitingEvent.CONNECT)) {
-                                                        waitingEventHandler.disconnect(id);
-                                                    }
-                                                })
+                                        .doOnNext(event -> {
+                                            log.info("{}", event.getMessage());
+                                            if(!event.equals(WaitingEvent.CONNECT)) {
+                                                waitingEventHandler.complete(id);
+                                            }
+                                        })
                                         .map(WaitingEventResponse::new))
                 .flatMapMany(f -> f);
     }

@@ -1,20 +1,18 @@
 package online.partyrun.application.domain.waiting.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
-
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("WaitingService")
@@ -48,9 +46,9 @@ class WaitingServiceTest {
         @Test
         @DisplayName("각 맴버들에게 완료 이벤트를 전송하고 커넥션을 종료한다.")
         void sendCompleteEventAndCloseConnection() {
-            waitingService.register(runner, request);
-            waitingService.register(runner2, request);
-            waitingService.register(runner3, request);
+            waitingService.register(runner, request).block();
+            waitingService.register(runner2, request).block();
+            waitingService.register(runner3, request).block();
 
             StepVerifier.create(waitingService.subscribe(runner))
                     .assertNext(res -> assertThat(res).isEqualTo(connected))
