@@ -10,14 +10,21 @@ spring:
     active: test
 jwt:
   access-secret-key: "asfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasd"
-
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 6.0.6
 
 
 ---
+
 spring:
   config:
     activate:
       on-profile: local, dev, prd
-
+  data:
+    mongodb:
+      uri: ${MONGO_URL}
 jwt:
   access-secret-key: ${JWT_ACCESS_SECRET_KEY}

@@ -4,14 +4,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-
 import online.partyrun.application.domain.match.service.MatchService;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
 import online.partyrun.application.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
-
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -43,7 +41,7 @@ public class WaitingListener implements MessageListener {
                     if (buffer.satisfyCount(distance, SATISFY_COUNT)) {
                         List<String> memberIds = buffer.flush(distance, SATISFY_COUNT);
                         // 매칭 생성 보내기
-                        matchService.createMatch(memberIds, distance).subscribe();
+                        matchService.create(memberIds, distance).subscribe();
                         // Event 추가하기
                         memberIds.forEach(m ->
                                 waitingEventHandler.sendEvent(m, WaitingEvent.MATCHED)

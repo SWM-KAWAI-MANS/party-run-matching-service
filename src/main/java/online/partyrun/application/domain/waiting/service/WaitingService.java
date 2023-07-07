@@ -40,13 +40,13 @@ public class WaitingService {
     /**
      * 대기열을 구독합니다. sink에 연결한 후, 들어오는 event를 사용자에게 바로 전달합니다.
      *
-     * @param runner 사용자 id가 담겨있는 {@link Mono}
+     * @param member 사용자 id가 담겨있는 {@link Mono}
      * @return event stream
      * @author Hyeonjun Park
      * @since 2023-06-29
      */
-    public Flux<WaitingEventResponse> subscribe(Mono<String> runner) {
-        return runner.map(
+    public Flux<WaitingEventResponse> subscribe(Mono<String> member) {
+        return member.map(
                         id ->
                                 waitingEventHandler
                                         .connect(id)

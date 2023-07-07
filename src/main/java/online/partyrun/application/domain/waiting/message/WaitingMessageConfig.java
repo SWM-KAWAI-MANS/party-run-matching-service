@@ -1,7 +1,7 @@
 package online.partyrun.application.domain.waiting.message;
 
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
-import online.partyrun.application.global.redis.RedisChannel;
+import online.partyrun.application.global.db.redis.RedisChannel;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
