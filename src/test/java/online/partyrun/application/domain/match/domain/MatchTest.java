@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 @DisplayName("Match")
 class MatchTest {
 
-    final List<MatchMember> members = Stream.of("member1", "member2", "member3").map(MatchMember::new).toList();
-
+    final List<MatchMember> members =
+            Stream.of("member1", "member2", "member3").map(MatchMember::new).toList();
 
     @Test
     @DisplayName("member status 업데이트를 수행하는가")
@@ -19,6 +19,6 @@ class MatchTest {
 
         match.updateMemberStatus("member1", true);
 
-       // match.getMembers().stream().map(MemberStatus::new).contains(MemberStatus.REDDY);
+        // match.getMembers().stream().map(MemberStatus::new).contains(MemberStatus.REDDY);
     }
 }

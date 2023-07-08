@@ -3,15 +3,18 @@ package online.partyrun.application.domain.match.controller;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.application.domain.match.dto.MatchEvent;
 import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.service.MatchService;
 import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.global.dto.MessageResponse;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -44,8 +47,9 @@ public class MatchController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<MessageResponse> postMatchStatus(
             Mono<Authentication> auth, @RequestBody MatchRequest request) {
-        return matchService.setMemberStatus(auth.map(Principal::getName), request)
-                .flatMap(i ->  Mono.just(new MessageResponse("참여여부 등록")));
+        return matchService
+                .setMemberStatus(auth.map(Principal::getName), request)
+                .flatMap(i -> Mono.just(new MessageResponse("참여여부 등록")));
     }
 
     /**

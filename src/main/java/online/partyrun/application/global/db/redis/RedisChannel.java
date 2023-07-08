@@ -1,6 +1,5 @@
 package online.partyrun.application.global.db.redis;
 
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -18,4 +17,3 @@ public enum RedisChannel {
     ChannelTopic topic;
     String channel;
 }
-
