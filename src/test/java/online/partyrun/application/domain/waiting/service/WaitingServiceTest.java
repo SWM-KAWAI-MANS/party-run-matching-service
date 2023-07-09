@@ -1,20 +1,22 @@
 package online.partyrun.application.domain.waiting.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.application.config.redis.RedisTestConfig;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("WaitingService")
@@ -33,7 +35,6 @@ class WaitingServiceTest {
         waitingEventHandler.complete(runner.block());
     }
 
-
     @Test
     @DisplayName("대기열에 등록한 후 구독을 수행한다")
     void runSubscribe() {
@@ -43,7 +44,7 @@ class WaitingServiceTest {
         assertThat(subscribe).isNotNull();
     }
 
-/*    @Test
+    /*    @Test
     @DisplayName("등록한 후에 이미 등록이 되어 있으면 예외처리를 한다")
     void throwExceptionIfExist() {
 
@@ -74,7 +75,6 @@ class WaitingServiceTest {
                     .assertNext(res -> assertThat(res).isEqualTo(matched))
                     .expectNoAccessibleContext()
                     .verifyComplete();
-
         }
     }
 }

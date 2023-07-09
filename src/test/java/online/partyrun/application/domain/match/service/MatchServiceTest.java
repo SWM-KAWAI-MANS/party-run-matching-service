@@ -1,5 +1,7 @@
 package online.partyrun.application.domain.match.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.application.config.redis.RedisTestConfig;
 import online.partyrun.application.domain.match.domain.MatchMember;
 import online.partyrun.application.domain.match.domain.MatchStatus;
@@ -8,28 +10,24 @@ import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.repository.MatchRepository;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @DisplayName("matchService")
 @Import(RedisTestConfig.class)
 class MatchServiceTest {
-    @Autowired
-    MatchService matchService;
-    @Autowired
-    MatchRepository matchRepository;
-    @Autowired
-    ServerSentEventHandler<String, MatchEvent> matchEventHandler;
-
+    @Autowired MatchService matchService;
+    @Autowired MatchRepository matchRepository;
+    @Autowired ServerSentEventHandler<String, MatchEvent> matchEventHandler;
 
     List<String> memberIds = List.of("현준", "성우", "준혁");
 
@@ -38,16 +36,18 @@ class MatchServiceTest {
         matchRepository.deleteAll().block();
     }
 
-
     @Test
     @DisplayName("생성을 수행한다")
     void runCreate() {
         StepVerifier.create(matchService.create(memberIds, RunningDistance.M1000))
-                .assertNext(match -> {
-                    assertThat(match.getMembers().stream().map(MatchMember::getId)).contains("현준", "성우", "준혁");
-                    assertThat(match.getDistance()).isEqualTo(RunningDistance.M1000.getMeter());
-                    assertThat(match.getStatus()).isEqualTo(MatchStatus.WAIT);
-                })
+                .assertNext(
+                        match -> {
+                            assertThat(match.getMembers().stream().map(MatchMember::getId))
+                                    .contains("현준", "성우", "준혁");
+                            assertThat(match.getDistance())
+                                    .isEqualTo(RunningDistance.M1000.getMeter());
+                            assertThat(match.getStatus()).isEqualTo(MatchStatus.WAIT);
+                        })
                 .verifyComplete();
     }
 
@@ -60,18 +60,20 @@ class MatchServiceTest {
         MatchRequest 수락 = new MatchRequest(true);
         MatchRequest 거절 = new MatchRequest(false);
 
-
         @Test
         @DisplayName("member 상태를 설정한다")
         void runSetMemberStatus() {
             matchService.create(memberIds, RunningDistance.M1000).block();
 
             StepVerifier.create(matchService.setMemberStatus(현준, 수락))
-                    .assertNext(match -> {
-                        assertThat(match.getMembers().stream().map(MatchMember::getId)).contains("현준", "성우", "준혁");
-                        assertThat(match.getDistance()).isEqualTo(RunningDistance.M1000.getMeter());
-                        assertThat(match.getStatus()).isEqualTo(MatchStatus.WAIT);
-                    })
+                    .assertNext(
+                            match -> {
+                                assertThat(match.getMembers().stream().map(MatchMember::getId))
+                                        .contains("현준", "성우", "준혁");
+                                assertThat(match.getDistance())
+                                        .isEqualTo(RunningDistance.M1000.getMeter());
+                                assertThat(match.getStatus()).isEqualTo(MatchStatus.WAIT);
+                            })
                     .verifyComplete();
         }
 
@@ -84,11 +86,14 @@ class MatchServiceTest {
                 matchService.create(memberIds, RunningDistance.M1000).block();
 
                 StepVerifier.create(matchService.setMemberStatus(현준, 거절))
-                        .assertNext(match -> {
-                            assertThat(match.getMembers().stream().map(MatchMember::getId)).contains("현준", "성우", "준혁");
-                            assertThat(match.getDistance()).isEqualTo(RunningDistance.M1000.getMeter());
-                            assertThat(match.getStatus()).isEqualTo(MatchStatus.CANCEL);
-                        })
+                        .assertNext(
+                                match -> {
+                                    assertThat(match.getMembers().stream().map(MatchMember::getId))
+                                            .contains("현준", "성우", "준혁");
+                                    assertThat(match.getDistance())
+                                            .isEqualTo(RunningDistance.M1000.getMeter());
+                                    assertThat(match.getStatus()).isEqualTo(MatchStatus.CANCEL);
+                                })
                         .verifyComplete();
             }
 
@@ -100,11 +105,14 @@ class MatchServiceTest {
                 matchService.setMemberStatus(준혁, 수락).block();
 
                 StepVerifier.create(matchService.setMemberStatus(현준, 거절))
-                        .assertNext(match -> {
-                            assertThat(match.getMembers().stream().map(MatchMember::getId)).contains("현준", "성우", "준혁");
-                            assertThat(match.getDistance()).isEqualTo(RunningDistance.M1000.getMeter());
-                            assertThat(match.getStatus()).isEqualTo(MatchStatus.CANCEL);
-                        })
+                        .assertNext(
+                                match -> {
+                                    assertThat(match.getMembers().stream().map(MatchMember::getId))
+                                            .contains("현준", "성우", "준혁");
+                                    assertThat(match.getDistance())
+                                            .isEqualTo(RunningDistance.M1000.getMeter());
+                                    assertThat(match.getStatus()).isEqualTo(MatchStatus.CANCEL);
+                                })
                         .verifyComplete();
             }
         }
@@ -119,11 +127,14 @@ class MatchServiceTest {
                 matchService.setMemberStatus(성우, 수락).block();
                 matchService.setMemberStatus(준혁, 수락).block();
                 StepVerifier.create(matchService.setMemberStatus(현준, 수락))
-                        .assertNext(match -> {
-                            assertThat(match.getMembers().stream().map(MatchMember::getId)).contains("현준", "성우", "준혁");
-                            assertThat(match.getDistance()).isEqualTo(RunningDistance.M1000.getMeter());
-                            assertThat(match.getStatus()).isEqualTo(MatchStatus.SUCCESS);
-                        })
+                        .assertNext(
+                                match -> {
+                                    assertThat(match.getMembers().stream().map(MatchMember::getId))
+                                            .contains("현준", "성우", "준혁");
+                                    assertThat(match.getDistance())
+                                            .isEqualTo(RunningDistance.M1000.getMeter());
+                                    assertThat(match.getStatus()).isEqualTo(MatchStatus.SUCCESS);
+                                })
                         .verifyComplete();
             }
         }
@@ -139,9 +150,5 @@ class MatchServiceTest {
                     .thenAwait()
                     .verifyComplete();
         }
-
-
     }
-
-
 }

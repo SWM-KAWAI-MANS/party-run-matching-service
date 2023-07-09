@@ -1,11 +1,12 @@
 package online.partyrun.application.domain.waiting.repository;
 
-import online.partyrun.application.domain.waiting.domain.RunningDistance;
-import online.partyrun.application.domain.waiting.domain.WaitingUser;
-import org.junit.jupiter.api.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+
+import online.partyrun.application.domain.waiting.domain.RunningDistance;
+import online.partyrun.application.domain.waiting.domain.WaitingUser;
+
+import org.junit.jupiter.api.*;
 
 @DisplayName("InMemorySubscribeBuffer ")
 class InMemorySubscribeBufferTest {
@@ -30,7 +31,6 @@ class InMemorySubscribeBufferTest {
             buffer.add(현식);
         }
 
-
         @Test
         @DisplayName("각 거리 별 개수가 만족하는지 측정한다")
         void runAddUser() {
@@ -38,30 +38,26 @@ class InMemorySubscribeBufferTest {
                     () -> assertThat(buffer.satisfyCount(RunningDistance.M1000, 3)).isTrue(),
                     () -> assertThat(buffer.satisfyCount(RunningDistance.M1000, 5)).isFalse(),
                     () -> assertThat(buffer.satisfyCount(RunningDistance.M3000, 2)).isTrue(),
-                    () -> assertThat(buffer.satisfyCount(RunningDistance.M5000, 1)).isTrue()
-            );
+                    () -> assertThat(buffer.satisfyCount(RunningDistance.M5000, 1)).isTrue());
         }
-        
+
         @Test
         @DisplayName("각 거리 별로 원하는 개수만큼 추출한다")
         void runFlush() {
             assertAll(
-                    () -> assertThat(buffer.flush(RunningDistance.M1000, 3)).contains("현준", "준혁", "성우"),
+                    () ->
+                            assertThat(buffer.flush(RunningDistance.M1000, 3))
+                                    .contains("현준", "준혁", "성우"),
                     () -> assertThat(buffer.flush(RunningDistance.M3000, 2)).contains("승열", "세연"),
-                    () -> assertThat(buffer.flush(RunningDistance.M5000, 1)).contains("현식")
-            );
+                    () -> assertThat(buffer.flush(RunningDistance.M5000, 1)).contains("현식"));
         }
-        
+
         @Test
         @DisplayName("주어진 요소보다 추출 개수가 많으면 에러를 반환한다")
-        void validateElementCount() {
-            
-        }
+        void validateElementCount() {}
 
         @Test
         @DisplayName("이미 중복된 유저가 지원하면 에러를 반환한다")
-        void validateDuplicateUser() {
-
-        }
+        void validateDuplicateUser() {}
     }
 }
