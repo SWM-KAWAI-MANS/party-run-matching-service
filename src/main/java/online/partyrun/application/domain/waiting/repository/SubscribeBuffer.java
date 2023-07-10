@@ -11,4 +11,6 @@ public interface SubscribeBuffer {
     boolean satisfyCount(RunningDistance distance, int count);
 
     void add(WaitingUser user);
+
+    boolean hasElement(String element);
 }

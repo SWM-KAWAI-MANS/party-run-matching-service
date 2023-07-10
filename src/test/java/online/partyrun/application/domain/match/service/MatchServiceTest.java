@@ -1,7 +1,5 @@
 package online.partyrun.application.domain.match.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import online.partyrun.application.config.redis.RedisTestConfig;
 import online.partyrun.application.domain.match.domain.MatchMember;
 import online.partyrun.application.domain.match.domain.MatchStatus;
@@ -10,16 +8,16 @@ import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.repository.MatchRepository;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
-
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("matchService")
@@ -31,8 +29,9 @@ class MatchServiceTest {
 
     List<String> memberIds = List.of("현준", "성우", "준혁");
 
-    @AfterEach
+    @BeforeEach
     void cleanup() {
+        matchEventHandler.shutdown();
         matchRepository.deleteAll().block();
     }
 
@@ -115,6 +114,24 @@ class MatchServiceTest {
                                 })
                         .verifyComplete();
             }
+            @Test
+            @DisplayName("내가 수락을 했어도 다른사람이 거절하면 캔슬로 변경한다")
+            void runCancelIf() {
+                matchService.create(memberIds, RunningDistance.M1000).block();
+                matchService.setMemberStatus(성우, 수락).block();
+                matchService.setMemberStatus(준혁, 거절).block();
+
+                StepVerifier.create(matchService.setMemberStatus(현준, 수락))
+                        .assertNext(
+                                match -> {
+                                    assertThat(match.getMembers().stream().map(MatchMember::getId))
+                                            .contains("현준", "성우", "준혁");
+                                    assertThat(match.getDistance())
+                                            .isEqualTo(RunningDistance.M1000.getMeter());
+                                    assertThat(match.getStatus()).isEqualTo(MatchStatus.CANCEL);
+                                })
+                        .verifyComplete();
+            }
         }
 
         @Nested
@@ -147,7 +164,7 @@ class MatchServiceTest {
 
             StepVerifier.create(matchService.subscribe(현준))
                     .expectNextCount(2)
-                    .thenAwait()
+                    .expectNoAccessibleContext()
                     .verifyComplete();
         }
     }

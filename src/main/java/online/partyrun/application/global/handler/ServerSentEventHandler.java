@@ -16,4 +16,6 @@ public interface ServerSentEventHandler<K, V> {
     void sendEvent(K key, V value);
 
     void complete(K key);
+
+    void shutdown();
 }

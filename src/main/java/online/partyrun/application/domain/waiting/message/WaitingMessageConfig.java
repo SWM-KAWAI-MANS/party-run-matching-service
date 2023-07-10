@@ -1,6 +1,7 @@
 package online.partyrun.application.domain.waiting.message;
 
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
+import online.partyrun.application.domain.waiting.service.WaitingService;
 import online.partyrun.application.global.db.redis.RedisChannel;
 
 import org.springframework.context.annotation.Bean;
@@ -18,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 public class WaitingMessageConfig {
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(
-            RedisConnectionFactory connectionFactory, WaitingListener subscriber) {
+            RedisConnectionFactory connectionFactory, WaitingService subscriber) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(subscriber, RedisChannel.WAITING.getTopic());

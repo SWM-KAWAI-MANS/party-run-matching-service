@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
 
+import online.partyrun.application.domain.waiting.exception.DuplicateUserException;
+import online.partyrun.application.domain.waiting.exception.OutOfSizeBufferException;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -24,6 +26,9 @@ public class InMemorySubscribeBuffer implements SubscribeBuffer {
 
     @Override
     public List<String> flush(RunningDistance distance, int count) {
+        if(map.get(distance).size() < count) {
+            throw new OutOfSizeBufferException();
+        }
         return IntStream.range(0, count).mapToObj(i -> map.get(distance).poll()).toList();
     }
 
@@ -34,6 +39,15 @@ public class InMemorySubscribeBuffer implements SubscribeBuffer {
 
     @Override
     public void add(final WaitingUser user) {
+        if(hasElement(user.userId())) {
+            throw new DuplicateUserException();
+        }
         map.get(user.distance()).add(user.userId());
+    }
+
+    @Override
+    public boolean hasElement(final String element) {
+        return  Arrays.stream(RunningDistance.values()).map(map::get)
+                .anyMatch(q -> q.contains(element));
     }
 }

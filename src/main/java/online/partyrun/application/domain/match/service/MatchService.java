@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.MatchMember;
 import online.partyrun.application.domain.match.domain.MatchStatus;
+import online.partyrun.application.domain.match.domain.MemberStatus;
 import online.partyrun.application.domain.match.dto.MatchEvent;
 import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.repository.MatchRepository;
@@ -34,14 +35,19 @@ public class MatchService {
         return member.flatMap(
                 mid ->
                         matchRepository
-                                .findByMembersIdAndStatus(mid, MatchStatus.WAIT)
+                                .findByMembersIdAndMembersStatus(mid, MemberStatus.NO_RESPONSE)
                                 .flatMap(
                                         match -> {
                                             log.info("setMemberStatus {}", match.getStatus());
                                             match.updateMemberStatus(mid, request.isJoin());
+                                            log.info("flatmap: {}", match.getStatus());
                                             return matchRepository.save(match);
                                         })
-                                .doOnSuccess(this::sendEvent));
+                                .doOnSuccess(match -> {
+                                    log.info("{}", match.getStatus());
+                                    log.info("{}", match.getMembers());
+                                    sendEvent(match);
+                                }));
     }
 
     private void sendEvent(final Match match) {

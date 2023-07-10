@@ -1,6 +1,4 @@
-package online.partyrun.application.domain.waiting.exception;
-
-import online.partyrun.application.global.Exception.InternalServerException;
+package online.partyrun.application.global.Exception;
 
 /**
  * Sse connection 진행 중 애러 발생시 사용하는 exception 입니다.

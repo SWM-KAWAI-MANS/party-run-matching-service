@@ -3,15 +3,13 @@ package online.partyrun.application.global.handler;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-
-import online.partyrun.application.domain.waiting.exception.SseConnectionException;
-
+import online.partyrun.application.global.Exception.SseConnectionException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * MultiSink를 이용해서 {@link ServerSentEventHandler} 를 구현합니다. 각 sink는 Map을 통해서 관리합니다.
@@ -22,7 +20,7 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
-    Map<K, Sinks.Many<V>> sinks = new HashMap<>();
+    Map<K, Sinks.Many<V>> sinks = new ConcurrentHashMap<>();
 
     /**
      * 주어진 key로 정해진 timeout 시간동안 connection을 진행합니다. connection 종료시에 map에서 제거합니다.
@@ -74,9 +72,12 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @author parkhyeonjun
      * @since 2023.06.29
      */
+
     protected void putSink(K key, Sinks.Many<V> sink) {
         log.info("putSink {}", key);
-        sinks.put(key, sink);
+        if(!sinks.containsKey(key)) {
+            sinks.put(key, sink);
+        }
     }
 
     /**
@@ -108,5 +109,11 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     protected Duration timeout() {
         return Duration.ofMinutes(3);
+    }
+
+    @Override
+    public void shutdown() {
+        sinks.keySet().forEach(key -> sinks.get(key).tryEmitComplete());
+        sinks.clear();
     }
 }

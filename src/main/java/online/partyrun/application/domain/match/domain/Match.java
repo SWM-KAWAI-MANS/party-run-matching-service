@@ -25,9 +25,8 @@ public class Match {
 
     public void updateMemberStatus(final String memberId, final boolean isJoin) {
         final int memberIndex = getMemberIndex(memberId);
-        if (isJoin) {
-            members.get(memberIndex).reddy();
-        } else {
+        members.get(memberIndex).reddy();
+        if (!isJoin) {
             members.get(memberIndex).cancel();
         }
         updateMatchStatus();
@@ -44,7 +43,7 @@ public class Match {
         }
     }
 
-    private int getMemberIndex(String memberId) {
+    private int getMemberIndex(final String memberId) {
         return members.stream().map(MatchMember::getId).toList().indexOf(memberId);
     }
 }

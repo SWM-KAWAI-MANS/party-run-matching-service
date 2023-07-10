@@ -1,21 +1,20 @@
 package online.partyrun.application.domain.match.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.MatchMember;
 import online.partyrun.application.domain.match.domain.MatchStatus;
-
+import online.partyrun.application.domain.match.domain.MemberStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-
 import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
 @DisplayName("MatchRepository")
@@ -56,7 +55,7 @@ class MatchRepositoryTest {
     }
 
     @Test
-    @DisplayName("wait중인 매칭 중 어떠한 러너가 포함된 Match 조회룰 수행한다 ")
+    @DisplayName("러너 중에 무응답인 상태에 대해 탐색한다  ")
     void runFind() {
         final String targetUser = "user1";
         List<MatchMember> members =
@@ -73,7 +72,7 @@ class MatchRepositoryTest {
         matchRepository.save(canceledMatch).block();
         matchRepository.save(new Match(members2, 2000)).block();
 
-        StepVerifier.create(matchRepository.findByMembersIdAndStatus(targetUser, MatchStatus.WAIT))
+        StepVerifier.create(matchRepository.findByMembersIdAndMembersStatus(targetUser, MemberStatus.NO_RESPONSE))
                 .assertNext(
                         res -> {
                             assertThat(res.getId()).isNotNull();

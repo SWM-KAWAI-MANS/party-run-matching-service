@@ -1,12 +1,16 @@
 package online.partyrun.application.domain.waiting.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
-
+import online.partyrun.application.domain.waiting.exception.DuplicateUserException;
+import online.partyrun.application.domain.waiting.exception.OutOfSizeBufferException;
 import org.junit.jupiter.api.*;
+
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("InMemorySubscribeBuffer ")
 class InMemorySubscribeBufferTest {
@@ -17,23 +21,17 @@ class InMemorySubscribeBufferTest {
     WaitingUser 세연 = new WaitingUser("세연", RunningDistance.M3000);
     WaitingUser 승열 = new WaitingUser("승열", RunningDistance.M3000);
     WaitingUser 현식 = new WaitingUser("현식", RunningDistance.M5000);
+    List<WaitingUser> members = List.of(현준, 성우, 준혁, 세연, 승열, 현식);
 
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class user를_추가한_후에 {
-        @BeforeEach
-        void addUser() {
-            buffer.add(현준);
-            buffer.add(성우);
-            buffer.add(세연);
-            buffer.add(준혁);
-            buffer.add(승열);
-            buffer.add(현식);
-        }
+
 
         @Test
         @DisplayName("각 거리 별 개수가 만족하는지 측정한다")
         void runAddUser() {
+            members.forEach(buffer::add);
             assertAll(
                     () -> assertThat(buffer.satisfyCount(RunningDistance.M1000, 3)).isTrue(),
                     () -> assertThat(buffer.satisfyCount(RunningDistance.M1000, 5)).isFalse(),
@@ -44,6 +42,8 @@ class InMemorySubscribeBufferTest {
         @Test
         @DisplayName("각 거리 별로 원하는 개수만큼 추출한다")
         void runFlush() {
+            members.forEach(buffer::add);
+
             assertAll(
                     () ->
                             assertThat(buffer.flush(RunningDistance.M1000, 3))
@@ -54,10 +54,19 @@ class InMemorySubscribeBufferTest {
 
         @Test
         @DisplayName("주어진 요소보다 추출 개수가 많으면 에러를 반환한다")
-        void validateElementCount() {}
+        void validateElementCount() {
+            members.forEach(buffer::add);
+
+            assertThatThrownBy(() -> buffer.flush(RunningDistance.M1000, 100))
+                    .isInstanceOf(OutOfSizeBufferException.class);
+        }
 
         @Test
         @DisplayName("이미 중복된 유저가 지원하면 에러를 반환한다")
-        void validateDuplicateUser() {}
+        void validateDuplicateUser() {
+            buffer.add(현준);
+            assertThatThrownBy(() -> buffer.add(현준))
+                    .isInstanceOf(DuplicateUserException.class);
+        }
     }
 }
