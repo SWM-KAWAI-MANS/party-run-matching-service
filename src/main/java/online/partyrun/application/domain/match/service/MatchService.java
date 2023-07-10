@@ -43,11 +43,12 @@ public class MatchService {
                                             log.info("flatmap: {}", match.getStatus());
                                             return matchRepository.save(match);
                                         })
-                                .doOnSuccess(match -> {
-                                    log.info("{}", match.getStatus());
-                                    log.info("{}", match.getMembers());
-                                    sendEvent(match);
-                                }));
+                                .doOnSuccess(
+                                        match -> {
+                                            log.info("{}", match.getStatus());
+                                            log.info("{}", match.getMembers());
+                                            sendEvent(match);
+                                        }));
     }
 
     private void sendEvent(final Match match) {

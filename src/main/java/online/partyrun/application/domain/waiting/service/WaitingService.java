@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.application.domain.match.service.MatchService;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
@@ -14,10 +15,12 @@ import online.partyrun.application.domain.waiting.message.WaitingPublisher;
 import online.partyrun.application.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.application.global.dto.MessageResponse;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -39,15 +42,16 @@ public class WaitingService implements MessageListener {
     static int SATISFY_COUNT = 2;
 
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
-        return runner.handle((id, sink) -> {
-            if(buffer.hasElement(id)) {
-                sink.error(new IllegalArgumentException());
-                return;
-            }
-            waitingEventHandler.addSink(id);
-            waitingPublisher.publish(new WaitingUser(id, request.distance()));
-            sink.next(new MessageResponse(id + "님 대기열 등록"));
-        });
+        return runner.handle(
+                (id, sink) -> {
+                    if (buffer.hasElement(id)) {
+                        sink.error(new IllegalArgumentException());
+                        return;
+                    }
+                    waitingEventHandler.addSink(id);
+                    waitingPublisher.publish(new WaitingUser(id, request.distance()));
+                    sink.next(new MessageResponse(id + "님 대기열 등록"));
+                });
     }
 
     /**

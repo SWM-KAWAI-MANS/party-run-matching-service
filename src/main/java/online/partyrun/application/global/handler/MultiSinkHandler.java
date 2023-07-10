@@ -3,7 +3,9 @@ package online.partyrun.application.global.handler;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.application.global.Exception.SseConnectionException;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -72,10 +74,9 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @author parkhyeonjun
      * @since 2023.06.29
      */
-
     protected void putSink(K key, Sinks.Many<V> sink) {
         log.info("putSink {}", key);
-        if(!sinks.containsKey(key)) {
+        if (!sinks.containsKey(key)) {
             sinks.put(key, sink);
         }
     }

@@ -1,5 +1,7 @@
 package online.partyrun.application.domain.waiting.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.application.config.redis.RedisTestConfig;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
@@ -7,26 +9,23 @@ import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("WaitingService")
 @Import(RedisTestConfig.class)
 class WaitingServiceTest {
-    @Autowired
-    WaitingService waitingService;
+    @Autowired WaitingService waitingService;
 
-    @Autowired
-    ServerSentEventHandler<String, WaitingEvent> waitingEventHandler;
-    @Autowired
-    SubscribeBuffer buffer;
+    @Autowired ServerSentEventHandler<String, WaitingEvent> waitingEventHandler;
+    @Autowired SubscribeBuffer buffer;
 
     Mono<String> runner = Mono.just("userID");
     RunningDistance distance = RunningDistance.M10000;
@@ -72,8 +71,8 @@ class WaitingServiceTest {
             Thread.sleep(100);
 
             StepVerifier.create(waitingService.register(runner, request))
-                            .expectError(IllegalArgumentException.class)
-                            .verify();
+                    .expectError(IllegalArgumentException.class)
+                    .verify();
         }
     }
 }

@@ -1,16 +1,17 @@
 package online.partyrun.application.domain.waiting.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
 import online.partyrun.application.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.application.domain.waiting.exception.OutOfSizeBufferException;
+
 import org.junit.jupiter.api.*;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("InMemorySubscribeBuffer ")
 class InMemorySubscribeBufferTest {
@@ -26,7 +27,6 @@ class InMemorySubscribeBufferTest {
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class user를_추가한_후에 {
-
 
         @Test
         @DisplayName("각 거리 별 개수가 만족하는지 측정한다")
@@ -65,8 +65,7 @@ class InMemorySubscribeBufferTest {
         @DisplayName("이미 중복된 유저가 지원하면 에러를 반환한다")
         void validateDuplicateUser() {
             buffer.add(현준);
-            assertThatThrownBy(() -> buffer.add(현준))
-                    .isInstanceOf(DuplicateUserException.class);
+            assertThatThrownBy(() -> buffer.add(현준)).isInstanceOf(DuplicateUserException.class);
         }
     }
 }
