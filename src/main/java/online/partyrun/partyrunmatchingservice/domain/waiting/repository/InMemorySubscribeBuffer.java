@@ -26,6 +26,7 @@ public class InMemorySubscribeBuffer implements SubscribeBuffer {
                 .forEach(distance -> map.put(distance, new LinkedList<>()));
     }
 
+    @Synchronized
     @Override
     public List<String> flush(RunningDistance distance, int count) {
         if (map.get(distance).size() < count) {

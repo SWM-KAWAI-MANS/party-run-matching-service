@@ -46,10 +46,6 @@ public class WaitingService implements MessageListener {
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
         return runner.handle(
                 (id, sink) -> {
-                    if (buffer.hasElement(id)) {
-                        sink.error(new DuplicateUserException());
-                        return;
-                    }
                     waitingEventHandler.addSink(id);
                     waitingPublisher.publish(new WaitingUser(id, request.distance()));
                     sink.next(new MessageResponse(id + "님 대기열 등록"));

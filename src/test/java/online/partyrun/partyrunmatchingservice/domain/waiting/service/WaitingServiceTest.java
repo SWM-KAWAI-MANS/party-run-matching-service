@@ -63,16 +63,6 @@ class WaitingServiceTest {
                     .expectNoAccessibleContext()
                     .verifyComplete();
         }
-
-        @Test
-        @DisplayName("등록한 후에 이미 등록이 되어 있으면 예외처리를 한다")
-        void throwExceptionIfExist() {
-            waitingService.register(runner, request).block();
-
-            StepVerifier.create(waitingService.register(runner, request))
-                    .expectError(DuplicateUserException.class)
-                    .verify();
-        }
     }
 
     @Test
