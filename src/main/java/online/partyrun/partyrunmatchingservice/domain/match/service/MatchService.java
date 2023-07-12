@@ -76,19 +76,27 @@ public class MatchService {
     }
 
     private void disconnectLeftMember(String memberId) {
-        matchRepository.findByMembersIdAndMembersStatus(memberId, MemberStatus.NO_RESPONSE)
-                .subscribe(match -> {
-                    match.updateMemberStatus(memberId, false);
-                    matchEventHandler.complete(memberId);
-                });
+        matchRepository
+                .findByMembersIdAndMembersStatus(memberId, MemberStatus.NO_RESPONSE)
+                .subscribe(
+                        match -> {
+                            match.updateMemberStatus(memberId, false);
+                            matchEventHandler.complete(memberId);
+                        });
     }
 
-    private Mono<Match> saveMatchAndSendEvents(List<MatchMember> members, RunningDistance distance) {
-        return matchRepository.save(new Match(members, distance.getMeter()))
-                .doOnSuccess(match -> members.forEach(member -> {
-                    matchEventHandler.addSink(member.getId());
-                    matchEventHandler.sendEvent(member.getId(), new MatchEvent(match));
-                }));
+    private Mono<Match> saveMatchAndSendEvents(
+            List<MatchMember> members, RunningDistance distance) {
+        return matchRepository
+                .save(new Match(members, distance.getMeter()))
+                .doOnSuccess(
+                        match ->
+                                members.forEach(
+                                        member -> {
+                                            matchEventHandler.addSink(member.getId());
+                                            matchEventHandler.sendEvent(
+                                                    member.getId(), new MatchEvent(match));
+                                        }));
     }
 
     @Scheduled(fixedDelay = 3_600_000) // 3시간 마다 실행
