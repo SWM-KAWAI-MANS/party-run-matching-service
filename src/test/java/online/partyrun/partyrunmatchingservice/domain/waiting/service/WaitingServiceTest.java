@@ -7,7 +7,6 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDist
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingEvent;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
-import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.partyrunmatchingservice.global.handler.ServerSentEventHandler;
 

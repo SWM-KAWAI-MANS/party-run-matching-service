@@ -12,7 +12,6 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingEven
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingUser;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
-import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.message.WaitingPublisher;
 import online.partyrun.partyrunmatchingservice.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
