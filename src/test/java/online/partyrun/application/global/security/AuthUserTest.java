@@ -1,14 +1,15 @@
 package online.partyrun.application.global.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import online.partyrun.application.global.security.jwt.JwtPayload;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("AuthUser")
 class AuthUserTest {
@@ -22,7 +23,6 @@ class AuthUserTest {
 
         assertAll(
                 () -> assertThat(authUser.getName()).isEqualTo(payload.id()),
-                () -> assertThat(authUser.getAuthorities().size()).isEqualTo(roles.size())
-        );
+                () -> assertThat(authUser.getAuthorities().size()).isEqualTo(roles.size()));
     }
 }

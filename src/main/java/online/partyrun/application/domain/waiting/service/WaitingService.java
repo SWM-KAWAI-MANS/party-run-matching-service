@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.service.MatchService;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
@@ -16,11 +17,13 @@ import online.partyrun.application.domain.waiting.message.WaitingPublisher;
 import online.partyrun.application.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.application.global.dto.MessageResponse;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -39,7 +42,6 @@ public class WaitingService implements MessageListener {
     RedisSerializer<WaitingUser> serializer;
 
     static int SATISFY_COUNT = 2;
-
 
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
         return runner.handle(
@@ -102,14 +104,17 @@ public class WaitingService implements MessageListener {
                         });
     }
 
-    @Scheduled(fixedDelay = 14_400_000)//12시간 마다 실행
+    @Scheduled(fixedDelay = 14_400_000) // 12시간 마다 실행
     public void removeUnConnectedSink() {
         final List<String> connectors = waitingEventHandler.getConnectors();
-        connectors.stream().filter(connect -> !buffer.hasElement(connect))
-                .forEach(member -> {
-                            matchService.setMemberStatus(Mono.just(member), new MatchRequest(false)).subscribe();
+        connectors.stream()
+                .filter(connect -> !buffer.hasElement(connect))
+                .forEach(
+                        member -> {
+                            matchService
+                                    .setMemberStatus(Mono.just(member), new MatchRequest(false))
+                                    .subscribe();
                             waitingEventHandler.complete(member);
-                        }
-                );
+                        });
     }
 }

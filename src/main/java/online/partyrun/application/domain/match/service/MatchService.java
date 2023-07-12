@@ -3,6 +3,7 @@ package online.partyrun.application.domain.match.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.MatchMember;
 import online.partyrun.application.domain.match.domain.MatchStatus;
@@ -12,8 +13,10 @@ import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.repository.MatchRepository;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -29,6 +32,7 @@ public class MatchService {
     MatchRepository matchRepository;
     ServerSentEventHandler<String, MatchEvent> matchEventHandler;
     Clock clock;
+
     public Mono<Match> setMemberStatus(final Mono<String> member, final MatchRequest request) {
         return member.flatMap(
                 mid ->
@@ -36,13 +40,11 @@ public class MatchService {
                                 .findByMembersIdAndMembersStatus(mid, MemberStatus.NO_RESPONSE)
                                 .flatMap(
                                         match -> {
-
                                             match.updateMemberStatus(mid, request.isJoin());
 
                                             return matchRepository.save(match);
                                         })
-                                .doOnSuccess(
-                                        this::sendEvent));
+                                .doOnSuccess(this::sendEvent));
     }
 
     private void sendEvent(final Match match) {
@@ -60,7 +62,6 @@ public class MatchService {
                                         .subscribeOn(Schedulers.boundedElastic())
                                         .doOnNext(
                                                 event -> {
-
                                                     if (!event.status().equals(MatchStatus.WAIT)) {
                                                         matchEventHandler.complete(id);
                                                     }
@@ -68,14 +69,17 @@ public class MatchService {
                 .flatMapMany(f -> f);
     }
 
-
     public Mono<Match> create(final List<String> memberIds, final RunningDistance distance) {
         final List<MatchMember> members = memberIds.stream().map(MatchMember::new).toList();
-        memberIds.forEach(member -> matchRepository.findByMembersIdAndMembersStatus(member, MemberStatus.NO_RESPONSE)
-                .subscribe(match -> {
-                    match.updateMemberStatus(member, false);
-                    matchEventHandler.complete(member);
-                }));
+        memberIds.forEach(
+                member ->
+                        matchRepository
+                                .findByMembersIdAndMembersStatus(member, MemberStatus.NO_RESPONSE)
+                                .subscribe(
+                                        match -> {
+                                            match.updateMemberStatus(member, false);
+                                            matchEventHandler.complete(member);
+                                        }));
 
         return matchRepository
                 .save(new Match(members, distance.getMeter()))
@@ -89,20 +93,23 @@ public class MatchService {
                                         }));
     }
 
-    @Scheduled(fixedDelay = 3_600_000)//3시간 마다 실행
+    @Scheduled(fixedDelay = 3_600_000) // 3시간 마다 실행
     public void removeUnConnectedSink() {
         LocalDateTime now = LocalDateTime.now(clock);
-        matchRepository.findAllByStatus(MatchStatus.WAIT)
+        matchRepository
+                .findAllByStatus(MatchStatus.WAIT)
                 .doOnNext(
                         match -> {
                             if (match.getStartAt().isBefore(now.minusHours(2))) {
-                                match.getMembers().forEach(member -> {
-                                    match.updateMemberStatus(member.getId(), false);
-                                    matchEventHandler.complete(member.getId());
-                                    matchRepository.save(match).subscribe();
-                                });
+                                match.getMembers()
+                                        .forEach(
+                                                member -> {
+                                                    match.updateMemberStatus(member.getId(), false);
+                                                    matchEventHandler.complete(member.getId());
+                                                    matchRepository.save(match).subscribe();
+                                                });
                             }
-                        }
-                ).blockLast();
+                        })
+                .blockLast();
     }
 }

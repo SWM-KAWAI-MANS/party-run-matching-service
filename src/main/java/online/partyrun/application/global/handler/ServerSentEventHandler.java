@@ -20,5 +20,6 @@ public interface ServerSentEventHandler<K, V> {
     void complete(K key);
 
     void shutdown();
+
     List<K> getConnectors();
 }

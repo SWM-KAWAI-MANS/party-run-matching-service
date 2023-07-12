@@ -1,25 +1,27 @@
 package online.partyrun.application.domain.match.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
+
 import online.partyrun.application.config.docs.WebfluxDocsTest;
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.MatchMember;
 import online.partyrun.application.domain.match.dto.MatchEvent;
 import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.service.MatchService;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
 @ContextConfiguration(classes = MatchController.class)
 @DisplayName("MatchController")
@@ -28,12 +30,12 @@ class MatchControllerTest extends WebfluxDocsTest {
 
     @MockBean MatchService matchService;
     final Match match = new Match(List.of(new MatchMember("현준"), new MatchMember("준혁")), 1000);
+
     @Test
     @DisplayName("post : match 수락 여부 전송")
     void postMatching() {
 
-        given(matchService.setMemberStatus(any(), any()))
-                .willReturn(Mono.just(match));
+        given(matchService.setMemberStatus(any(), any())).willReturn(Mono.just(match));
 
         client.post()
                 .uri("/match")
@@ -41,7 +43,8 @@ class MatchControllerTest extends WebfluxDocsTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
-                .isCreated().expectBody()
+                .isCreated()
+                .expectBody()
                 .consumeWith(document("create-match"));
     }
 
@@ -50,9 +53,13 @@ class MatchControllerTest extends WebfluxDocsTest {
     void getMatching() {
         given(matchService.subscribe(any()))
                 .willReturn(Flux.just(new MatchEvent(match), new MatchEvent(match)));
-        client.get().uri("/match/event")
+        client.get()
+                .uri("/match/event")
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .exchange()
-                .expectStatus().isOk().expectBody().consumeWith(document("get-match-event"));
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .consumeWith(document("get-match-event"));
     }
 }

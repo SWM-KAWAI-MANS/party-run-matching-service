@@ -1,5 +1,8 @@
 package online.partyrun.application.domain.match.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 import online.partyrun.application.config.redis.RedisTestConfig;
 import online.partyrun.application.domain.match.domain.MatchMember;
 import online.partyrun.application.domain.match.domain.MatchStatus;
@@ -8,12 +11,14 @@ import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.repository.MatchRepository;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -22,9 +27,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 @DisplayName("matchService")
@@ -177,9 +179,9 @@ class MatchServiceTest {
                     .verifyComplete();
         }
     }
-    
+
     @Test
-    @DisplayName("생성시에 기존에 Wait중인 데이터가 있으면 기존 데이터를 삭제한다")        
+    @DisplayName("생성시에 기존에 Wait중인 데이터가 있으면 기존 데이터를 삭제한다")
     void runDeleteIfExistMatch() {
         matchService.create(memberIds, RunningDistance.M1000).block();
         matchService.create(memberIds, RunningDistance.M1000).block();
@@ -224,7 +226,9 @@ class MatchServiceTest {
         }
 
         private BDDMockito.BDDMyOngoingStubbing<Instant> setdelay(final int hours) {
-            return given(clock.instant()).willReturn(LocalDateTime.now().plusHours(hours).toInstant(ZoneOffset.ofHours(9)));
+            return given(clock.instant())
+                    .willReturn(
+                            LocalDateTime.now().plusHours(hours).toInstant(ZoneOffset.ofHours(9)));
         }
     }
 }

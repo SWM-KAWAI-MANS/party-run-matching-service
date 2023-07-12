@@ -11,5 +11,6 @@ import reactor.core.publisher.Mono;
 
 public interface MatchRepository extends ReactiveMongoRepository<Match, String> {
     Mono<Match> findByMembersIdAndMembersStatus(String id, MemberStatus status);
+
     Flux<Match> findAllByStatus(MatchStatus status);
 }

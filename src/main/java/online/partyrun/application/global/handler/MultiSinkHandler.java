@@ -2,7 +2,9 @@ package online.partyrun.application.global.handler;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.application.global.Exception.SseConnectionException;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -51,7 +53,6 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
     public void sendEvent(final K key, final V value) {
 
         sinks.get(key).tryEmitNext(value);
-
     }
 
     /**

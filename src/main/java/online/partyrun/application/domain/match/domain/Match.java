@@ -20,8 +20,7 @@ public class Match {
     int distance;
     MatchStatus status = MatchStatus.WAIT;
 
-    @CreatedDate
-    private LocalDateTime startAt;
+    @CreatedDate private LocalDateTime startAt;
 
     public Match(final List<MatchMember> members, int distance) {
         this.members = members;
