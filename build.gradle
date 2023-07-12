@@ -34,17 +34,6 @@ ext {
     set('snippetsDir', file("build/generated-snippets"))
 }
 
-asciidoctor {
-    configurations 'asciidoctorExt'
-    baseDirFollowsSourceFile()
-    inputs.dir snippetsDir
-
-    dependsOn test
-}
-
-asciidoctor.doFirst {
-    delete file('build/resources/main/static/docs')
-}
 
 task createDocument(type: Copy) {
     dependsOn asciidoctor
