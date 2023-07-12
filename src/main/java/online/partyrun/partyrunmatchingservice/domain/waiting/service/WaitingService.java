@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.domain.match.dto.MatchRequest;
 import online.partyrun.partyrunmatchingservice.domain.match.service.MatchService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
@@ -16,11 +17,13 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.message.WaitingPub
 import online.partyrun.partyrunmatchingservice.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 import online.partyrun.partyrunmatchingservice.global.handler.ServerSentEventHandler;
+
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;

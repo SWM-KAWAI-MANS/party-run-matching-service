@@ -2,7 +2,9 @@ package online.partyrun.partyrunmatchingservice.domain.match.handler;
 
 import online.partyrun.partyrunmatchingservice.domain.match.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.global.handler.MultiSinkHandler;
+
 import org.springframework.stereotype.Component;
+
 import reactor.core.publisher.Sinks;
 
 @Component

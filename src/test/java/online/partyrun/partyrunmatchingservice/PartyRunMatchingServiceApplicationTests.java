@@ -1,6 +1,7 @@
 package online.partyrun.partyrunmatchingservice;
 
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -10,7 +11,5 @@ import org.springframework.context.annotation.Import;
 class PartyRunMatchingServiceApplicationTests {
 
     @Test
-    void contextLoads() {
-    }
-
+    void contextLoads() {}
 }

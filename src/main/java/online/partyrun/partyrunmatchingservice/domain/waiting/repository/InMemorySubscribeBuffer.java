@@ -3,10 +3,12 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.repository;
 import lombok.AccessLevel;
 import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingUser;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.OutOfSizeBufferException;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.*;

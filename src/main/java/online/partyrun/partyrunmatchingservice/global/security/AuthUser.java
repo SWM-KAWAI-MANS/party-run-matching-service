@@ -1,6 +1,7 @@
 package online.partyrun.partyrunmatchingservice.global.security;
 
 import online.partyrun.partyrunmatchingservice.global.security.jwt.JwtPayload;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

@@ -2,6 +2,7 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.mapper;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingUser;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
+
 import org.springframework.stereotype.Component;
 
 /**

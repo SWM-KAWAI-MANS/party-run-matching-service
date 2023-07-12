@@ -1,5 +1,8 @@
 package online.partyrun.partyrunmatchingservice.domain.match.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchMember;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchStatus;
@@ -8,12 +11,14 @@ import online.partyrun.partyrunmatchingservice.domain.match.dto.MatchRequest;
 import online.partyrun.partyrunmatchingservice.domain.match.repository.MatchRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 import online.partyrun.partyrunmatchingservice.global.handler.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -23,15 +28,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-
 @SpringBootTest
 @DisplayName("matchService")
 @Import(RedisTestConfig.class)
 class MatchServiceTest {
-    @Autowired
-    MatchService matchService;
+    @Autowired MatchService matchService;
     @Autowired MatchRepository matchRepository;
     @Autowired ServerSentEventHandler<String, MatchEvent> matchEventHandler;
     @MockBean Clock clock;

@@ -9,5 +9,4 @@ public class PartyRunMatchingServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(PartyRunMatchingServiceApplication.class, args);
     }
-
 }

@@ -1,16 +1,17 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingUser;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.OutOfSizeBufferException;
+
 import org.junit.jupiter.api.*;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("InMemorySubscribeBuffer ")
 class InMemorySubscribeBufferTest {

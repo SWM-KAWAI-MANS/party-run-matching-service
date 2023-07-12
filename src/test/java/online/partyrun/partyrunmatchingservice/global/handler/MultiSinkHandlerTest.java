@@ -1,14 +1,15 @@
 package online.partyrun.partyrunmatchingservice.global.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("MultiSinkHandler")
 class MultiSinkHandlerTest {

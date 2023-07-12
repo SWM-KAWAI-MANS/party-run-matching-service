@@ -1,5 +1,7 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingEvent;
@@ -8,21 +10,20 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventRe
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.partyrunmatchingservice.global.handler.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("WaitingService")
 @Import(RedisTestConfig.class)
 class WaitingServiceTest {
-    @Autowired
-    WaitingService waitingService;
+    @Autowired WaitingService waitingService;
 
     @Autowired ServerSentEventHandler<String, WaitingEvent> waitingEventHandler;
     @Autowired SubscribeBuffer buffer;

@@ -3,6 +3,7 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.message;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingUser;
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
 import online.partyrun.partyrunmatchingservice.global.db.redis.RedisChannel;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

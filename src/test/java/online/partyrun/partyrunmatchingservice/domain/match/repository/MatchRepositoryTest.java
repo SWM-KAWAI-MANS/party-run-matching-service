@@ -1,27 +1,28 @@
 package online.partyrun.partyrunmatchingservice.domain.match.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.partyrunmatchingservice.domain.match.domain.Match;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchMember;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchStatus;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MemberStatus;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+
 import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @DataMongoTest
 @DisplayName("MatchRepository")
 class MatchRepositoryTest {
 
-    @Autowired
-    MatchRepository matchRepository;
+    @Autowired MatchRepository matchRepository;
     List<MatchMember> members = Stream.of("user1", "user2", "user3").map(MatchMember::new).toList();
 
     @AfterEach
