@@ -3,18 +3,14 @@ package online.partyrun.application.global.security;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
-
 import online.partyrun.application.global.security.jwt.JwtExtractor;
 import online.partyrun.application.global.security.jwt.JwtPayload;
-
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
 import reactor.core.publisher.Mono;
 
 /**
@@ -27,7 +23,6 @@ import reactor.core.publisher.Mono;
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-@Slf4j
 public class WebfluxAuthFilter implements WebFilter {
     JwtExtractor jwtExtractor;
 
@@ -40,7 +35,6 @@ public class WebfluxAuthFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         final JwtPayload payload = getJwtPayload(exchange.getRequest());
-        log.info("{}", payload.id());
         return chain.filter(exchange)
                 .contextWrite(
                         ReactiveSecurityContextHolder.withAuthentication(new AuthUser(payload)));

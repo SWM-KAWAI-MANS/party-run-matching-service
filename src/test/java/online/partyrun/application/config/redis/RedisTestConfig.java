@@ -2,10 +2,8 @@ package online.partyrun.application.config.redis;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
-
 import redis.embedded.RedisServer;
 
 @TestConfiguration
@@ -19,11 +17,15 @@ public class RedisTestConfig {
     @PostConstruct
     public void redisServer() {
         redisServer = new RedisServer(redisPort);
-        redisServer.start();
+        try {
+            redisServer.start();
+
+        }catch (Exception e) {}
     }
 
     @PreDestroy
     public void stopRedis() {
         redisServer.stop();
     }
+
 }

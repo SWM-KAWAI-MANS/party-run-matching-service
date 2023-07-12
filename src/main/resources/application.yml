@@ -3,8 +3,7 @@ spring:
     base-path: /api
   main:
     allow-bean-definition-overriding: true
-
-
+    web-application-type: reactive
 
   profiles:
     active: test
@@ -15,6 +14,7 @@ de:
     mongodb:
       embedded:
         version: 6.0.6
+
 
 
 ---

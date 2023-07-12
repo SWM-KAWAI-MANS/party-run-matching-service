@@ -1,6 +1,7 @@
 package online.partyrun.application.domain.waiting.repository;
 
 import lombok.AccessLevel;
+import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
 
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
@@ -11,13 +12,14 @@ import online.partyrun.application.domain.waiting.exception.OutOfSizeBufferExcep
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 
 @Repository
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class InMemorySubscribeBuffer implements SubscribeBuffer {
 
-    Map<RunningDistance, Queue<String>> map = new EnumMap<>(RunningDistance.class);
+    Map<RunningDistance, Queue<String>> map = new ConcurrentHashMap<>();
 
     public InMemorySubscribeBuffer() {
         Arrays.stream(RunningDistance.values())
@@ -37,6 +39,7 @@ public class InMemorySubscribeBuffer implements SubscribeBuffer {
         return map.get(distance).size() >= count;
     }
 
+    @Synchronized
     @Override
     public void add(final WaitingUser user) {
         if (hasElement(user.userId())) {

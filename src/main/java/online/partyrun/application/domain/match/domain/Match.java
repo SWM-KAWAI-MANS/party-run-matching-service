@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,6 +19,9 @@ public class Match {
     List<MatchMember> members;
     int distance;
     MatchStatus status = MatchStatus.WAIT;
+
+    @CreatedDate
+    private LocalDateTime startAt;
 
     public Match(final List<MatchMember> members, int distance) {
         this.members = members;
@@ -35,7 +40,7 @@ public class Match {
     private void updateMatchStatus() {
         final List<MemberStatus> memberStatuses =
                 members.stream().map(MatchMember::getStatus).toList();
-        if (memberStatuses.contains(MemberStatus.CANCELLED)) {
+        if (memberStatuses.contains(MemberStatus.CANCELED)) {
             status = MatchStatus.CANCEL;
         }
         if (memberStatuses.stream().allMatch(MemberStatus.READY::equals)) {

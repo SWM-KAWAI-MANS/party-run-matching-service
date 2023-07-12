@@ -20,6 +20,6 @@ public class MatchMember {
     }
 
     public void cancel() {
-        status = MemberStatus.CANCELLED;
+        status = MemberStatus.CANCELED;
     }
 }

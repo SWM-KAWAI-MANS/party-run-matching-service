@@ -2,25 +2,25 @@ package online.partyrun.application.domain.waiting.service;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
-
+import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.service.MatchService;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.domain.waiting.domain.WaitingUser;
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
+import online.partyrun.application.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.application.domain.waiting.message.WaitingPublisher;
 import online.partyrun.application.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.application.global.dto.MessageResponse;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
-
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -31,7 +31,6 @@ import java.util.List;
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-@Slf4j
 public class WaitingService implements MessageListener {
     WaitingPublisher waitingPublisher;
     ServerSentEventHandler<String, WaitingEvent> waitingEventHandler;
@@ -41,11 +40,12 @@ public class WaitingService implements MessageListener {
 
     static int SATISFY_COUNT = 2;
 
+
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
         return runner.handle(
                 (id, sink) -> {
                     if (buffer.hasElement(id)) {
-                        sink.error(new IllegalArgumentException());
+                        sink.error(new DuplicateUserException());
                         return;
                     }
                     waitingEventHandler.addSink(id);
@@ -84,8 +84,8 @@ public class WaitingService implements MessageListener {
         processMessages();
     }
 
+    @Synchronized
     private void processMessages() {
-        log.info("processMessages started");
         Arrays.stream(RunningDistance.values())
                 .forEach(
                         distance -> {
@@ -100,5 +100,16 @@ public class WaitingService implements MessageListener {
                                                         m, WaitingEvent.MATCHED));
                             }
                         });
+    }
+
+    @Scheduled(fixedDelay = 14_400_000)//12시간 마다 실행
+    public void removeUnConnectedSink() {
+        final List<String> connectors = waitingEventHandler.getConnectors();
+        connectors.stream().filter(connect -> !buffer.hasElement(connect))
+                .forEach(member -> {
+                            matchService.setMemberStatus(Mono.just(member), new MatchRequest(false)).subscribe();
+                            waitingEventHandler.complete(member);
+                        }
+                );
     }
 }

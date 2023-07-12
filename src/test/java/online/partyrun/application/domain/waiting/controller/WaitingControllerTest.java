@@ -1,72 +1,55 @@
 package online.partyrun.application.domain.waiting.controller;
 
+import online.partyrun.application.config.docs.WebfluxDocsTest;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
+import online.partyrun.application.domain.waiting.domain.WaitingEvent;
 import online.partyrun.application.domain.waiting.dto.CreateWaitingRequest;
+import online.partyrun.application.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.application.domain.waiting.service.WaitingService;
-import online.partyrun.application.global.security.WebfluxAuthFilter;
-
-import org.junit.jupiter.api.BeforeEach;
+import online.partyrun.application.global.dto.MessageResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
-import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.test.web.reactive.server.WebTestClient;
-
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@WebFluxTest(
-        controllers = WaitingController.class,
-        excludeFilters = {
-            @ComponentScan.Filter(
-                    type = FilterType.ASSIGNABLE_TYPE,
-                    classes = {WebfluxAuthFilter.class, SecurityConfig.class})
-        })
-@AutoConfigureRestDocs
-class WaitingControllerTest {
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
+
+@ContextConfiguration(classes = WaitingController.class)
+@WithMockUser
+@DisplayName("WaitingController")
+class WaitingControllerTest extends WebfluxDocsTest {
+
     @MockBean WaitingService waitingService;
-
-    private WebTestClient webTestClient;
-
-    @Autowired private RestDocumentationContextProvider restDocumentationContextProvider;
-
-    @BeforeEach
-    public void setUp() {
-        this.webTestClient =
-                WebTestClient.bindToController(new WaitingController(waitingService))
-                        .configureClient()
-                        .filter(
-                                WebTestClientRestDocumentation.documentationConfiguration(
-                                        restDocumentationContextProvider))
-                        .build();
-    }
-
     @Test
     @DisplayName("post : waiting 생성 요청")
     void postWaiting() {
-        webTestClient
-                .post()
+        final CreateWaitingRequest request = new CreateWaitingRequest(RunningDistance.M1000);
+        Mono<MessageResponse> response = Mono.just(new MessageResponse("testUser님 대기열 등록"));
+        given(waitingService.register(any(), any())).willReturn(response);
+        client.post()
                 .uri("/waiting")
-                .body(
-                        Mono.just(new CreateWaitingRequest(RunningDistance.M1000)),
-                        CreateWaitingRequest.class)
+                .bodyValue(request)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
-                .isCreated();
+                .isCreated().expectBody()
+                .consumeWith(document("create-waiting"));
     }
 
     @Test
     @DisplayName("get : waiting event 요청")
     void getWaiting() {
-
-        webTestClient.get().uri("/waiting/event").exchange().expectStatus().isOk();
+        given(waitingService.subscribe(any()))
+                .willReturn(Flux.just(new WaitingEventResponse(WaitingEvent.CONNECT), new WaitingEventResponse(WaitingEvent.MATCHED)));
+        client.get().uri("/waiting/event")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk().expectBody().consumeWith(document("get-waiting-event"));
     }
 }

@@ -2,6 +2,8 @@ package online.partyrun.application.global.handler;
 
 import reactor.core.publisher.Flux;
 
+import java.util.List;
+
 /**
  * ServerSentEvent handler 인터페이스입니다. connection 및 event를 관리합니다.
  *
@@ -18,4 +20,5 @@ public interface ServerSentEventHandler<K, V> {
     void complete(K key);
 
     void shutdown();
+    List<K> getConnectors();
 }

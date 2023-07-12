@@ -1,71 +1,58 @@
 package online.partyrun.application.domain.match.controller;
 
+import online.partyrun.application.config.docs.WebfluxDocsTest;
+import online.partyrun.application.domain.match.domain.Match;
+import online.partyrun.application.domain.match.domain.MatchMember;
+import online.partyrun.application.domain.match.dto.MatchEvent;
 import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.service.MatchService;
-import online.partyrun.application.global.security.WebfluxAuthFilter;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.RestDocumentationContextProvider;
-import org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation;
-import org.springframework.security.access.SecurityConfig;
-import org.springframework.test.web.reactive.server.WebTestClient;
-
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@WebFluxTest(
-        controllers = MatchController.class,
-        excludeFilters = {
-            @ComponentScan.Filter(
-                    type = FilterType.ASSIGNABLE_TYPE,
-                    classes = {WebfluxAuthFilter.class, SecurityConfig.class})
-        })
-@AutoConfigureRestDocs
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
+
+@ContextConfiguration(classes = MatchController.class)
 @DisplayName("MatchController")
-class MatchControllerTest {
+@WithMockUser
+class MatchControllerTest extends WebfluxDocsTest {
 
     @MockBean MatchService matchService;
-
-    private WebTestClient webTestClient;
-
-    @Autowired private RestDocumentationContextProvider restDocumentationContextProvider;
-
-    @BeforeEach
-    public void setUp() {
-        this.webTestClient =
-                WebTestClient.bindToController(new MatchController(matchService))
-                        .configureClient()
-                        .filter(
-                                WebTestClientRestDocumentation.documentationConfiguration(
-                                        restDocumentationContextProvider))
-                        .build();
-    }
-
+    final Match match = new Match(List.of(new MatchMember("현준"), new MatchMember("준혁")), 1000);
     @Test
     @DisplayName("post : match 수락 여부 전송")
-    void postWaiting() {
-        webTestClient
-                .post()
+    void postMatching() {
+
+        given(matchService.setMemberStatus(any(), any()))
+                .willReturn(Mono.just(match));
+
+        client.post()
                 .uri("/match")
-                .body(Mono.just(new MatchRequest(true)), MatchRequest.class)
+                .bodyValue(new MatchRequest(true))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus()
-                .isCreated();
+                .isCreated().expectBody()
+                .consumeWith(document("create-match"));
     }
 
     @Test
-    @DisplayName("get : match event 요청")
-    void getWaiting() {
-
-        webTestClient.get().uri("/match/event").exchange().expectStatus().isOk();
+    @DisplayName("get : waiting event 요청")
+    void getMatching() {
+        given(matchService.subscribe(any()))
+                .willReturn(Flux.just(new MatchEvent(match), new MatchEvent(match)));
+        client.get().uri("/match/event")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus().isOk().expectBody().consumeWith(document("get-match-event"));
     }
 }

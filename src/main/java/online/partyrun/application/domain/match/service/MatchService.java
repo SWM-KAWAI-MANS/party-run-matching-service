@@ -3,8 +3,6 @@ package online.partyrun.application.domain.match.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
-
 import online.partyrun.application.domain.match.domain.Match;
 import online.partyrun.application.domain.match.domain.MatchMember;
 import online.partyrun.application.domain.match.domain.MatchStatus;
@@ -14,23 +12,23 @@ import online.partyrun.application.domain.match.dto.MatchRequest;
 import online.partyrun.application.domain.match.repository.MatchRepository;
 import online.partyrun.application.domain.waiting.domain.RunningDistance;
 import online.partyrun.application.global.handler.ServerSentEventHandler;
-
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
-@Slf4j
 public class MatchService {
     MatchRepository matchRepository;
     ServerSentEventHandler<String, MatchEvent> matchEventHandler;
-
+    Clock clock;
     public Mono<Match> setMemberStatus(final Mono<String> member, final MatchRequest request) {
         return member.flatMap(
                 mid ->
@@ -38,21 +36,16 @@ public class MatchService {
                                 .findByMembersIdAndMembersStatus(mid, MemberStatus.NO_RESPONSE)
                                 .flatMap(
                                         match -> {
-                                            log.info("setMemberStatus {}", match.getStatus());
+
                                             match.updateMemberStatus(mid, request.isJoin());
-                                            log.info("flatmap: {}", match.getStatus());
+
                                             return matchRepository.save(match);
                                         })
                                 .doOnSuccess(
-                                        match -> {
-                                            log.info("{}", match.getStatus());
-                                            log.info("{}", match.getMembers());
-                                            sendEvent(match);
-                                        }));
+                                        this::sendEvent));
     }
 
     private void sendEvent(final Match match) {
-        log.info("sendEvent {}", match.getStatus());
         match.getMembers()
                 .forEach(
                         member ->
@@ -67,8 +60,7 @@ public class MatchService {
                                         .subscribeOn(Schedulers.boundedElastic())
                                         .doOnNext(
                                                 event -> {
-                                                    log.info("{}", event.status());
-                                                    log.info("{}", event.members());
+
                                                     if (!event.status().equals(MatchStatus.WAIT)) {
                                                         matchEventHandler.complete(id);
                                                     }
@@ -76,8 +68,15 @@ public class MatchService {
                 .flatMapMany(f -> f);
     }
 
+
     public Mono<Match> create(final List<String> memberIds, final RunningDistance distance) {
         final List<MatchMember> members = memberIds.stream().map(MatchMember::new).toList();
+        memberIds.forEach(member -> matchRepository.findByMembersIdAndMembersStatus(member, MemberStatus.NO_RESPONSE)
+                .subscribe(match -> {
+                    match.updateMemberStatus(member, false);
+                    matchEventHandler.complete(member);
+                }));
+
         return matchRepository
                 .save(new Match(members, distance.getMeter()))
                 .doOnSuccess(
@@ -88,5 +87,22 @@ public class MatchService {
                                             matchEventHandler.sendEvent(
                                                     member.getId(), new MatchEvent(match));
                                         }));
+    }
+
+    @Scheduled(fixedDelay = 3_600_000)//3시간 마다 실행
+    public void removeUnConnectedSink() {
+        LocalDateTime now = LocalDateTime.now(clock);
+        matchRepository.findAllByStatus(MatchStatus.WAIT)
+                .doOnNext(
+                        match -> {
+                            if (match.getStartAt().isBefore(now.minusHours(2))) {
+                                match.getMembers().forEach(member -> {
+                                    match.updateMemberStatus(member.getId(), false);
+                                    matchEventHandler.complete(member.getId());
+                                    matchRepository.save(match).subscribe();
+                                });
+                            }
+                        }
+                ).blockLast();
     }
 }

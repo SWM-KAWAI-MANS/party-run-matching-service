@@ -2,14 +2,12 @@ package online.partyrun.application.global.handler;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
-
 import online.partyrun.application.global.Exception.SseConnectionException;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2023.06.29
  */
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
 public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     Map<K, Sinks.Many<V>> sinks = new ConcurrentHashMap<>();
 
@@ -32,6 +29,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public Flux<V> connect(final K key) {
+
         return getSink(key)
                 .asFlux()
                 .doOnCancel(() -> sinks.remove(key))
@@ -51,8 +49,9 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public void sendEvent(final K key, final V value) {
-        log.info("sendEvent {}", key);
+
         sinks.get(key).tryEmitNext(value);
+
     }
 
     /**
@@ -63,7 +62,6 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public void complete(final K key) {
-        log.info("complete {}", key);
         sinks.get(key).tryEmitComplete();
         sinks.remove(key);
     }
@@ -75,7 +73,6 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @since 2023.06.29
      */
     protected void putSink(K key, Sinks.Many<V> sink) {
-        log.info("putSink {}", key);
         if (!sinks.containsKey(key)) {
             sinks.put(key, sink);
         }
@@ -88,7 +85,6 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @since 2023.06.29
      */
     protected Sinks.Many<V> getSink(K key) {
-        log.info("getSink {}", key);
         return sinks.get(key);
     }
 
@@ -116,5 +112,10 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
     public void shutdown() {
         sinks.keySet().forEach(key -> sinks.get(key).tryEmitComplete());
         sinks.clear();
+    }
+
+    @Override
+    public List<K> getConnectors() {
+        return sinks.keySet().stream().toList();
     }
 }
