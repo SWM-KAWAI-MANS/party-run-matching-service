@@ -43,12 +43,11 @@ public class WaitingService implements MessageListener {
     static int SATISFY_COUNT = 2;
 
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
-        return runner.handle(
-                (id, sink) -> {
-                    waitingEventHandler.addSink(id);
-                    waitingPublisher.publish(new WaitingUser(id, request.distance()));
-                    sink.next(new MessageResponse(id + "님 대기열 등록"));
-                });
+        return runner.flatMap(id -> {
+            waitingEventHandler.addSink(id);
+            waitingPublisher.publish(new WaitingUser(id, request.distance()));
+            return Mono.just(new MessageResponse(id + "님 대기열 등록"));
+        });
     }
 
     /**
@@ -101,8 +100,7 @@ public class WaitingService implements MessageListener {
 
     @Scheduled(fixedDelay = 14_400_000) // 12시간 마다 실행
     public void removeUnConnectedSink() {
-        final List<String> connectors = waitingEventHandler.getConnectors();
-        connectors.stream()
+        waitingEventHandler.getConnectors().stream()
                 .filter(connect -> !buffer.hasElement(connect))
                 .forEach(
                         member -> {

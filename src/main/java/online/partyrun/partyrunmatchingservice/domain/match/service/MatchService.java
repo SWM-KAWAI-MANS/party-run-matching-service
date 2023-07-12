@@ -41,7 +41,6 @@ public class MatchService {
                                 .flatMap(
                                         match -> {
                                             match.updateMemberStatus(mid, request.isJoin());
-
                                             return matchRepository.save(match);
                                         })
                                 .doOnSuccess(this::sendEvent));
@@ -71,26 +70,25 @@ public class MatchService {
 
     public Mono<Match> create(final List<String> memberIds, final RunningDistance distance) {
         final List<MatchMember> members = memberIds.stream().map(MatchMember::new).toList();
-        memberIds.forEach(
-                member ->
-                        matchRepository
-                                .findByMembersIdAndMembersStatus(member, MemberStatus.NO_RESPONSE)
-                                .subscribe(
-                                        match -> {
-                                            match.updateMemberStatus(member, false);
-                                            matchEventHandler.complete(member);
-                                        }));
+        memberIds.forEach(this::disconnectLeftMember);
 
-        return matchRepository
-                .save(new Match(members, distance.getMeter()))
-                .doOnSuccess(
-                        match ->
-                                members.forEach(
-                                        member -> {
-                                            matchEventHandler.addSink(member.getId());
-                                            matchEventHandler.sendEvent(
-                                                    member.getId(), new MatchEvent(match));
-                                        }));
+        return saveMatchAndSendEvents(members, distance);
+    }
+
+    private void disconnectLeftMember(String memberId) {
+        matchRepository.findByMembersIdAndMembersStatus(memberId, MemberStatus.NO_RESPONSE)
+                .subscribe(match -> {
+                    match.updateMemberStatus(memberId, false);
+                    matchEventHandler.complete(memberId);
+                });
+    }
+
+    private Mono<Match> saveMatchAndSendEvents(List<MatchMember> members, RunningDistance distance) {
+        return matchRepository.save(new Match(members, distance.getMeter()))
+                .doOnSuccess(match -> members.forEach(member -> {
+                    matchEventHandler.addSink(member.getId());
+                    matchEventHandler.sendEvent(member.getId(), new MatchEvent(match));
+                }));
     }
 
     @Scheduled(fixedDelay = 3_600_000) // 3시간 마다 실행
