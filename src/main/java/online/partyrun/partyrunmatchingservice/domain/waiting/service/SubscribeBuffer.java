@@ -1,4 +1,4 @@
-package online.partyrun.partyrunmatchingservice.domain.waiting.repository;
+package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingUser;

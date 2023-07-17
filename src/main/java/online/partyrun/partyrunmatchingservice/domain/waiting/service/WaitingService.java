@@ -13,7 +13,6 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingUser
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.message.WaitingPublisher;
-import online.partyrun.partyrunmatchingservice.domain.waiting.repository.SubscribeBuffer;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 import online.partyrun.partyrunmatchingservice.global.handler.ServerSentEventHandler;
 
@@ -40,7 +39,7 @@ public class WaitingService implements MessageListener {
     MatchService matchService;
     RedisSerializer<WaitingUser> serializer;
 
-    static int SATISFY_COUNT = 2;
+    private static final int SATISFY_COUNT = 2;
 
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
         return runner.flatMap(

@@ -1,4 +1,4 @@
-package online.partyrun.partyrunmatchingservice.global.Exception;
+package online.partyrun.partyrunmatchingservice.global.exception;
 
 /**
  * 알 수 없는 에러가 발생시 사용하는 Exception 클래스입니다.
@@ -7,11 +7,11 @@ package online.partyrun.partyrunmatchingservice.global.Exception;
  * @since 2023.06.29
  */
 public abstract class InternalServerException extends RuntimeException {
-    public InternalServerException() {
+    protected InternalServerException() {
         super("알 수 없는 에러입니다.");
     }
 
-    public InternalServerException(String message) {
+    protected InternalServerException(String message) {
         super(message);
     }
 }

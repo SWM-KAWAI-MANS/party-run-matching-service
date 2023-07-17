@@ -1,5 +1,6 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.dto;
 
+import jakarta.validation.constraints.NotNull;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 
 /**
@@ -8,4 +9,4 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDist
  * @author parkhyeonjun
  * @since 2023.06.29
  */
-public record CreateWaitingRequest(RunningDistance distance) {}
+public record CreateWaitingRequest(@NotNull RunningDistance distance) {}

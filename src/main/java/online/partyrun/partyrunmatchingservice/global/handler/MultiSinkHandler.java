@@ -3,7 +3,8 @@ package online.partyrun.partyrunmatchingservice.global.handler;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
-import online.partyrun.partyrunmatchingservice.global.Exception.SseConnectionException;
+import online.partyrun.partyrunmatchingservice.global.exception.InvalidSinksKeyException;
+import online.partyrun.partyrunmatchingservice.global.exception.SseConnectionException;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Sinks;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -31,7 +33,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public Flux<V> connect(final K key) {
-
+        validateKey(key);
         return getSink(key)
                 .asFlux()
                 .doOnCancel(() -> sinks.remove(key))
@@ -43,6 +45,12 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
                         });
     }
 
+    private void validateKey(K key) {
+        if(Objects.isNull(key)) {
+            throw new InvalidSinksKeyException();
+        }
+    }
+
     /**
      * 애당되는 key에 event를 추가합니다.
      *
@@ -51,7 +59,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public void sendEvent(final K key, final V value) {
-
+        validateKey(key);
         sinks.get(key).tryEmitNext(value);
     }
 
@@ -63,6 +71,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      */
     @Override
     public void complete(final K key) {
+        validateKey(key);
         sinks.get(key).tryEmitComplete();
         sinks.remove(key);
     }
@@ -74,6 +83,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @since 2023.06.29
      */
     protected void putSink(K key, Sinks.Many<V> sink) {
+        validateKey(key);
         if (!sinks.containsKey(key)) {
             sinks.put(key, sink);
         }
@@ -86,6 +96,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @since 2023.06.29
      */
     protected Sinks.Many<V> getSink(K key) {
+        validateKey(key);
         return sinks.get(key);
     }
 
@@ -96,6 +107,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
      * @since 2023.06.29
      */
     protected boolean isExists(K key) {
+        validateKey(key);
         return sinks.containsKey(key);
     }
 

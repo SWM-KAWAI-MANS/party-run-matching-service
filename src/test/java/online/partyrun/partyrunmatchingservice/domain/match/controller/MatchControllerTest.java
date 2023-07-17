@@ -1,27 +1,25 @@
 package online.partyrun.partyrunmatchingservice.domain.match.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
-
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.Match;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchMember;
 import online.partyrun.partyrunmatchingservice.domain.match.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.match.dto.MatchRequest;
 import online.partyrun.partyrunmatchingservice.domain.match.service.MatchService;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
 @ContextConfiguration(classes = MatchController.class)
 @DisplayName("MatchController")
@@ -34,7 +32,6 @@ class MatchControllerTest extends WebfluxDocsTest {
     @Test
     @DisplayName("post : match 수락 여부 전송")
     void postMatching() {
-
         given(matchService.setMemberStatus(any(), any())).willReturn(Mono.just(match));
 
         client.post()

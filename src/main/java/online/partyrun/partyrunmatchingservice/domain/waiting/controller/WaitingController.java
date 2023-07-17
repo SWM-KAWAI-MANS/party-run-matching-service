@@ -1,5 +1,6 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.controller;
 
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -45,7 +46,7 @@ public class WaitingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<MessageResponse> postWaitingRunner(
-            Mono<Authentication> auth, @RequestBody CreateWaitingRequest request) {
+            Mono<Authentication> auth, @Valid @RequestBody CreateWaitingRequest request) {
         return waitingService.register(auth.map(Principal::getName), request);
     }
 

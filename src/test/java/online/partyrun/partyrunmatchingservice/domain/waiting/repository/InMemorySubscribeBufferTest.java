@@ -9,6 +9,7 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingUser
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.OutOfSizeBufferException;
 
+import online.partyrun.partyrunmatchingservice.domain.waiting.service.SubscribeBuffer;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
