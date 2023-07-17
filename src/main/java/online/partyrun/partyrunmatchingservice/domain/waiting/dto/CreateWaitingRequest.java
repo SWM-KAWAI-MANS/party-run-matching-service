@@ -1,6 +1,7 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.dto;
 
 import jakarta.validation.constraints.NotNull;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 
 /**

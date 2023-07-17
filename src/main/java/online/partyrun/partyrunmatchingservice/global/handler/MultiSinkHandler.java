@@ -46,7 +46,7 @@ public abstract class MultiSinkHandler<K, V> implements ServerSentEventHandler<K
     }
 
     private void validateKey(K key) {
-        if(Objects.isNull(key)) {
+        if (Objects.isNull(key)) {
             throw new InvalidSinksKeyException();
         }
     }

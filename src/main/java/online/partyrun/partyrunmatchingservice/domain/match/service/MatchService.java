@@ -3,6 +3,7 @@ package online.partyrun.partyrunmatchingservice.domain.match.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.domain.match.domain.Match;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchMember;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchStatus;
@@ -12,8 +13,10 @@ import online.partyrun.partyrunmatchingservice.domain.match.dto.MatchRequest;
 import online.partyrun.partyrunmatchingservice.domain.match.repository.MatchRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 import online.partyrun.partyrunmatchingservice.global.handler.ServerSentEventHandler;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;

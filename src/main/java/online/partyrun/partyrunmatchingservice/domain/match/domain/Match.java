@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import online.partyrun.partyrunmatchingservice.domain.match.exception.InvalidDistanceException;
 import online.partyrun.partyrunmatchingservice.domain.match.exception.InvalidMembersException;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 
@@ -33,13 +34,13 @@ public class Match {
     }
 
     private void validateDistance(int distance) {
-        if(distance <= 0) {
+        if (distance <= 0) {
             throw new InvalidDistanceException();
         }
     }
 
     private void validateMembers(List<MatchMember> members) {
-        if(Objects.isNull(members) ||members.isEmpty()) {
+        if (Objects.isNull(members) || members.isEmpty()) {
             throw new InvalidMembersException();
         }
     }
