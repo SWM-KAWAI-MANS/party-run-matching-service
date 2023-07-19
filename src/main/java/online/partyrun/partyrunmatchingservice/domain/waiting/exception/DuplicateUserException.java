@@ -1,6 +1,6 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.exception;
 
-import online.partyrun.partyrunmatchingservice.global.Exception.BadRequestException;
+import online.partyrun.partyrunmatchingservice.global.exception.BadRequestException;
 
 public class DuplicateUserException extends BadRequestException {
     public DuplicateUserException() {

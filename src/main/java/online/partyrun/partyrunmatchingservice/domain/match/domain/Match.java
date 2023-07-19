@@ -5,11 +5,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import online.partyrun.partyrunmatchingservice.domain.match.exception.InvalidDistanceException;
+import online.partyrun.partyrunmatchingservice.domain.match.exception.InvalidMembersException;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,11 +24,25 @@ public class Match {
     int distance;
     MatchStatus status = MatchStatus.WAIT;
 
-    @CreatedDate private LocalDateTime startAt;
+    @CreatedDate LocalDateTime startAt;
 
     public Match(final List<MatchMember> members, int distance) {
+        validateMembers(members);
+        validateDistance(distance);
         this.members = members;
         this.distance = distance;
+    }
+
+    private void validateDistance(int distance) {
+        if (distance <= 0) {
+            throw new InvalidDistanceException();
+        }
+    }
+
+    private void validateMembers(List<MatchMember> members) {
+        if (Objects.isNull(members) || members.isEmpty()) {
+            throw new InvalidMembersException();
+        }
     }
 
     public void updateMemberStatus(final String memberId, final boolean isJoin) {

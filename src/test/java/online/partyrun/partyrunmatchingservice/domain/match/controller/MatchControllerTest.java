@@ -34,7 +34,6 @@ class MatchControllerTest extends WebfluxDocsTest {
     @Test
     @DisplayName("post : match 수락 여부 전송")
     void postMatching() {
-
         given(matchService.setMemberStatus(any(), any())).willReturn(Mono.just(match));
 
         client.post()

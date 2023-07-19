@@ -1,6 +1,10 @@
 package online.partyrun.partyrunmatchingservice.global.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
+import online.partyrun.partyrunmatchingservice.global.exception.InvalidSinksKeyException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -72,5 +76,32 @@ class MultiSinkHandlerTest {
         final Duration timeout = multiSinkHandler.timeout();
 
         assertThat(timeout).isNotNull();
+    }
+
+    @Test
+    @DisplayName("key가 null일 경우 예외를 반환한다")
+    void throwExceptionIfKeyNull() {
+        assertAll(
+                () ->
+                        assertThatThrownBy(() -> multiSinkHandler.connect(null))
+                                .isInstanceOf(InvalidSinksKeyException.class),
+                () ->
+                        assertThatThrownBy(() -> multiSinkHandler.sendEvent(null, "test"))
+                                .isInstanceOf(InvalidSinksKeyException.class),
+                () ->
+                        assertThatThrownBy(() -> multiSinkHandler.complete(null))
+                                .isInstanceOf(InvalidSinksKeyException.class),
+                () ->
+                        assertThatThrownBy(
+                                        () ->
+                                                multiSinkHandler.putSink(
+                                                        null, Sinks.many().replay().all()))
+                                .isInstanceOf(InvalidSinksKeyException.class),
+                () ->
+                        assertThatThrownBy(() -> multiSinkHandler.getSink(null))
+                                .isInstanceOf(InvalidSinksKeyException.class),
+                () ->
+                        assertThatThrownBy(() -> multiSinkHandler.isExists(null))
+                                .isInstanceOf(InvalidSinksKeyException.class));
     }
 }
