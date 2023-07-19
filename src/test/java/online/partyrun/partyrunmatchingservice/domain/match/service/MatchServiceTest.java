@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchMember;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchStatus;
@@ -191,7 +192,6 @@ class MatchServiceTest {
         StepVerifier.create(matchRepository.findAllByStatus(MatchStatus.WAIT))
                 .expectNextCount(1)
                 .verifyComplete();
-
     }
 
     @Nested
