@@ -1,10 +1,10 @@
-package online.partyrun.application;
+package online.partyrun.partyrunmatchingservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApplicationTests {
+class PartyRunMatchingServiceApplicationTests {
 
     @Test
     void contextLoads() {}
