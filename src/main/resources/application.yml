@@ -1,1 +1,22 @@
+spring:
+  webflux:
+    base-path: /api
+  main:
+    allow-bean-definition-overriding: true
+    web-application-type: reactive
 
+  profiles:
+    active: test
+
+jwt:
+  access-secret-key: "asfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasd"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local, dev, prd
+
+jwt:
+  access-secret-key: ${JWT_ACCESS_SECRET_KEY}
