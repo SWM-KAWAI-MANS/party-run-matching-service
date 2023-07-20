@@ -15,12 +15,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-/**
- * Webflux 환경에서 Security를 구성합니다.
- *
- * @author parkhyeonjun
- * @since 2023.06.29
- */
 @Configuration
 @EnableWebFluxSecurity
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -28,12 +22,6 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 public class WebfluxSecurityConfig {
     WebfluxAuthFilter webfluxAuthFilter;
 
-    /**
-     * Webflux 환경에서 {@link SecurityWebFilterChain}을 구성합니다.
-     *
-     * @author parkhyeonjun
-     * @since 2023.06.29
-     */
     @Bean
     public SecurityWebFilterChain configure(ServerHttpSecurity http) {
         return http.authorizeExchange(getAuthorizeExchangeSpecCustomizer())
@@ -43,12 +31,6 @@ public class WebfluxSecurityConfig {
                 .build();
     }
 
-    /**
-     * CORS 정책을 설정합니다.
-     *
-     * @author parkhyeonjun
-     * @since 2023.06.29
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -62,12 +44,6 @@ public class WebfluxSecurityConfig {
         return source;
     }
 
-    /**
-     * 각 경로에 관하여 필요 role을 정의합니다.
-     *
-     * @author parkhyeonjun
-     * @since 2023.06.29
-     */
     private Customizer<ServerHttpSecurity.AuthorizeExchangeSpec>
             getAuthorizeExchangeSpecCustomizer() {
         return r -> r.pathMatchers("/**").permitAll();
