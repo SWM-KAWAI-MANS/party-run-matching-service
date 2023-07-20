@@ -11,9 +11,11 @@ import org.springframework.data.redis.listener.ChannelTopic;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public enum RedisChannel {
-    WAITING(new ChannelTopic("waiting"), "waiting"),
-    WAITING_COUNT(new ChannelTopic("waiting-count"), "waiting-count");
-
+    WAITING(new ChannelTopic("waiting")),
+    WAITING_COUNT(new ChannelTopic("waiting-count"));
     ChannelTopic topic;
-    String channel;
+
+    public String getChannel() {
+        return topic.getTopic();
+    }
 }

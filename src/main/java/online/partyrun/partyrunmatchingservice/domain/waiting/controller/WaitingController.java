@@ -21,13 +21,6 @@ import reactor.core.publisher.Mono;
 
 import java.security.Principal;
 
-/**
- * waiting 관련 요청 및 응답을 관리합니다.
- *
- * @author parkhyeonjun
- * @see WaitingService
- * @since 2023.06.29
- */
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,15 +28,6 @@ import java.security.Principal;
 public class WaitingController {
     WaitingService waitingService;
 
-    /**
-     * waiting 생성을 요청합니다.
-     *
-     * @param auth 로그인한 유저 정보
-     * @param request 대기 생성시 요구사항
-     * @return a deferred message, success시 201 상태 {@link Mono} {@link MessageResponse}
-     * @author parkhyeonjun
-     * @since 2023.06.29
-     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<MessageResponse> postWaitingRunner(

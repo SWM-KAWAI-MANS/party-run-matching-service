@@ -35,10 +35,14 @@ import java.util.List;
 @DisplayName("matchService")
 @Import(RedisTestConfig.class)
 class MatchServiceTest {
-    @Autowired MatchService matchService;
-    @Autowired MatchRepository matchRepository;
-    @Autowired ServerSentEventHandler<String, MatchEvent> matchEventHandler;
-    @MockBean Clock clock;
+    @Autowired
+    MatchService matchService;
+    @Autowired
+    MatchRepository matchRepository;
+    @Autowired
+    ServerSentEventHandler<String, MatchEvent> matchEventHandler;
+    @MockBean
+    Clock clock;
 
     List<String> memberIds = List.of("현준", "성우", "준혁");
 
@@ -200,6 +204,7 @@ class MatchServiceTest {
 
         @BeforeEach
         void setUp() {
+            cleanup();
             matchService.create(memberIds, RunningDistance.M1000).block();
             given(clock.getZone()).willReturn(ZoneOffset.ofHours(9));
         }
@@ -212,7 +217,7 @@ class MatchServiceTest {
 
             StepVerifier.create(matchRepository.findAllByStatus(MatchStatus.WAIT))
                     .expectNextCount(0)
-                    .expectAccessibleContext();
+                    .verifyComplete();
             assertThat(matchEventHandler.getConnectors()).isEmpty();
         }
 
@@ -224,7 +229,7 @@ class MatchServiceTest {
 
             StepVerifier.create(matchRepository.findAllByStatus(MatchStatus.WAIT))
                     .expectNextCount(1)
-                    .expectAccessibleContext();
+                    .verifyComplete();
             assertThat(matchEventHandler.getConnectors()).isNotEmpty();
         }
 

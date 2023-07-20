@@ -42,11 +42,11 @@ public class WaitingService implements MessageListener {
     private static final int SATISFY_COUNT = 2;
 
     public Mono<MessageResponse> register(Mono<String> runner, CreateWaitingRequest request) {
-        return runner.flatMap(
+        return runner.map(
                 id -> {
                     waitingEventHandler.addSink(id);
                     waitingPublisher.publish(new WaitingUser(id, request.distance()));
-                    return Mono.just(new MessageResponse(id + "님 대기열 등록"));
+                    return new MessageResponse(id + "님 대기열 등록");
                 });
     }
 
@@ -59,19 +59,18 @@ public class WaitingService implements MessageListener {
      * @since 2023-06-29
      */
     public Flux<WaitingEventResponse> subscribe(Mono<String> member) {
-        return member.map(
+        return member.flatMapMany(
                         id ->
                                 waitingEventHandler
                                         .connect(id)
                                         .subscribeOn(Schedulers.boundedElastic())
-                                        .doOnNext(
+                                        .doOnNext( //데이터를 하나 받을 때마다 실행
                                                 event -> {
                                                     if (!event.equals(WaitingEvent.CONNECT)) {
                                                         waitingEventHandler.complete(id);
                                                     }
                                                 })
-                                        .map(WaitingEventResponse::new))
-                .flatMapMany(f -> f);
+                                        .map(WaitingEventResponse::new));
     }
 
     @Override

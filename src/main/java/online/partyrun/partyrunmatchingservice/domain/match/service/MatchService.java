@@ -54,18 +54,17 @@ public class MatchService {
     }
 
     public Flux<MatchEvent> subscribe(final Mono<String> member) {
-        return member.map(
-                        id ->
-                                matchEventHandler
-                                        .connect(id)
-                                        .subscribeOn(Schedulers.boundedElastic())
-                                        .doOnNext(
-                                                event -> {
-                                                    if (!event.status().equals(MatchStatus.WAIT)) {
-                                                        matchEventHandler.complete(id);
-                                                    }
-                                                }))
-                .flatMapMany(f -> f);
+        return member.flatMapMany(
+                id ->
+                        matchEventHandler
+                                .connect(id)
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .doOnNext(
+                                        event -> {
+                                            if (!event.status().equals(MatchStatus.WAIT)) {
+                                                matchEventHandler.complete(id);
+                                            }
+                                        }));
     }
 
     public Mono<Match> create(final List<String> memberIds, final RunningDistance distance) {
@@ -78,12 +77,11 @@ public class MatchService {
     private void disconnectLeftMember(String memberId) {
         matchRepository
                 .findByMembersIdAndMembersStatus(memberId, MemberStatus.NO_RESPONSE)
-                .flatMap(
-                        match -> {
-                            match.updateMemberStatus(memberId, false);
-                            return matchRepository.save(match);
-                        })
-                .subscribe(match -> matchEventHandler.complete(memberId));
+                .flatMap(match -> {
+                    match.updateMemberStatus(memberId, false);
+                    matchEventHandler.complete(memberId);
+                    return matchRepository.save(match);
+                }).block();
     }
 
     private Mono<Match> saveMatchAndSendEvents(

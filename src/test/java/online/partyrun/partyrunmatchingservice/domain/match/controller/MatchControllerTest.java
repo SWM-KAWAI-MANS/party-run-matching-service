@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
+import lombok.extern.slf4j.Slf4j;
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.Match;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchMember;
@@ -13,16 +14,21 @@ import online.partyrun.partyrunmatchingservice.domain.match.service.MatchService
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.concurrent.Flow;
 
+@Slf4j
 @ContextConfiguration(classes = MatchController.class)
 @DisplayName("MatchController")
 @WithMockUser
@@ -34,6 +40,7 @@ class MatchControllerTest extends WebfluxDocsTest {
     @Test
     @DisplayName("post : match 수락 여부 전송")
     void postMatching() {
+
         given(matchService.setMemberStatus(any(), any())).willReturn(Mono.just(match));
 
         client.post()
@@ -60,5 +67,15 @@ class MatchControllerTest extends WebfluxDocsTest {
                 .isOk()
                 .expectBody()
                 .consumeWith(document("get-match-event"));
+    }
+
+    @Test
+    @DisplayName("test")
+    void test() {
+        final Flux<String> just = Flux.just("a", "b");
+
+        final Disposable subscribe = just.map(data -> data + "hello")
+                .doOnNext(data -> log.info("do next {}", data))
+                .subscribe(m -> log.info("do sub {}", m));
     }
 }

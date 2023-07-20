@@ -2,6 +2,7 @@ package online.partyrun.partyrunmatchingservice.domain.match.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import lombok.extern.slf4j.Slf4j;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.Match;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchMember;
 import online.partyrun.partyrunmatchingservice.domain.match.domain.MatchStatus;
@@ -18,6 +19,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Slf4j
 @DataMongoTest
 @DisplayName("MatchRepository")
 class MatchRepositoryTest {

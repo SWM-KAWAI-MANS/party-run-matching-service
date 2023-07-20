@@ -2,6 +2,7 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import lombok.extern.slf4j.Slf4j;
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingEvent;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+@Slf4j
 @SpringBootTest
 @DisplayName("WaitingService")
 @Import(RedisTestConfig.class)
@@ -71,5 +73,14 @@ class WaitingServiceTest {
         waitingService.removeUnConnectedSink();
 
         assertThat(waitingEventHandler.getConnectors()).doesNotContain("현준");
+    }
+
+
+    @Test
+    @DisplayName("test")
+    void tes() {
+        Mono<Mono<String>> test = Mono.just(Mono.just("ssdfg"));
+
+        final Mono<String> stringMono = test.flatMap(i -> i);
     }
 }
