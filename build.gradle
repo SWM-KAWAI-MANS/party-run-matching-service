@@ -11,11 +11,12 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     sourceCompatibility = '17'
+    targetCompatibility = 17
+
 }
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 
 configurations {
@@ -23,23 +24,14 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+
+    asciidoctorExtensions
 }
 
 ext {
     set('snippetsDir', file("build/generated-snippets"))
 }
 
-asciidoctor {
-    configurations 'asciidoctorExt'
-    baseDirFollowsSourceFile()
-    inputs.dir snippetsDir
-
-    dependsOn test
-}
-
-asciidoctor.doFirst {
-    delete file('build/resources/main/static/docs')
-}
 
 task createDocument(type: Copy) {
     dependsOn asciidoctor
@@ -55,19 +47,23 @@ bootJar {
 dependencies {
     //rest docs
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
-
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    developmentOnly 'io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64'
     //mapstruct
     implementation 'org.mapstruct:mapstruct:1.5.1.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.1.Final'
     annotationProcessor "org.projectlombok:lombok-mapstruct-binding:0.2.0"
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-webtestclient'
+    asciidoctorExtensions 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
 }
 
@@ -76,7 +72,7 @@ jar {
 }
 
 jacoco {
-    toolVersion = '0.8.7'
+    toolVersion = '0.8.8'
 }
 
 test {
@@ -85,7 +81,22 @@ test {
     finalizedBy 'jacocoTestReport'
 }
 
+asciidoctor {
+    configurations "asciidoctorExtensions"
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+bootJar {
+    dependsOn asciidoctor
+    from ("${asciidoctor.outputDir}/html5") {
+        into 'static/docs'
+    }
+}
+
+
 jacocoTestReport {
+    dependsOn test
     reports {
         html.enabled true
     }
@@ -124,10 +135,13 @@ jacocoTestCoverageVerification {
                     '**.*Application*',
                     '**.*Request*',
                     '**.*Response*',
-                    '**.*config*',
+                    '**.*Config*',
                     '**.*Exception*',
+                    '**.*Handler*',
                     '**.*Mapper*',
                     '**.*ControllerAdvice*',
+                    '**.WebfluxAuthFilter*',
+                    '**.global.security.jwt.**'
             ]
         }
 
