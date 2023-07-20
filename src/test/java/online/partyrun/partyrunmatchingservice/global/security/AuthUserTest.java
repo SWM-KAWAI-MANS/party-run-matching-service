@@ -1,14 +1,15 @@
 package online.partyrun.partyrunmatchingservice.global.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
 import online.partyrun.partyrunmatchingservice.global.security.jwt.JwtPayload;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("AuthUser")
 class AuthUserTest {
