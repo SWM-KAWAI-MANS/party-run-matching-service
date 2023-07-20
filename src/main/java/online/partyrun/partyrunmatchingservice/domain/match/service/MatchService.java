@@ -77,11 +77,13 @@ public class MatchService {
     private void disconnectLeftMember(String memberId) {
         matchRepository
                 .findByMembersIdAndMembersStatus(memberId, MemberStatus.NO_RESPONSE)
-                .flatMap(match -> {
-                    match.updateMemberStatus(memberId, false);
-                    matchEventHandler.complete(memberId);
-                    return matchRepository.save(match);
-                }).block();
+                .flatMap(
+                        match -> {
+                            match.updateMemberStatus(memberId, false);
+                            matchEventHandler.complete(memberId);
+                            return matchRepository.save(match);
+                        })
+                .block();
     }
 
     private Mono<Match> saveMatchAndSendEvents(

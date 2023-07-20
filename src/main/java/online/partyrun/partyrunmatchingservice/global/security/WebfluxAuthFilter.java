@@ -30,7 +30,6 @@ public class WebfluxAuthFilter implements WebFilter {
                         ReactiveSecurityContextHolder.withAuthentication(new AuthUser(payload)));
     }
 
-
     private JwtPayload getJwtPayload(final ServerHttpRequest request) {
         final String token = request.getHeaders().getFirst("Authorization");
         return jwtExtractor.extract(token);

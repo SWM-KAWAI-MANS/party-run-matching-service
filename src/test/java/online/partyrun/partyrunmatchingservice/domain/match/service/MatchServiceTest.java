@@ -35,14 +35,10 @@ import java.util.List;
 @DisplayName("matchService")
 @Import(RedisTestConfig.class)
 class MatchServiceTest {
-    @Autowired
-    MatchService matchService;
-    @Autowired
-    MatchRepository matchRepository;
-    @Autowired
-    ServerSentEventHandler<String, MatchEvent> matchEventHandler;
-    @MockBean
-    Clock clock;
+    @Autowired MatchService matchService;
+    @Autowired MatchRepository matchRepository;
+    @Autowired ServerSentEventHandler<String, MatchEvent> matchEventHandler;
+    @MockBean Clock clock;
 
     List<String> memberIds = List.of("현준", "성우", "준혁");
 

@@ -3,6 +3,7 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.domain.WaitingEvent;
@@ -74,7 +75,6 @@ class WaitingServiceTest {
 
         assertThat(waitingEventHandler.getConnectors()).doesNotContain("현준");
     }
-
 
     @Test
     @DisplayName("test")

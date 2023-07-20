@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Arrays;
-
 /**
  * running 거리 열거형 클래스 입니다.
  *

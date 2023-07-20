@@ -60,17 +60,17 @@ public class WaitingService implements MessageListener {
      */
     public Flux<WaitingEventResponse> subscribe(Mono<String> member) {
         return member.flatMapMany(
-                        id ->
-                                waitingEventHandler
-                                        .connect(id)
-                                        .subscribeOn(Schedulers.boundedElastic())
-                                        .doOnNext( //데이터를 하나 받을 때마다 실행
-                                                event -> {
-                                                    if (!event.equals(WaitingEvent.CONNECT)) {
-                                                        waitingEventHandler.complete(id);
-                                                    }
-                                                })
-                                        .map(WaitingEventResponse::new));
+                id ->
+                        waitingEventHandler
+                                .connect(id)
+                                .subscribeOn(Schedulers.boundedElastic())
+                                .doOnNext( // 데이터를 하나 받을 때마다 실행
+                                        event -> {
+                                            if (!event.equals(WaitingEvent.CONNECT)) {
+                                                waitingEventHandler.complete(id);
+                                            }
+                                        })
+                                .map(WaitingEventResponse::new));
     }
 
     @Override
