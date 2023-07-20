@@ -4,9 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import online.partyrun.partyrunmatchingservice.global.security.jwt.JwtExtractor;
-import online.partyrun.partyrunmatchingservice.global.security.jwt.JwtPayload;
 
+import online.partyrun.jwtmanager.JwtExtractor;
+import online.partyrun.jwtmanager.dto.JwtPayload;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
