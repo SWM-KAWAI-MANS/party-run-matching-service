@@ -2,9 +2,12 @@ package online.partyrun.partyrunmatchingservice.global.sse;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.global.sse.exception.InvalidSinksKeyException;
 import online.partyrun.partyrunmatchingservice.global.sse.exception.SseConnectionException;
+
 import org.springframework.stereotype.Component;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.core.scheduler.Schedulers;
@@ -55,6 +58,7 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
         validateKey(key);
         return sinks.get(key);
     }
+
     private void validateKey(K key) {
         if (Objects.isNull(key)) {
             throw new InvalidSinksKeyException();

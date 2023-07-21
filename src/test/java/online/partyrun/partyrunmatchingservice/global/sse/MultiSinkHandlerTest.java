@@ -1,18 +1,18 @@
 package online.partyrun.partyrunmatchingservice.global.sse;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
+
 import online.partyrun.partyrunmatchingservice.global.sse.exception.InvalidSinksKeyException;
-import online.partyrun.partyrunmatchingservice.global.sse.exception.SseConnectionException;
+
 import org.junit.jupiter.api.*;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-
 
 @DisplayName("MultiSinkHandler")
 class MultiSinkHandlerTest {
@@ -64,6 +64,7 @@ class MultiSinkHandlerTest {
             multiSinkHandler.create(성우);
             multiSinkHandler.create(준혁);
         }
+
         @Test
         @DisplayName("셧다운 진행 시 모든 sink 완료시키고 sink map을 clear한다")
         void runShutDown() {
@@ -74,10 +75,8 @@ class MultiSinkHandlerTest {
             assertAll(
                     () -> assertThat(multiSinkHandler.isExists(현준)).isFalse(),
                     () -> assertThat(multiSinkHandler.isExists(성우)).isFalse(),
-                    () -> assertThat(multiSinkHandler.isExists(준혁)).isFalse()
-            );
-            StepVerifier.create(connect)
-                    .verifyComplete();
+                    () -> assertThat(multiSinkHandler.isExists(준혁)).isFalse());
+            StepVerifier.create(connect).verifyComplete();
         }
 
         @Test
@@ -119,8 +118,7 @@ class MultiSinkHandlerTest {
                         assertThatThrownBy(() -> multiSinkHandler.complete(null))
                                 .isInstanceOf(InvalidSinksKeyException.class),
                 () ->
-                        assertThatThrownBy(
-                                () -> multiSinkHandler.create(null))
+                        assertThatThrownBy(() -> multiSinkHandler.create(null))
                                 .isInstanceOf(InvalidSinksKeyException.class),
                 () ->
                         assertThatThrownBy(() -> multiSinkHandler.getSink(null))
