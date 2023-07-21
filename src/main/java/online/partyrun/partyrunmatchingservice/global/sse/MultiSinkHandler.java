@@ -3,7 +3,8 @@ package online.partyrun.partyrunmatchingservice.global.sse;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 
-import online.partyrun.partyrunmatchingservice.global.sse.exception.InvalidSinksKeyException;
+import online.partyrun.partyrunmatchingservice.global.sse.exception.KeyNotExistException;
+import online.partyrun.partyrunmatchingservice.global.sse.exception.NullKeyException;
 import online.partyrun.partyrunmatchingservice.global.sse.exception.SseConnectionException;
 
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.Objects;
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
+    private static final int DEFAULT_MINUTE = 3;
     Map<K, Sinks.Many<V>> sinks = new HashMap<>();
 
     @Override
@@ -50,27 +52,33 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
 
     @Override
     public void create(K key) {
-        validateKey(key);
-        sinks.putIfAbsent(key, Sinks.many().replay().all());
+        checkKeyNotNull(key);
+        sinks.putIfAbsent(key, Sinks.many().unicast().onBackpressureBuffer());
     }
 
-    protected Sinks.Many<V> getSink(K key) {
+    private Sinks.Many<V> getSink(K key) {
         validateKey(key);
         return sinks.get(key);
     }
-
     private void validateKey(K key) {
-        if (Objects.isNull(key)) {
-            throw new InvalidSinksKeyException();
+        checkKeyNotNull(key);
+        if(isNonExists(key)) {
+            throw new KeyNotExistException();
         }
     }
 
-    protected boolean isExists(K key) {
-        return sinks.containsKey(key);
+    private void checkKeyNotNull(K key) {
+        if (Objects.isNull(key)) {
+            throw new NullKeyException();
+        }
     }
 
-    protected Duration timeout() {
-        return Duration.ofMinutes(3);
+    private boolean isNonExists(K key) {
+        return !sinks.containsKey(key);
+    }
+
+    private Duration timeout() {
+        return Duration.ofMinutes(DEFAULT_MINUTE);
     }
 
     @Override
