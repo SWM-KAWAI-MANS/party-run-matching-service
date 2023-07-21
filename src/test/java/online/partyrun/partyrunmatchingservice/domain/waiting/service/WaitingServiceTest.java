@@ -1,27 +1,27 @@
-
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
-
-import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
-import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEvent;
-import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
+import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEvent;
+import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
+
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
 @SpringBootTest
 @DisplayName("WaitingService")
 class WaitingServiceTest {
-    @Autowired
-    WaitingService waitingService;
-    @Autowired
-    ServerSentEventHandler<String, WaitingEvent> sseHandler;
+    @Autowired WaitingService waitingService;
+    @Autowired ServerSentEventHandler<String, WaitingEvent> sseHandler;
 
     Mono<String> user1 = Mono.just("현준");
+
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class Waiting생성_시 {
