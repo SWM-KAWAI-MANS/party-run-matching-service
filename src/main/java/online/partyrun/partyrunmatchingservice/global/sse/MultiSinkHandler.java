@@ -60,9 +60,10 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
         validateKey(key);
         return sinks.get(key);
     }
+
     private void validateKey(K key) {
         checkKeyNotNull(key);
-        if(isNonExists(key)) {
+        if (isNonExists(key)) {
             throw new KeyNotExistException();
         }
     }

@@ -10,10 +10,7 @@ import online.partyrun.partyrunmatchingservice.global.sse.exception.NullKeyExcep
 import org.junit.jupiter.api.*;
 
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
-
-import java.time.Duration;
 
 @DisplayName("MultiSinkHandler")
 class MultiSinkHandlerTest {
@@ -21,7 +18,6 @@ class MultiSinkHandlerTest {
     final String 현준 = "현준";
     final String 성우 = "성우";
     final String 준혁 = "준혁";
-
 
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -88,7 +84,8 @@ class MultiSinkHandlerTest {
     @Test
     @DisplayName("조회시에 map에 key가 존재하지 않으면 예외를 처리한다")
     void throwIfKeyNotExist() {
-        assertThatThrownBy(() -> multiSinkHandler.complete("nullkey")).isInstanceOf(KeyNotExistException.class);
+        assertThatThrownBy(() -> multiSinkHandler.complete("nullkey"))
+                .isInstanceOf(KeyNotExistException.class);
     }
 
     @Test
