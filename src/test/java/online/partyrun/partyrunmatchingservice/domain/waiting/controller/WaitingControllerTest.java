@@ -1,30 +1,31 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
-
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
+import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingEventService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
 @ContextConfiguration(classes = WaitingController.class)
 @WithMockUser
 @DisplayName("WaitingController")
 class WaitingControllerTest extends WebfluxDocsTest {
     @MockBean WaitingService waitingService;
+    @MockBean
+    WaitingEventService waitingEventService;
 
     @Test
     @DisplayName("post : waiting 생성 요청")
@@ -49,7 +50,7 @@ class WaitingControllerTest extends WebfluxDocsTest {
     @DisplayName("get : WaitingEventStream 요청")
     void getWaitingEventStream() {
 
-        given(waitingService.getEventStream(any(Mono.class)))
+        given(waitingEventService.getEventStream(any(Mono.class)))
                 .willReturn(Flux.just(WaitingStatus.CONNECTED, WaitingStatus.MATCHED));
 
         client.get()

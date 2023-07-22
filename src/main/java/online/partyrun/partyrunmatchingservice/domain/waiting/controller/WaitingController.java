@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
+import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingEventService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 
@@ -26,6 +27,7 @@ import java.security.Principal;
 @RequestMapping("waiting")
 public class WaitingController {
     WaitingService waitingService;
+    WaitingEventService waitingEventService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -37,6 +39,6 @@ public class WaitingController {
     @GetMapping(path = "event", produces = "text/event-stream")
     @ResponseStatus(HttpStatus.OK)
     public Flux<WaitingStatus> getEventSteam(Mono<Authentication> auth) {
-        return this.waitingService.getEventStream(auth.map(Principal::getName));
+        return this.waitingEventService.getEventStream(auth.map(Principal::getName));
     }
 }
