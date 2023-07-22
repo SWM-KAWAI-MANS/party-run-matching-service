@@ -39,7 +39,6 @@ class WaitingServiceTest {
 
             assertThat(sseHandler.getConnectors()).contains(user1.block());
         }
-
     }
 
     @Nested
@@ -56,6 +55,4 @@ class WaitingServiceTest {
                     .verify();
         }
     }
-
-
 }
