@@ -9,3 +9,7 @@
 === waiting 생성
 
 operation::create-waiting[snippets='http-request,http-response']
+
+=== waiting event stream 요청
+
+operation::get-waiting-event[snippets='http-request,http-response']
