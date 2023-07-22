@@ -1,12 +1,12 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
+import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 
@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ContextConfiguration(classes = WaitingController.class)
@@ -43,4 +44,22 @@ class WaitingControllerTest extends WebfluxDocsTest {
                 .expectBody()
                 .consumeWith(document("create-waiting"));
     }
+
+    @Test
+    @DisplayName("get : WaitingEventStream 요청")
+    void getWaitingEventStream() {
+
+        given(waitingService.getEventStream(any()))
+                .willReturn(Flux.just(WaitingStatus.REGISTERED, WaitingStatus.CONNECTED));
+
+        client.get()
+                .uri("/waiting/event")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .consumeWith(document("get-waiting-event"));
+    }
+
 }
