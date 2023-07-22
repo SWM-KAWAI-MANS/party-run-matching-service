@@ -23,8 +23,7 @@ import reactor.core.publisher.Mono;
 @WithMockUser
 @DisplayName("WaitingController")
 class WaitingControllerTest extends WebfluxDocsTest {
-    @MockBean
-    WaitingService waitingService;
+    @MockBean WaitingService waitingService;
 
     @Test
     @DisplayName("post : waiting 생성 요청")
@@ -44,5 +43,4 @@ class WaitingControllerTest extends WebfluxDocsTest {
                 .expectBody()
                 .consumeWith(document("create-waiting"));
     }
-
 }
