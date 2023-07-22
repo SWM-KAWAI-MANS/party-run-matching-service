@@ -64,7 +64,7 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     private void validateKey(K key) {
         checkKeyNotNull(key);
         if (isNonExists(key)) {
-            throw new KeyNotExistException();
+            throw new KeyNotExistException(key.toString());
         }
     }
 

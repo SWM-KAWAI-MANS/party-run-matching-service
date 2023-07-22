@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;

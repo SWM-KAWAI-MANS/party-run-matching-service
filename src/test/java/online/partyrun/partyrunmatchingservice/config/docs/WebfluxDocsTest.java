@@ -18,12 +18,7 @@ import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-@WebFluxTest(
-        excludeFilters = {
-            @ComponentScan.Filter(
-                    type = FilterType.ASSIGNABLE_TYPE,
-                    classes = {WebfluxAuthFilter.class, SecurityConfig.class})
-        })
+@WebFluxTest
 @ExtendWith(RestDocumentationExtension.class)
 public abstract class WebfluxDocsTest {
     protected WebTestClient client;

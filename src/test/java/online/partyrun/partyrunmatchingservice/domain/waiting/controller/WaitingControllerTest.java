@@ -23,14 +23,16 @@ import reactor.core.publisher.Mono;
 @WithMockUser
 @DisplayName("WaitingController")
 class WaitingControllerTest extends WebfluxDocsTest {
-    @MockBean WaitingService waitingService;
+    @MockBean
+    WaitingService waitingService;
 
     @Test
     @DisplayName("post : waiting 생성 요청")
     void postWaiting() {
         final CreateWaitingRequest request = new CreateWaitingRequest(1000);
         final Mono<MessageResponse> response = Mono.just(new MessageResponse("testUser님 대기열 등록"));
-        given(waitingService.create(any(), any())).willReturn(response);
+        given(waitingService.create(any(Mono.class), any(CreateWaitingRequest.class)))
+                .willReturn(response);
 
         client.post()
                 .uri("/waiting")
@@ -42,4 +44,5 @@ class WaitingControllerTest extends WebfluxDocsTest {
                 .expectBody()
                 .consumeWith(document("create-waiting"));
     }
+
 }
