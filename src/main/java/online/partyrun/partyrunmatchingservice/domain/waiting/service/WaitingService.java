@@ -31,8 +31,11 @@ public class WaitingService {
     }
 
     public Flux<WaitingStatus> getEventStream(Mono<String> member) {
-        return member.flatMapMany(id -> sseHandler
-                .connect(id)
-                .doOnSubscribe(s -> sseHandler.sendEvent(id, WaitingStatus.CONNECTED)));
+        return member.flatMapMany(
+                id ->
+                        sseHandler
+                                .connect(id)
+                                .doOnSubscribe(
+                                        s -> sseHandler.sendEvent(id, WaitingStatus.CONNECTED)));
     }
 }

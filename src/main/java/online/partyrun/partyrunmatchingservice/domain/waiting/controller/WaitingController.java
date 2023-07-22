@@ -39,5 +39,4 @@ public class WaitingController {
     public Flux<WaitingStatus> getEventSteam(Mono<Authentication> auth) {
         return this.waitingService.getEventStream(auth.map(Principal::getName));
     }
-
 }

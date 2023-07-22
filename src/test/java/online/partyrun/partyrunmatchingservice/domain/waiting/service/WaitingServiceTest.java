@@ -16,10 +16,8 @@ import reactor.test.StepVerifier;
 @SpringBootTest
 @DisplayName("WaitingService")
 class WaitingServiceTest {
-    @Autowired
-    WaitingService waitingService;
-    @Autowired
-    ServerSentEventHandler<String, WaitingStatus> sseHandler;
+    @Autowired WaitingService waitingService;
+    @Autowired ServerSentEventHandler<String, WaitingStatus> sseHandler;
 
     Mono<String> user1 = Mono.just("현준");
 
@@ -49,7 +47,8 @@ class WaitingServiceTest {
 
             StepVerifier.create(sseHandler.connect(user1.block()))
                     .assertNext(res -> assertThat(res).isEqualTo(WaitingStatus.REGISTERED))
-                    .thenCancel().verify();
+                    .thenCancel()
+                    .verify();
         }
     }
 
@@ -61,10 +60,10 @@ class WaitingServiceTest {
         void publishConnection() {
             sseHandler.create(user1.block());
 
-
             StepVerifier.create(waitingService.getEventStream(user1))
                     .assertNext(res -> assertThat(res).isEqualTo(WaitingStatus.CONNECTED))
-                    .thenCancel().verify();
+                    .thenCancel()
+                    .verify();
         }
     }
 }

@@ -61,5 +61,4 @@ class WaitingControllerTest extends WebfluxDocsTest {
                 .expectBody()
                 .consumeWith(document("get-waiting-event"));
     }
-
 }
