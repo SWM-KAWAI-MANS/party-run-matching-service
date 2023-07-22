@@ -1,0 +1,11 @@
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+== Waiting
+=== waiting 생성
+
+operation::create-waiting[snippets='http-request,http-response']
