@@ -4,11 +4,13 @@ import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -16,13 +18,10 @@ import reactor.test.StepVerifier;
 @SpringBootTest
 @Import(RedisTestConfig.class)
 class WaitingProcessTest {
-    @Autowired
-    WaitingService waitingService;
-    @Autowired
-    WaitingEventService waitingEventService;
+    @Autowired WaitingService waitingService;
+    @Autowired WaitingEventService waitingEventService;
 
-    @Autowired
-    ServerSentEventHandler<String, WaitingStatus> sseHandler;
+    @Autowired ServerSentEventHandler<String, WaitingStatus> sseHandler;
 
     Mono<String> 현준 = Mono.just("현준");
     Mono<String> 성우 = Mono.just("성우");
@@ -37,10 +36,12 @@ class WaitingProcessTest {
 
         StepVerifier.create(sseHandler.connect(현준.block()))
                 .expectNext(WaitingStatus.MATCHED)
-                .thenCancel().verify();
+                .thenCancel()
+                .verify();
 
         StepVerifier.create((sseHandler.connect(성우.block())))
                 .expectNext(WaitingStatus.MATCHED)
-                .thenCancel().verify();
+                .thenCancel()
+                .verify();
     }
 }

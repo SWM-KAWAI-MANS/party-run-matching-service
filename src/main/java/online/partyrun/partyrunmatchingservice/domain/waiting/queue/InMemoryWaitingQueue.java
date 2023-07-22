@@ -2,10 +2,12 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.queue;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotSatisfyCountException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingUser;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -36,7 +38,6 @@ public class InMemoryWaitingQueue implements WaitingQueue {
                 .map(map::get)
                 .anyMatch(q -> q.contains(element));
     }
-
 
     @Override
     public boolean satisfyCount(final RunningDistance distance) {

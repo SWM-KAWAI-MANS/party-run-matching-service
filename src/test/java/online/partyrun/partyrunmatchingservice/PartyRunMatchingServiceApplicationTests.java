@@ -1,6 +1,7 @@
 package online.partyrun.partyrunmatchingservice;
 
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;

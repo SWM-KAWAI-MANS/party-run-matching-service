@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingUser;
 import online.partyrun.partyrunmatchingservice.global.db.redis.RedisChannel;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 

@@ -1,17 +1,19 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.global.sse.MultiSinkHandler;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("WaitingEventService")
 @SpringBootTest(classes = {WaitingEventService.class, MultiSinkHandler.class})
@@ -20,6 +22,7 @@ class WaitingEventServiceTest {
     @Autowired ServerSentEventHandler<String, WaitingStatus> sseHandler;
 
     Mono<String> user1 = Mono.just("현준");
+
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class Waiting에_대한_이벤트_구독_시 {
@@ -42,10 +45,12 @@ class WaitingEventServiceTest {
         members.forEach(waitingEventService::register);
 
         waitingEventService.sendMatchEvent(members);
-        members.forEach(member -> {
-            StepVerifier.create(sseHandler.connect(member))
-                    .expectNext(WaitingStatus.MATCHED)
-                    .thenCancel().verify();
-        });
+        members.forEach(
+                member -> {
+                    StepVerifier.create(sseHandler.connect(member))
+                            .expectNext(WaitingStatus.MATCHED)
+                            .thenCancel()
+                            .verify();
+                });
     }
 }

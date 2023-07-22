@@ -1,13 +1,14 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.queue;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotSatisfyCountException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingUser;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("InMemoryWaitingQueue")
 class InMemoryWaitingQueueTest {
@@ -28,8 +29,7 @@ class InMemoryWaitingQueueTest {
     @DisplayName("중복된 사용자를 추가하면 예외를 반환한다")
     void throwDuplicateUserException() {
         waitingQueue.add(현준);
-        assertThatThrownBy(() ->  waitingQueue.add(현준))
-                .isInstanceOf(DuplicateUserException.class);
+        assertThatThrownBy(() -> waitingQueue.add(현준)).isInstanceOf(DuplicateUserException.class);
     }
 
     @Test
@@ -48,8 +48,4 @@ class InMemoryWaitingQueueTest {
         assertThatThrownBy(() -> waitingQueue.poll(현준.distance()))
                 .isInstanceOf(NotSatisfyCountException.class);
     }
-
-
-
-
 }

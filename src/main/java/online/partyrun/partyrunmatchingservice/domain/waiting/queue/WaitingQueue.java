@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface WaitingQueue {
     void add(WaitingUser user);
+
     boolean satisfyCount(RunningDistance distance);
+
     List<String> poll(RunningDistance distance);
 }
