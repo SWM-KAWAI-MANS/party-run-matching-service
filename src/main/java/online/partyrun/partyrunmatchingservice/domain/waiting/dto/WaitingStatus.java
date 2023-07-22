@@ -1,3 +1,6 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.dto;
 
-public class WaitingEvent {}
+public enum WaitingStatus {
+    CONNECTED,
+    MATCHED
+}

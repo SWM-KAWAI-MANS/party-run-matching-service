@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     public Flux<V> connect(final K key) {
         return getSink(key)
                 .asFlux()
-                .subscribeOn(Schedulers.boundedElastic())
                 .timeout(timeout())
                 .doOnCancel(() -> sinks.remove(key))
                 .doOnError(

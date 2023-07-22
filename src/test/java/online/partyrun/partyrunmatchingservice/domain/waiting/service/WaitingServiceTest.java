@@ -1,10 +1,9 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
-import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEvent;
+import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
 
 import org.junit.jupiter.api.*;
@@ -18,7 +17,7 @@ import reactor.test.StepVerifier;
 @DisplayName("WaitingService")
 class WaitingServiceTest {
     @Autowired WaitingService waitingService;
-    @Autowired ServerSentEventHandler<String, WaitingEvent> sseHandler;
+    @Autowired ServerSentEventHandler<String, WaitingStatus> sseHandler;
 
     Mono<String> user1 = Mono.just("현준");
 
@@ -39,6 +38,21 @@ class WaitingServiceTest {
             waitingService.create(user1, new CreateWaitingRequest(1000)).block();
 
             assertThat(sseHandler.getConnectors()).contains(user1.block());
+        }
+    }
+
+    @Nested
+    @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+    class Waiting에_대한_이벤트_구독_시 {
+        @Test
+        @DisplayName("Connection 이벤트를발행한다")
+        void publishConnection() {
+            sseHandler.create(user1.block());
+
+            StepVerifier.create(waitingService.getEventStream(user1))
+                    .expectNext(WaitingStatus.CONNECTED)
+                    .thenCancel()
+                    .verify();
         }
     }
 }
