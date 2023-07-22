@@ -24,7 +24,6 @@ public class WaitingService {
         return member.map(
                 id -> {
                     sseHandler.create(id);
-                    sseHandler.sendEvent(id, WaitingStatus.REGISTERED);
                     // TODO 대기열 요청 등록
                     return new MessageResponse(id + "님 대기열 등록");
                 });

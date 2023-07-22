@@ -49,8 +49,8 @@ class WaitingControllerTest extends WebfluxDocsTest {
     @DisplayName("get : WaitingEventStream 요청")
     void getWaitingEventStream() {
 
-        given(waitingService.getEventStream(any()))
-                .willReturn(Flux.just(WaitingStatus.REGISTERED, WaitingStatus.CONNECTED));
+        given(waitingService.getEventStream(any(Mono.class)))
+                .willReturn(Flux.just(WaitingStatus.CONNECTED, WaitingStatus.MATCHED));
 
         client.get()
                 .uri("/waiting/event")

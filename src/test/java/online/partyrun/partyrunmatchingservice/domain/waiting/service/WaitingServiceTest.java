@@ -40,16 +40,6 @@ class WaitingServiceTest {
             assertThat(sseHandler.getConnectors()).contains(user1.block());
         }
 
-        @Test
-        @DisplayName("REGISTERED 이벤트를 발행한다.")
-        void publishRegistered() {
-            waitingService.create(user1, new CreateWaitingRequest(1000)).block();
-
-            StepVerifier.create(sseHandler.connect(user1.block()))
-                    .assertNext(res -> assertThat(res).isEqualTo(WaitingStatus.REGISTERED))
-                    .thenCancel()
-                    .verify();
-        }
     }
 
     @Nested
@@ -61,9 +51,11 @@ class WaitingServiceTest {
             sseHandler.create(user1.block());
 
             StepVerifier.create(waitingService.getEventStream(user1))
-                    .assertNext(res -> assertThat(res).isEqualTo(WaitingStatus.CONNECTED))
+                    .expectNext(WaitingStatus.CONNECTED)
                     .thenCancel()
                     .verify();
         }
     }
+
+
 }
