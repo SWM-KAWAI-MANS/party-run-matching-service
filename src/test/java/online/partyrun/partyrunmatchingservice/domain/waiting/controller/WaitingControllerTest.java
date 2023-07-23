@@ -7,6 +7,7 @@ import static org.springframework.restdocs.webtestclient.WebTestClientRestDocume
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
+import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingEventService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 
@@ -25,6 +26,7 @@ import reactor.core.publisher.Mono;
 @DisplayName("WaitingController")
 class WaitingControllerTest extends WebfluxDocsTest {
     @MockBean WaitingService waitingService;
+    @MockBean WaitingEventService waitingEventService;
 
     @Test
     @DisplayName("post : waiting 생성 요청")
@@ -49,7 +51,7 @@ class WaitingControllerTest extends WebfluxDocsTest {
     @DisplayName("get : WaitingEventStream 요청")
     void getWaitingEventStream() {
 
-        given(waitingService.getEventStream(any(Mono.class)))
+        given(waitingEventService.getEventStream(any(Mono.class)))
                 .willReturn(Flux.just(WaitingStatus.CONNECTED, WaitingStatus.MATCHED));
 
         client.get()

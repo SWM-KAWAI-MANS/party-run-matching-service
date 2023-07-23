@@ -13,16 +13,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     private static final int DEFAULT_MINUTE = 3;
-    Map<K, Sinks.Many<V>> sinks = new HashMap<>();
+    Map<K, Sinks.Many<V>> sinks = new ConcurrentHashMap<>();
 
     @Override
     public Flux<V> connect(final K key) {
