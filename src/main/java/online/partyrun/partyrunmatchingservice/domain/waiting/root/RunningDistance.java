@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotAllowMeterException;
+import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotAllowDistanceException;
 
 import java.util.Arrays;
 
@@ -24,6 +24,6 @@ public enum RunningDistance {
         return Arrays.stream(RunningDistance.values())
                 .filter(d -> d.meter == meter)
                 .findAny()
-                .orElseThrow(() -> new NotAllowMeterException(meter));
+                .orElseThrow(() -> new NotAllowDistanceException(meter));
     }
 }
