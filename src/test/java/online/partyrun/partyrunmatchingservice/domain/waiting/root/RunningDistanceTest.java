@@ -25,7 +25,7 @@ class RunningDistanceTest {
 
     @ParameterizedTest
     @MethodSource("distanceElements")
-    @DisplayName("거리를 숫자로 입력하면 해당하는 Dinstance 요소를 반환한다")
+    @DisplayName("거리를 숫자로 입력하면 해당하는 Distance 요소를 반환한다")
     void runGetByMeter(int meter, RunningDistance distance) {
         assertThat(RunningDistance.getBy(meter)).isEqualTo(distance);
     }
