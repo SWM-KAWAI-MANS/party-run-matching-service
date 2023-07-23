@@ -29,14 +29,14 @@ public class InMemoryWaitingQueue implements WaitingQueue {
     @Synchronized
     @Override
     public void add(final WaitingMember member) {
-        if (hasElement(member.memberId())) {
+        if (hasMemberId(member.memberId())) {
             throw new DuplicateMemberException(member.memberId());
         }
         map.get(member.distance()).add(member.memberId());
     }
 
-    private boolean hasElement(final String element) {
-        return map.values().stream().anyMatch(q -> q.contains(element));
+    private boolean hasMemberId(final String memberId) {
+        return map.values().stream().anyMatch(q -> q.contains(memberId));
     }
 
     @Override
