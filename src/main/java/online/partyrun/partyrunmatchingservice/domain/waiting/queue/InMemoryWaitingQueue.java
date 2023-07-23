@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
 
-import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
+import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateMemberException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotSatisfyCountException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember;
@@ -30,7 +30,7 @@ public class InMemoryWaitingQueue implements WaitingQueue {
     @Override
     public void add(final WaitingMember member) {
         if (hasElement(member.memberId())) {
-            throw new DuplicateUserException();
+            throw new DuplicateMemberException(member.memberId());
         }
         map.get(member.distance()).add(member.memberId());
     }
