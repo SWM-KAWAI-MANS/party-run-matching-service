@@ -3,9 +3,11 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.global.sse.MultiSinkHandler;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -34,12 +36,11 @@ class WaitingEventServiceTest {
         }
     }
 
-
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class 여러명이_등록되었을_때 {
         final List<String> members = List.of("현준", "준혁", "성우");
-        
+
         @BeforeEach
         public void beforeEach() {
             members.forEach(waitingEventService::register);
@@ -50,10 +51,11 @@ class WaitingEventServiceTest {
         void runSendMatchEvent() {
             waitingEventService.sendMatchEvent(members);
             members.forEach(
-                    member -> StepVerifier.create(sseHandler.connect(member))
-                            .expectNext(WaitingStatus.MATCHED)
-                            .thenCancel()
-                            .verify());
+                    member ->
+                            StepVerifier.create(sseHandler.connect(member))
+                                    .expectNext(WaitingStatus.MATCHED)
+                                    .thenCancel()
+                                    .verify());
         }
 
         @Test
@@ -64,9 +66,11 @@ class WaitingEventServiceTest {
 
             waitingEventService.sendMatchEvent(members);
             members.forEach(
-                    member -> StepVerifier.create(waitingEventService.getEventStream(Mono.just(member)))
-                            .expectNext(WaitingStatus.MATCHED, WaitingStatus.CONNECTED)
-                            .verifyComplete());
+                    member ->
+                            StepVerifier.create(
+                                            waitingEventService.getEventStream(Mono.just(member)))
+                                    .expectNext(WaitingStatus.MATCHED, WaitingStatus.CONNECTED)
+                                    .verifyComplete());
         }
     }
 }

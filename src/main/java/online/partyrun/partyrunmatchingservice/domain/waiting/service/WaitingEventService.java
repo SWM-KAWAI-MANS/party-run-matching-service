@@ -29,11 +29,12 @@ public class WaitingEventService {
                 id ->
                         sseHandler
                                 .connect(id)
-                                .doOnNext(status -> {
-                                    if(status.equals(WaitingStatus.MATCHED)) {
-                                        sseHandler.complete(id);
-                                    }
-                                })
+                                .doOnNext(
+                                        status -> {
+                                            if (status.equals(WaitingStatus.MATCHED)) {
+                                                sseHandler.complete(id);
+                                            }
+                                        })
                                 .doOnSubscribe(
                                         s -> sseHandler.sendEvent(id, WaitingStatus.CONNECTED)));
     }
