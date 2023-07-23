@@ -4,8 +4,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidDistanceException;
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidMembersException;
+
 import org.springframework.data.annotation.Id;
 
 import java.util.List;
@@ -15,8 +17,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Matching {
-    @Id
-    String id;
+    @Id String id;
     List<MatchingMember> members;
     int distance;
     MatchingStatus status = MatchingStatus.WAIT;
