@@ -17,6 +17,7 @@ import java.util.Objects;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Matching {
+    private static final int MIN_DISTANCE = 1;
     @Id String id;
     List<MatchingMember> members;
     int distance;
@@ -30,7 +31,7 @@ public class Matching {
     }
 
     private void validateDistance(int distance) {
-        if (distance <= 0) {
+        if (distance < MIN_DISTANCE) {
             throw new InvalidDistanceException();
         }
     }
