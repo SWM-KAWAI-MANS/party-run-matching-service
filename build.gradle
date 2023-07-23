@@ -69,6 +69,10 @@ dependencies {
         exclude group: 'org.slf4j', module: 'slf4j-simple'
     }
 
+    // mongodb
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring30x:4.7.0'
+
     // for apple silicon
     developmentOnly 'io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64'
 

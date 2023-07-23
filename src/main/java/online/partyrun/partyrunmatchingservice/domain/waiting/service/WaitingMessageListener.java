@@ -6,6 +6,7 @@ import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
+import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember;
@@ -27,6 +28,7 @@ public class WaitingMessageListener implements MessageListener {
     WaitingEventService eventService;
     WaitingQueue queue;
     RedisSerializer<WaitingMember> serializer;
+    MatchingService matchingService;
 
     @Override
     public void onMessage(final Message message, final byte[] pattern) {
@@ -41,7 +43,7 @@ public class WaitingMessageListener implements MessageListener {
                         distance -> {
                             if (queue.satisfyCount(distance)) {
                                 List<String> members = queue.poll(distance);
-                                // TODO 매칭 생성 보내기
+                                matchingService.create(members, distance.getMeter()).subscribe();
                                 eventService.sendMatchEvent(members);
                             }
                         });
