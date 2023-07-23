@@ -36,8 +36,7 @@ public class InMemoryWaitingQueue implements WaitingQueue {
     }
 
     private boolean hasElement(final String element) {
-        return map.values().stream()
-                .anyMatch(q -> q.contains(element));
+        return map.values().stream().anyMatch(q -> q.contains(element));
     }
 
     @Override

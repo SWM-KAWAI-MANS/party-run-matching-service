@@ -1,6 +1,10 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.root;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotAllowMeterException;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,9 +13,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 @DisplayName("RunningDistance")
 class RunningDistanceTest {
     public static Stream<Arguments> a() {
@@ -19,9 +20,9 @@ class RunningDistanceTest {
                 Arguments.of(1000, RunningDistance.M1000),
                 Arguments.of(3000, RunningDistance.M3000),
                 Arguments.of(5000, RunningDistance.M5000),
-                Arguments.of(10000, RunningDistance.M10000)
-        );
+                Arguments.of(10000, RunningDistance.M10000));
     }
+
     @ParameterizedTest
     @MethodSource("a")
     @DisplayName("거리를 숫자로 입력하면 해당하는 Dinstance 요소를 반환한다")
