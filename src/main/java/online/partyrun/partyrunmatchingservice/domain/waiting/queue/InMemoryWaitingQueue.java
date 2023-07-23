@@ -1,12 +1,13 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.queue;
 
 import lombok.AccessLevel;
+import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateUserException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotSatisfyCountException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
-import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingUser;
+import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember;
 
 import org.springframework.stereotype.Repository;
 
@@ -25,17 +26,17 @@ public class InMemoryWaitingQueue implements WaitingQueue {
                 .forEach(distance -> map.put(distance, new LinkedList<>()));
     }
 
+    @Synchronized
     @Override
-    public void add(final WaitingUser user) {
-        if (hasElement(user.userId())) {
+    public void add(final WaitingMember member) {
+        if (hasElement(member.memberId())) {
             throw new DuplicateUserException();
         }
-        map.get(user.distance()).add(user.userId());
+        map.get(member.distance()).add(member.memberId());
     }
 
     private boolean hasElement(final String element) {
-        return Arrays.stream(RunningDistance.values())
-                .map(map::get)
+        return map.values().stream()
                 .anyMatch(q -> q.contains(element));
     }
 

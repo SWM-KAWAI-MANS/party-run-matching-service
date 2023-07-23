@@ -1,32 +1,38 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.root;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotAllowMeterException;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("RunningDistance")
 class RunningDistanceTest {
-    @Test
+    public static Stream<Arguments> a() {
+        return Stream.of(
+                Arguments.of(1000, RunningDistance.M1000),
+                Arguments.of(3000, RunningDistance.M3000),
+                Arguments.of(5000, RunningDistance.M5000),
+                Arguments.of(10000, RunningDistance.M10000)
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("a")
     @DisplayName("거리를 숫자로 입력하면 해당하는 Dinstance 요소를 반환한다")
-    void runGetByMeter() {
-        assertAll(
-                () -> assertThat(RunningDistance.getByMeter(1000)).isEqualTo(RunningDistance.M1000),
-                () -> assertThat(RunningDistance.getByMeter(3000)).isEqualTo(RunningDistance.M3000),
-                () -> assertThat(RunningDistance.getByMeter(5000)).isEqualTo(RunningDistance.M5000),
-                () ->
-                        assertThat(RunningDistance.getByMeter(10000))
-                                .isEqualTo(RunningDistance.M10000));
+    void runGetByMeter(int meter, RunningDistance distance) {
+        assertThat(RunningDistance.getBy(meter)).isEqualTo(distance);
     }
 
     @Test
     @DisplayName("허용하지 않은 숫자를 입력하면 예외를 반환한다")
     void throwNotAllowMeterException() {
-        assertThatThrownBy(() -> RunningDistance.getByMeter(2500))
+        assertThatThrownBy(() -> RunningDistance.getBy(2500))
                 .isInstanceOf(NotAllowMeterException.class);
     }
 }

@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
-import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingUser;
+import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember;
 
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
@@ -26,7 +26,7 @@ public class WaitingMessageListener implements MessageListener {
 
     WaitingEventService eventService;
     WaitingQueue queue;
-    RedisSerializer<WaitingUser> serializer;
+    RedisSerializer<WaitingMember> serializer;
 
     @Override
     public void onMessage(final Message message, final byte[] pattern) {

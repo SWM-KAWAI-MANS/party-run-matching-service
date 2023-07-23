@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.message.WaitingMessagePublisher;
-import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingUser;
+import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class WaitingService {
         return member.map(
                 id -> {
                     eventService.register(id);
-                    messagePublisher.publish(new WaitingUser(id, request.distance()));
+                    messagePublisher.publish(new WaitingMember(id, request.distance()));
                     return new MessageResponse(id + "님 대기열 등록");
                 });
     }

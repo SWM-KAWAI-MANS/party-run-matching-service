@@ -20,7 +20,7 @@ public enum RunningDistance {
 
     int meter;
 
-    public static RunningDistance getByMeter(int meter) {
+    public static RunningDistance getBy(int meter) {
         return Arrays.stream(RunningDistance.values())
                 .filter(d -> d.meter == meter)
                 .findAny()
