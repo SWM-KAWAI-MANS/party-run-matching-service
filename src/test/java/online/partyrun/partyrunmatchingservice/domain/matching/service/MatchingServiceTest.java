@@ -1,29 +1,29 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import reactor.test.StepVerifier;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("MatchingService")
 class MatchingServiceTest {
     @Autowired MatchingService matchingService;
-    @Autowired
-    ServerSentEventHandler<String, MatchEvent> sseHandler;
-    @Autowired
-    MatchingRepository matchingRepository;
+    @Autowired ServerSentEventHandler<String, MatchEvent> sseHandler;
+    @Autowired MatchingRepository matchingRepository;
     final List<String> members = List.of("현준", "성우", "준혁");
     final int distance = 1000;
 

@@ -28,6 +28,7 @@ public class MatchingMember {
             throw new InvalidIdException();
         }
     }
+
     public void reddy() {
         status = MatchingMemberStatus.READY;
     }
