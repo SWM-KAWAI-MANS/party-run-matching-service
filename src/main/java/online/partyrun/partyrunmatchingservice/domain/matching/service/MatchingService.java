@@ -9,8 +9,6 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
-import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
-
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Mono;
@@ -22,12 +20,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MatchingService {
     MatchingRepository matchingRepository;
-    ServerSentEventHandler<String, MatchEvent> matchEventHandler;
+    MatchingSinkHandler matchingSinkHandler;
 
     public Mono<Matching> create(final List<String> memberIds, final int distance) {
         final List<MatchingMember> members = memberIds.stream().map(MatchingMember::new).toList();
-        memberIds.forEach(this::disconnectLeftMember);
-
+        disconnectLeftMember(memberIds);
         return saveMatchAndSendEvents(members, distance);
     }
 
@@ -38,21 +35,19 @@ public class MatchingService {
                         match ->
                                 members.forEach(
                                         member -> {
-                                            matchEventHandler.create(member.getId());
-                                            matchEventHandler.sendEvent(
+                                            matchingSinkHandler.create(member.getId());
+                                            matchingSinkHandler.sendEvent(
                                                     member.getId(), new MatchEvent(match));
                                         }));
     }
 
-    private void disconnectLeftMember(String memberId) {
+    private void disconnectLeftMember(List<String> memberIds) {
+        memberIds.forEach(matchingSinkHandler::disconnectIfExist);
         matchingRepository
-                .findByMembersIdAndMembersStatus(memberId, MatchingMemberStatus.NO_RESPONSE)
-                .flatMap(
-                        matching -> {
-                            matching.updateMemberStatus(memberId, false);
-                            matchEventHandler.complete(memberId);
-                            return matchingRepository.save(matching);
-                        })
-                .block();
+                .findAllByMembersIdInAndMembersStatus(memberIds, MatchingMemberStatus.NO_RESPONSE)
+                .flatMap(matching -> {
+                    matching.cancel();
+                    return matchingRepository.save(matching);
+                }).blockLast();
     }
 }

@@ -2,13 +2,9 @@ package online.partyrun.partyrunmatchingservice.global.sse;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-
 import online.partyrun.partyrunmatchingservice.global.sse.exception.KeyNotExistException;
 import online.partyrun.partyrunmatchingservice.global.sse.exception.NullKeyException;
 import online.partyrun.partyrunmatchingservice.global.sse.exception.SseConnectionException;
-
-import org.springframework.stereotype.Component;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -18,9 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
+public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandler<K, V> {
     private static final int DEFAULT_MINUTE = 3;
     Map<K, Sinks.Many<V>> sinks = new ConcurrentHashMap<>();
 
@@ -90,4 +85,13 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     public List<K> getConnectors() {
         return sinks.keySet().stream().toList();
     }
+
+    @Override
+    public void disconnectIfExist(final K key) {
+        if (sinks.containsKey(key)) {
+            complete(key);
+        }
+    }
+
+
 }

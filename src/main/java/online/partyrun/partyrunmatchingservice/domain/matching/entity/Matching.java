@@ -42,27 +42,30 @@ public class Matching {
         }
     }
 
-    public void updateMemberStatus(final String memberId, final boolean isJoin) {
-        final int memberIndex = getMemberIndex(memberId);
-        members.get(memberIndex).reddy();
-        if (!isJoin) {
-            members.get(memberIndex).cancel();
-        }
-        updateMatchStatus();
-    }
+    public void cancel() {
+        status = MatchingStatus.CANCEL;
+        members.forEach(member -> member.changeStatus(MatchingMemberStatus.CANCELED));
 
-    private void updateMatchStatus() {
-        final List<MatchingMemberStatus> memberStatuses =
-                members.stream().map(MatchingMember::getStatus).toList();
+    }
+    public void updateMemberStatus(final String memberId, final MatchingMemberStatus status) {
+        final MatchingMember member = findMember(memberId);
+        member.changeStatus(status);
+        this.status = getMatchStatus();
+    }
+    private MatchingMember findMember(String memberId) {
+        return this.members.stream()
+                .filter(member -> member.equalsId(memberId))
+                .findAny()
+                .orElseThrow();
+    }
+    private MatchingStatus getMatchStatus() {
+        final List<MatchingMemberStatus> memberStatuses = members.stream().map(MatchingMember::getStatus).toList();
         if (memberStatuses.contains(MatchingMemberStatus.CANCELED)) {
-            status = MatchingStatus.CANCEL;
+            return MatchingStatus.CANCEL;
         }
         if (memberStatuses.stream().allMatch(MatchingMemberStatus.READY::equals)) {
-            status = MatchingStatus.SUCCESS;
+            return MatchingStatus.SUCCESS;
         }
-    }
-
-    private int getMemberIndex(final String memberId) {
-        return members.stream().map(MatchingMember::getId).toList().indexOf(memberId);
+        return this.status;
     }
 }

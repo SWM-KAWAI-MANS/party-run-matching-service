@@ -29,11 +29,11 @@ public class MatchingMember {
         }
     }
 
-    public void reddy() {
-        status = MatchingMemberStatus.READY;
+    public void changeStatus(final MatchingMemberStatus status) {
+        this.status = status;
     }
 
-    public void cancel() {
-        status = MatchingMemberStatus.CANCELED;
+    public boolean equalsId(final String id) {
+        return this.id.equals(id);
     }
 }

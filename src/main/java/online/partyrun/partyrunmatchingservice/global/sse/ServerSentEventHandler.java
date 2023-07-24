@@ -16,4 +16,6 @@ public interface ServerSentEventHandler<K, V> {
     void shutdown();
 
     List<K> getConnectors();
+
+    void disconnectIfExist(K key);
 }

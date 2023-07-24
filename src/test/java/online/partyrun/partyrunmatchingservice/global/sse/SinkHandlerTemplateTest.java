@@ -1,20 +1,20 @@
 package online.partyrun.partyrunmatchingservice.global.sse;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-
 import online.partyrun.partyrunmatchingservice.global.sse.exception.KeyNotExistException;
 import online.partyrun.partyrunmatchingservice.global.sse.exception.NullKeyException;
-
 import org.junit.jupiter.api.*;
-
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 @DisplayName("MultiSinkHandler")
-class MultiSinkHandlerTest {
-    MultiSinkHandler<String, String> multiSinkHandler = new MultiSinkHandler<>();
+class SinkHandlerTemplateTest {
+    SinkHandlerTemplate<String, String> sinkHandlerTemplate = new SinkHandlerTemplate<>() {
+
+    };
     final String 현준 = "현준";
     final String 성우 = "성우";
     final String 준혁 = "준혁";
@@ -25,14 +25,14 @@ class MultiSinkHandlerTest {
 
         @BeforeEach
         public void setUp() {
-            multiSinkHandler.create(현준);
+            sinkHandlerTemplate.create(현준);
         }
 
         @Test
         @DisplayName("sink를 추가한 다음 connect를 수행한 후 완료를 진행한다.")
         void runConnect() {
-            final Flux<String> connected = multiSinkHandler.connect(현준);
-            multiSinkHandler.complete(현준);
+            final Flux<String> connected = sinkHandlerTemplate.connect(현준);
+            sinkHandlerTemplate.complete(현준);
 
             StepVerifier.create(connected).verifyComplete();
         }
@@ -42,10 +42,10 @@ class MultiSinkHandlerTest {
         void runAddEvent() {
             final String event1 = "이벤트 시작";
             final String event2 = "이벤트 마지막";
-            final Flux<String> connected = multiSinkHandler.connect(현준);
-            multiSinkHandler.sendEvent(현준, event1);
-            multiSinkHandler.sendEvent(현준, event2);
-            multiSinkHandler.complete(현준);
+            final Flux<String> connected = sinkHandlerTemplate.connect(현준);
+            sinkHandlerTemplate.sendEvent(현준, event1);
+            sinkHandlerTemplate.sendEvent(현준, event2);
+            sinkHandlerTemplate.complete(현준);
 
             StepVerifier.create(connected).expectNext(event1, event2).verifyComplete();
         }
@@ -56,20 +56,20 @@ class MultiSinkHandlerTest {
     class 여러_명이_생성되었을_때 {
         @BeforeEach
         void setup() {
-            multiSinkHandler.create(현준);
-            multiSinkHandler.create(성우);
-            multiSinkHandler.create(준혁);
+            sinkHandlerTemplate.create(현준);
+            sinkHandlerTemplate.create(성우);
+            sinkHandlerTemplate.create(준혁);
         }
 
         @Test
         @DisplayName("셧다운 진행 시 모든 sink 완료시키고 sink map을 clear한다")
         void runShutDown() {
 
-            final Flux<String> connect = multiSinkHandler.connect(현준);
+            final Flux<String> connect = sinkHandlerTemplate.connect(현준);
 
-            multiSinkHandler.shutdown();
+            sinkHandlerTemplate.shutdown();
 
-            assertThat(multiSinkHandler.getConnectors()).isEmpty();
+            assertThat(sinkHandlerTemplate.getConnectors()).isEmpty();
             StepVerifier.create(connect).verifyComplete();
         }
 
@@ -77,14 +77,14 @@ class MultiSinkHandlerTest {
         @DisplayName("key 전체 조회를 수행한다.")
         void runGetConnectors() {
 
-            assertThat(multiSinkHandler.getConnectors()).containsExactlyInAnyOrder(현준, 성우, 준혁);
+            assertThat(sinkHandlerTemplate.getConnectors()).containsExactlyInAnyOrder(현준, 성우, 준혁);
         }
     }
 
     @Test
     @DisplayName("조회시에 map에 key가 존재하지 않으면 예외를 처리한다")
     void throwIfKeyNotExist() {
-        assertThatThrownBy(() -> multiSinkHandler.complete("nullkey"))
+        assertThatThrownBy(() -> sinkHandlerTemplate.complete("nullkey"))
                 .isInstanceOf(KeyNotExistException.class);
     }
 
@@ -93,16 +93,26 @@ class MultiSinkHandlerTest {
     void throwExceptionIfKeyNull() {
         assertAll(
                 () ->
-                        assertThatThrownBy(() -> multiSinkHandler.connect(null).blockLast())
+                        assertThatThrownBy(() -> sinkHandlerTemplate.connect(null).blockLast())
                                 .isInstanceOf(NullKeyException.class),
                 () ->
-                        assertThatThrownBy(() -> multiSinkHandler.sendEvent(null, "test"))
+                        assertThatThrownBy(() -> sinkHandlerTemplate.sendEvent(null, "test"))
                                 .isInstanceOf(NullKeyException.class),
                 () ->
-                        assertThatThrownBy(() -> multiSinkHandler.complete(null))
+                        assertThatThrownBy(() -> sinkHandlerTemplate.complete(null))
                                 .isInstanceOf(NullKeyException.class),
                 () ->
-                        assertThatThrownBy(() -> multiSinkHandler.create(null))
+                        assertThatThrownBy(() -> sinkHandlerTemplate.create(null))
                                 .isInstanceOf(NullKeyException.class));
+    }
+
+    @Test
+    @DisplayName("해당하는 key가 만약 존재한다면 disconnect를 진행한다")
+    void runDisconnect() {
+        sinkHandlerTemplate.create(현준);
+
+        sinkHandlerTemplate.disconnectIfExist(현준);
+
+        assertThat(sinkHandlerTemplate.getConnectors()).isEmpty();
     }
 }

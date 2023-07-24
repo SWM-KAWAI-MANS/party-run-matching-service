@@ -67,16 +67,16 @@ class MatchingRepositoryTest {
 
         matchRepository.save(new Matching(members, 1000)).block();
         final Matching canceledMatch = new Matching(members, 1000);
-        canceledMatch.updateMemberStatus(targetUser, true);
-        canceledMatch.updateMemberStatus("user2", true);
-        canceledMatch.updateMemberStatus("user3", true);
+        canceledMatch.updateMemberStatus(targetUser, MatchingMemberStatus.READY);
+        canceledMatch.updateMemberStatus("user2", MatchingMemberStatus.READY);
+        canceledMatch.updateMemberStatus("user3", MatchingMemberStatus.READY);
 
         matchRepository.save(canceledMatch).block();
         matchRepository.save(new Matching(members2, 2000)).block();
 
         StepVerifier.create(
-                        matchRepository.findByMembersIdAndMembersStatus(
-                                targetUser, MatchingMemberStatus.NO_RESPONSE))
+                        matchRepository.findAllByMembersIdInAndMembersStatus(
+                                members.stream().map(MatchingMember::getId).toList(), MatchingMemberStatus.NO_RESPONSE))
                 .assertNext(
                         res -> {
                             assertThat(res.getId()).isNotNull();

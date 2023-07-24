@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidIdException;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class MatchingMemberTest {
@@ -19,21 +19,14 @@ class MatchingMemberTest {
                 .isInstanceOf(InvalidIdException.class);
     }
 
-    @Test
-    @DisplayName("ready 상태로 변경한다")
-    void runReady() {
+    @ParameterizedTest
+    @DisplayName("상태를 변경한다")
+    @EnumSource
+    void runChangeStatus(MatchingMemberStatus status) {
         final MatchingMember member = new MatchingMember("SAMPLE_ID");
 
-        member.reddy();
+        member.changeStatus(status);
 
-        assertThat(member.getStatus()).isEqualTo(MatchingMemberStatus.READY);
-    }
-
-    @Test
-    @DisplayName("Cancel 상태로 변경한다")
-    void runCancel() {
-        final MatchingMember member = new MatchingMember("SAMPLE_ID");
-        member.cancel();
-        assertThat(member.getStatus()).isEqualTo(MatchingMemberStatus.CANCELED);
+        assertThat(member.getStatus()).isEqualTo(status);
     }
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
+import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
@@ -55,7 +56,7 @@ class MatchingServiceTest {
     @DisplayName("match 생성 시 기존 sink가 남아있으면 완료한 후에 재연결한다.")
     void runDeleteSinkBeforeCreate() {
         final Matching matching = matchingService.create(members, distance).block();
-        matching.updateMemberStatus(members.get(0), false);
+        matching.updateMemberStatus(members.get(0), MatchingMemberStatus.CANCELED);
         matchingRepository.save(matching).block();
 
         matchingService.create(members, distance).block();

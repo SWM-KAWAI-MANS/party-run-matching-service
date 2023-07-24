@@ -47,7 +47,7 @@ class MatchingTest {
         @Test
         @DisplayName("모든 맴버들이 ready 상태 시에 success 상태로 변경한다")
         void runChangeMatchingSuccess() {
-            members.forEach(member -> matching.updateMemberStatus(member, true));
+            members.forEach(member -> matching.updateMemberStatus(member, MatchingMemberStatus.READY));
 
             assertThat(matching.getStatus()).isEqualTo(MatchingStatus.SUCCESS);
         }
@@ -55,7 +55,7 @@ class MatchingTest {
         @Test
         @DisplayName("한 명이라도 cancel 시에 cancel 상태로 변경한다")
         void runChangeMatchingCancel() {
-            matching.updateMemberStatus(members.get(1), false);
+            matching.updateMemberStatus(members.get(1), MatchingMemberStatus.CANCELED);
             assertThat(matching.getStatus()).isEqualTo(MatchingStatus.CANCEL);
         }
     }
