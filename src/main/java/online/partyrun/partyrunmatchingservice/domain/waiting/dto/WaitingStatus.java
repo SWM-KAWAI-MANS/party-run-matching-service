@@ -4,7 +4,6 @@ public enum WaitingStatus {
     CONNECTED,
     MATCHED;
 
-
     public boolean isCompleted() {
         return this.equals(MATCHED);
     }
