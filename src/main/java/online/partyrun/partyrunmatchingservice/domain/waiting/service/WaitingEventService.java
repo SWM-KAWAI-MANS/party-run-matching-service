@@ -31,7 +31,7 @@ public class WaitingEventService {
                                 .connect(id)
                                 .doOnNext(
                                         status -> {
-                                            if (status.equals(WaitingStatus.MATCHED)) {
+                                            if (status.isCompleted()) {
                                                 sseHandler.complete(id);
                                             }
                                         })
