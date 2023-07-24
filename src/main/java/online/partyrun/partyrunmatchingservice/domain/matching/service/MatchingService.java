@@ -28,14 +28,17 @@ public class MatchingService {
         disconnectLeftMember(memberIds);
         return saveMatchAndSendEvents(members, distance);
     }
+
     private void disconnectLeftMember(List<String> memberIds) {
         memberIds.forEach(matchingSinkHandler::disconnectIfExist);
         matchingRepository
                 .findAllByMembersIdInAndMembersStatus(memberIds, MatchingMemberStatus.NO_RESPONSE)
-                .flatMap(matching -> {
-                    matching.cancel();
-                    return matchingRepository.save(matching);
-                }).blockLast();
+                .flatMap(
+                        matching -> {
+                            matching.cancel();
+                            return matchingRepository.save(matching);
+                        })
+                .blockLast();
     }
 
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
@@ -50,5 +53,4 @@ public class MatchingService {
                                                     member.getId(), new MatchEvent(match));
                                         }));
     }
-
 }
