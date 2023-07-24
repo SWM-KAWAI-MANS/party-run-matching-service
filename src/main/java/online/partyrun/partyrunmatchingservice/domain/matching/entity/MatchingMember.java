@@ -28,4 +28,11 @@ public class MatchingMember {
             throw new InvalidIdException();
         }
     }
+    public void reddy() {
+        status = MatchingMemberStatus.READY;
+    }
+
+    public void cancel() {
+        status = MatchingMemberStatus.CANCELED;
+    }
 }

@@ -41,4 +41,28 @@ public class Matching {
             throw new InvalidMembersException();
         }
     }
+
+    public void updateMemberStatus(final String memberId, final boolean isJoin) {
+        final int memberIndex = getMemberIndex(memberId);
+        members.get(memberIndex).reddy();
+        if (!isJoin) {
+            members.get(memberIndex).cancel();
+        }
+        updateMatchStatus();
+    }
+
+    private void updateMatchStatus() {
+        final List<MatchingMemberStatus> memberStatuses =
+                members.stream().map(MatchingMember::getStatus).toList();
+        if (memberStatuses.contains(MatchingMemberStatus.CANCELED)) {
+            status = MatchingStatus.CANCEL;
+        }
+        if (memberStatuses.stream().allMatch(MatchingMemberStatus.READY::equals)) {
+            status = MatchingStatus.SUCCESS;
+        }
+    }
+
+    private int getMemberIndex(final String memberId) {
+        return members.stream().map(MatchingMember::getId).toList().indexOf(memberId);
+    }
 }
