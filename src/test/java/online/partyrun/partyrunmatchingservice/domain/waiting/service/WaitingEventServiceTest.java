@@ -61,9 +61,6 @@ class WaitingEventServiceTest {
         @Test
         @DisplayName("event에 MATCHED가 포함되면 sink를 종료한다")
         void runDisconnect() {
-            final List<String> members = List.of("현준", "준혁", "성우");
-            members.forEach(waitingEventService::register);
-
             waitingEventService.sendMatchEvent(members);
             members.forEach(
                     member ->
