@@ -22,8 +22,10 @@ import java.util.List;
 @DisplayName("MatchingService")
 class MatchingServiceTest {
     @Autowired MatchingService matchingService;
+
     @Autowired ServerSentEventHandler<String, MatchEvent> sseHandler;
     @Autowired MatchingRepository matchingRepository;
+
     final List<String> members = List.of("현준", "성우", "준혁");
     final int distance = 1000;
 
