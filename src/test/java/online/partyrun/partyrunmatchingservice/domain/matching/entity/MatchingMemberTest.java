@@ -1,6 +1,5 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.entity;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
