@@ -3,8 +3,11 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
+
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -32,7 +35,9 @@ public class WaitingEventService {
                                             }
                                         })
                                 .doOnSubscribe(
-                                        s -> waitingSinkHandler.sendEvent(id, WaitingStatus.CONNECTED)));
+                                        s ->
+                                                waitingSinkHandler.sendEvent(
+                                                        id, WaitingStatus.CONNECTED)));
     }
 
     public void sendMatchEvent(List<String> members) {

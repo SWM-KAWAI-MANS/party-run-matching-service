@@ -9,6 +9,7 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Mono;
@@ -45,9 +46,11 @@ public class MatchingService {
         memberIds.forEach(matchingSinkHandler::disconnectIfExist);
         matchingRepository
                 .findAllByMembersIdInAndMembersStatus(memberIds, MatchingMemberStatus.NO_RESPONSE)
-                .flatMap(matching -> {
-                    matching.cancel();
-                    return matchingRepository.save(matching);
-                }).blockLast();
+                .flatMap(
+                        matching -> {
+                            matching.cancel();
+                            return matchingRepository.save(matching);
+                        })
+                .blockLast();
     }
 }

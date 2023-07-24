@@ -45,21 +45,24 @@ public class Matching {
     public void cancel() {
         status = MatchingStatus.CANCEL;
         members.forEach(member -> member.changeStatus(MatchingMemberStatus.CANCELED));
-
     }
+
     public void updateMemberStatus(final String memberId, final MatchingMemberStatus status) {
         final MatchingMember member = findMember(memberId);
         member.changeStatus(status);
         this.status = getMatchStatus();
     }
+
     private MatchingMember findMember(String memberId) {
         return this.members.stream()
                 .filter(member -> member.equalsId(memberId))
                 .findAny()
                 .orElseThrow();
     }
+
     private MatchingStatus getMatchStatus() {
-        final List<MatchingMemberStatus> memberStatuses = members.stream().map(MatchingMember::getStatus).toList();
+        final List<MatchingMemberStatus> memberStatuses =
+                members.stream().map(MatchingMember::getStatus).toList();
         if (memberStatuses.contains(MatchingMemberStatus.CANCELED)) {
             return MatchingStatus.CANCEL;
         }

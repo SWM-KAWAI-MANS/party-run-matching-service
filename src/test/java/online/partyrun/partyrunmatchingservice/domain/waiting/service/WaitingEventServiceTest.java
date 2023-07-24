@@ -1,9 +1,11 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 

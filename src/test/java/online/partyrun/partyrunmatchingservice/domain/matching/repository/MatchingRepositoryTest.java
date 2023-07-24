@@ -76,7 +76,8 @@ class MatchingRepositoryTest {
 
         StepVerifier.create(
                         matchRepository.findAllByMembersIdInAndMembersStatus(
-                                members.stream().map(MatchingMember::getId).toList(), MatchingMemberStatus.NO_RESPONSE))
+                                members.stream().map(MatchingMember::getId).toList(),
+                                MatchingMemberStatus.NO_RESPONSE))
                 .assertNext(
                         res -> {
                             assertThat(res.getId()).isNotNull();
