@@ -7,7 +7,11 @@ spring:
 
   profiles:
     active: test
-
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 6.0.6
 jwt:
   access-secret-key: "asfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasd"
 

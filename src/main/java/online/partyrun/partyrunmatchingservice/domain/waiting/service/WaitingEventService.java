@@ -29,6 +29,12 @@ public class WaitingEventService {
                 id ->
                         sseHandler
                                 .connect(id)
+                                .doOnNext(
+                                        status -> {
+                                            if (status.isCompleted()) {
+                                                sseHandler.complete(id);
+                                            }
+                                        })
                                 .doOnSubscribe(
                                         s -> sseHandler.sendEvent(id, WaitingStatus.CONNECTED)));
     }
