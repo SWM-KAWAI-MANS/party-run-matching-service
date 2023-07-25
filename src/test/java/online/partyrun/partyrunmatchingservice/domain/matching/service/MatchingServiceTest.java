@@ -1,26 +1,29 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
+import org.springframework.context.annotation.Import;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @SpringBootTest
 @DisplayName("MatchingService")
+@Import(RedisTestConfig.class)
 class MatchingServiceTest {
     @Autowired MatchingService matchingService;
 
@@ -29,6 +32,12 @@ class MatchingServiceTest {
 
     final List<String> members = List.of("현준", "성우", "준혁");
     final int distance = 1000;
+
+    @AfterEach
+    void cleanup() {
+        sseHandler.shutdown();
+        matchingRepository.deleteAll().block();
+    }
 
     @Test
     @DisplayName("matching을 생성한다")
@@ -64,4 +73,114 @@ class MatchingServiceTest {
         assertThat(sseHandler.getConnectors().stream().filter(m -> m.equals(members.get(0))))
                 .hasSize(1);
     }
+
+
+    @Nested
+    @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+    class Member생성을_진행한_후_Member_상태_변경_오청시 {
+        Mono<String> 현준 = Mono.just(members.get(0));
+        Mono<String> 성우 = Mono.just(members.get(1));
+        Mono<String> 준혁 = Mono.just(members.get(2));
+        MatchingRequest 수락 = new MatchingRequest(true);
+        MatchingRequest 거절 = new MatchingRequest(false);
+
+        @Test
+        @DisplayName("member 상태를 설정한다")
+        void runSetMemberStatus() {
+            matchingService.create(members, distance).block();
+
+            StepVerifier.create(matchingService.setMemberStatus(현준, 수락))
+                    .assertNext(
+                            match -> {
+                                assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                        .contains("현준", "성우", "준혁");
+                                assertThat(match.getDistance())
+                                        .isEqualTo(distance);
+                                assertThat(match.getStatus()).isEqualTo(MatchingStatus.WAIT);
+                            })
+                    .verifyComplete();
+        }
+
+        @Nested
+        @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+        class member가_거절할_경우 {
+            @Test
+            @DisplayName("매치 상태를 캔슬로 변경한다")
+            void runSetMemberStatus() {
+                matchingService.create(members, distance).block();
+
+                StepVerifier.create(matchingService.setMemberStatus(현준, 거절))
+                        .assertNext(
+                                match -> {
+                                    assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                            .contains("현준", "성우", "준혁");
+                                    assertThat(match.getDistance())
+                                            .isEqualTo(RunningDistance.M1000.getMeter());
+                                    assertThat(match.getStatus()).isEqualTo(MatchingStatus.CANCEL);
+                                })
+                        .verifyComplete();
+            }
+
+            @Test
+            @DisplayName("이전에 사람들이 수락을 했어도 캔슬로 변경한다")
+            void runCancel() {
+                matchingService.create(members, distance).block();
+                matchingService.setMemberStatus(성우, 수락).block();
+                matchingService.setMemberStatus(준혁, 수락).block();
+
+                StepVerifier.create(matchingService.setMemberStatus(현준, 거절))
+                        .assertNext(
+                                match -> {
+                                    assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                            .contains("현준", "성우", "준혁");
+                                    assertThat(match.getDistance())
+                                            .isEqualTo(RunningDistance.M1000.getMeter());
+                                    assertThat(match.getStatus()).isEqualTo(MatchingStatus.CANCEL);
+                                })
+                        .verifyComplete();
+            }
+
+            @Test
+            @DisplayName("내가 수락을 했어도 다른사람이 거절하면 캔슬로 변경한다")
+            void runCancelIf() {
+                matchingService.create(members, distance).block();
+                matchingService.setMemberStatus(성우, 수락).block();
+                matchingService.setMemberStatus(준혁, 거절).block();
+
+                StepVerifier.create(matchingService.setMemberStatus(현준, 수락))
+                        .assertNext(
+                                match -> {
+                                    assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                            .contains("현준", "성우", "준혁");
+                                    assertThat(match.getDistance())
+                                            .isEqualTo(RunningDistance.M1000.getMeter());
+                                    assertThat(match.getStatus()).isEqualTo(MatchingStatus.CANCEL);
+                                })
+                        .verifyComplete();
+            }
+        }
+
+        @Nested
+        @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+        class member모두가_수락한_경우 {
+            @Test
+            @DisplayName("member 상태를 설정한 후에 매치 상태도 성공으로 변경한다")
+            void runSetMemberStatus() {
+                matchingService.create(members, distance).block();
+                matchingService.setMemberStatus(성우, 수락).block();
+                matchingService.setMemberStatus(준혁, 수락).block();
+                StepVerifier.create(matchingService.setMemberStatus(현준, 수락))
+                        .assertNext(
+                                match -> {
+                                    assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                            .contains("현준", "성우", "준혁");
+                                    assertThat(match.getDistance())
+                                            .isEqualTo(RunningDistance.M1000.getMeter());
+                                    assertThat(match.getStatus()).isEqualTo(MatchingStatus.SUCCESS);
+                                })
+                        .verifyComplete();
+            }
+        }
+    }
+
 }
