@@ -1,5 +1,7 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
@@ -10,16 +12,16 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingSt
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("MatchingService")
@@ -74,7 +76,6 @@ class MatchingServiceTest {
                 .hasSize(1);
     }
 
-
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class Member생성을_진행한_후_Member_상태_변경_오청시 {
@@ -94,8 +95,7 @@ class MatchingServiceTest {
                             match -> {
                                 assertThat(match.getMembers().stream().map(MatchingMember::getId))
                                         .contains("현준", "성우", "준혁");
-                                assertThat(match.getDistance())
-                                        .isEqualTo(distance);
+                                assertThat(match.getDistance()).isEqualTo(distance);
                                 assertThat(match.getStatus()).isEqualTo(MatchingStatus.WAIT);
                             })
                     .verifyComplete();
@@ -112,7 +112,9 @@ class MatchingServiceTest {
                 StepVerifier.create(matchingService.setMemberStatus(현준, 거절))
                         .assertNext(
                                 match -> {
-                                    assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                    assertThat(
+                                                    match.getMembers().stream()
+                                                            .map(MatchingMember::getId))
                                             .contains("현준", "성우", "준혁");
                                     assertThat(match.getDistance())
                                             .isEqualTo(RunningDistance.M1000.getMeter());
@@ -131,7 +133,9 @@ class MatchingServiceTest {
                 StepVerifier.create(matchingService.setMemberStatus(현준, 거절))
                         .assertNext(
                                 match -> {
-                                    assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                    assertThat(
+                                                    match.getMembers().stream()
+                                                            .map(MatchingMember::getId))
                                             .contains("현준", "성우", "준혁");
                                     assertThat(match.getDistance())
                                             .isEqualTo(RunningDistance.M1000.getMeter());
@@ -150,7 +154,9 @@ class MatchingServiceTest {
                 StepVerifier.create(matchingService.setMemberStatus(현준, 수락))
                         .assertNext(
                                 match -> {
-                                    assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                    assertThat(
+                                                    match.getMembers().stream()
+                                                            .map(MatchingMember::getId))
                                             .contains("현준", "성우", "준혁");
                                     assertThat(match.getDistance())
                                             .isEqualTo(RunningDistance.M1000.getMeter());
@@ -172,7 +178,9 @@ class MatchingServiceTest {
                 StepVerifier.create(matchingService.setMemberStatus(현준, 수락))
                         .assertNext(
                                 match -> {
-                                    assertThat(match.getMembers().stream().map(MatchingMember::getId))
+                                    assertThat(
+                                                    match.getMembers().stream()
+                                                            .map(MatchingMember::getId))
                                             .contains("현준", "성우", "준혁");
                                     assertThat(match.getDistance())
                                             .isEqualTo(RunningDistance.M1000.getMeter());
@@ -182,5 +190,4 @@ class MatchingServiceTest {
             }
         }
     }
-
 }

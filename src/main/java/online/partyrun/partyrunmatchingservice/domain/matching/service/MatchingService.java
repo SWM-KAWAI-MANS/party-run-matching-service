@@ -3,13 +3,16 @@ package online.partyrun.partyrunmatchingservice.domain.matching.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -52,14 +55,19 @@ public class MatchingService {
                                         }));
     }
 
-    public Mono<Matching> setMemberStatus(final Mono<String> member, final MatchingRequest request) {
+    public Mono<Matching> setMemberStatus(
+            final Mono<String> member, final MatchingRequest request) {
         return member.flatMap(
                 mid ->
                         matchingRepository
-                                .findByMembersIdAndMembersStatus(mid, MatchingMemberStatus.NO_RESPONSE)
+                                .findByMembersIdAndMembersStatus(
+                                        mid, MatchingMemberStatus.NO_RESPONSE)
                                 .flatMap(
                                         match -> {
-                                            match.updateMemberStatus(mid,MatchingMemberStatus.getByIsJoin(request.isJoin()));
+                                            match.updateMemberStatus(
+                                                    mid,
+                                                    MatchingMemberStatus.getByIsJoin(
+                                                            request.isJoin()));
                                             return matchingRepository.save(match);
                                         })
                                 .doOnSuccess(this::sendEvent));
@@ -69,6 +77,7 @@ public class MatchingService {
         matching.getMembers()
                 .forEach(
                         member ->
-                                matchingSinkHandler.sendEvent(member.getId(), new MatchEvent(matching)));
+                                matchingSinkHandler.sendEvent(
+                                        member.getId(), new MatchEvent(matching)));
     }
 }

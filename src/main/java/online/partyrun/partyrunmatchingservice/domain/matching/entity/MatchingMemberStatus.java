@@ -6,7 +6,7 @@ public enum MatchingMemberStatus {
     CANCELED;
 
     public static MatchingMemberStatus getByIsJoin(boolean isJoin) {
-        if(isJoin) {
+        if (isJoin) {
             return READY;
         }
         return CANCELED;
