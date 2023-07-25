@@ -1,6 +1,9 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import lombok.SneakyThrows;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
@@ -11,18 +14,18 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingSt
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("MatchingService")
@@ -69,16 +72,14 @@ class MatchingServiceTest {
     void runDeleteSinkBeforeCreate() {
         final Matching matching = matchingService.create(members, distance).block();
         final Matching matchingResult = matchingRepository.save(matching).block();
-        matchingRepository.updateMatchingMemberStatus(matchingResult.getId(), members.get(0), MatchingMemberStatus.CANCELED);
+        matchingRepository.updateMatchingMemberStatus(
+                matchingResult.getId(), members.get(0), MatchingMemberStatus.CANCELED);
 
         matchingService.create(members, distance).block();
 
         assertThat(sseHandler.getConnectors().stream().filter(m -> m.equals(members.get(0))))
                 .hasSize(1);
     }
-
-
-
 
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -169,7 +170,6 @@ class MatchingServiceTest {
                         .verifyComplete();
             }
 
-
             @Test
             @DisplayName("동시 요청시에도 수행한다.")
             @SneakyThrows
@@ -179,11 +179,12 @@ class MatchingServiceTest {
                 final Mono<Matching> publisher1 = matchingService.setMemberStatus(현준, 수락);
                 final Mono<Matching> publisher2 = matchingService.setMemberStatus(성우, 수락);
                 final Mono<Matching> publisher3 = matchingService.setMemberStatus(준혁, 수락);
-                Flux.zip(publisher1, publisher2, publisher3).subscribeOn(Schedulers.parallel()).blockLast();
+                Flux.zip(publisher1, publisher2, publisher3)
+                        .subscribeOn(Schedulers.parallel())
+                        .blockLast();
 
                 final Matching block = matchingRepository.findById(matcing.getId()).block();
                 assertThat(block.getStatus()).isEqualTo(MatchingStatus.SUCCESS);
-
             }
         }
 

@@ -62,18 +62,31 @@ public class MatchingService {
                                 matchingRepository
                                         .findByMembersIdAndMembersStatus(
                                                 mid, MatchingMemberStatus.NO_RESPONSE)
-                                        .flatMap(match ->
-                                                matchingRepository.updateMatchingMemberStatus(match.getId(), mid,
-                                                                MatchingMemberStatus.getByIsJoin(request.isJoin()))
-                                                        .then(Mono.defer(() -> matchingRepository.findById(match.getId())))
-                                        )
-                ).flatMap(match -> {
-                    final boolean isUpdated = match.updateStatus();
-                    if(isUpdated) {
-                        return matchingRepository.save(match);
-                    }
-                   return Mono.just(match);
-                })
+                                        .flatMap(
+                                                match ->
+                                                        matchingRepository
+                                                                .updateMatchingMemberStatus(
+                                                                        match.getId(),
+                                                                        mid,
+                                                                        MatchingMemberStatus
+                                                                                .getByIsJoin(
+                                                                                        request
+                                                                                                .isJoin()))
+                                                                .then(
+                                                                        Mono.defer(
+                                                                                () ->
+                                                                                        matchingRepository
+                                                                                                .findById(
+                                                                                                        match
+                                                                                                                .getId())))))
+                .flatMap(
+                        match -> {
+                            final boolean isUpdated = match.updateStatus();
+                            if (isUpdated) {
+                                return matchingRepository.save(match);
+                            }
+                            return Mono.just(match);
+                        })
                 .doOnSuccess(this::sendEvent);
     }
 

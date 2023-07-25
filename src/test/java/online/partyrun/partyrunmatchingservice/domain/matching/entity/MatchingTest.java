@@ -1,15 +1,16 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.entity;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidDistanceException;
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidMembersException;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Matching")
 class MatchingTest {
