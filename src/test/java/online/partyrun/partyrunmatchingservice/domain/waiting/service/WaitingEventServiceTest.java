@@ -1,8 +1,6 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
-import online.partyrun.partyrunmatchingservice.global.sse.MultiSinkHandler;
-import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +12,10 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 @DisplayName("WaitingEventService")
-@SpringBootTest(classes = {WaitingEventService.class, MultiSinkHandler.class})
+@SpringBootTest(classes = {WaitingEventService.class, WaitingSinkHandler.class})
 class WaitingEventServiceTest {
     @Autowired WaitingEventService waitingEventService;
-    @Autowired ServerSentEventHandler<String, WaitingStatus> sseHandler;
+    @Autowired WaitingSinkHandler waitingSinkHandler;
 
     Mono<String> user1 = Mono.just("현준");
 
@@ -27,7 +25,7 @@ class WaitingEventServiceTest {
         @Test
         @DisplayName("Connection 이벤트를발행한다")
         void publishConnection() {
-            sseHandler.create(user1.block());
+            waitingSinkHandler.create(user1.block());
 
             StepVerifier.create(waitingEventService.getEventStream(user1))
                     .expectNext(WaitingStatus.CONNECTED)
@@ -52,7 +50,7 @@ class WaitingEventServiceTest {
             waitingEventService.sendMatchEvent(members);
             members.forEach(
                     member ->
-                            StepVerifier.create(sseHandler.connect(member))
+                            StepVerifier.create(waitingSinkHandler.connect(member))
                                     .expectNext(WaitingStatus.MATCHED)
                                     .thenCancel()
                                     .verify());

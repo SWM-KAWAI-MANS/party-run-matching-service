@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
-import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
 
 import org.springframework.stereotype.Service;
 
@@ -18,28 +17,30 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class WaitingEventService {
-    ServerSentEventHandler<String, WaitingStatus> sseHandler;
+    WaitingSinkHandler waitingSinkHandler;
 
     public void register(final String id) {
-        sseHandler.create(id);
+        waitingSinkHandler.create(id);
     }
 
     public Flux<WaitingStatus> getEventStream(Mono<String> member) {
         return member.flatMapMany(
                 id ->
-                        sseHandler
+                        waitingSinkHandler
                                 .connect(id)
                                 .doOnNext(
                                         status -> {
                                             if (status.isCompleted()) {
-                                                sseHandler.complete(id);
+                                                waitingSinkHandler.complete(id);
                                             }
                                         })
                                 .doOnSubscribe(
-                                        s -> sseHandler.sendEvent(id, WaitingStatus.CONNECTED)));
+                                        s ->
+                                                waitingSinkHandler.sendEvent(
+                                                        id, WaitingStatus.CONNECTED)));
     }
 
     public void sendMatchEvent(List<String> members) {
-        members.forEach(member -> sseHandler.sendEvent(member, WaitingStatus.MATCHED));
+        members.forEach(member -> waitingSinkHandler.sendEvent(member, WaitingStatus.MATCHED));
     }
 }

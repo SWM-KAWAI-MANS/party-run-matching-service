@@ -7,8 +7,6 @@ import online.partyrun.partyrunmatchingservice.global.sse.exception.KeyNotExistE
 import online.partyrun.partyrunmatchingservice.global.sse.exception.NullKeyException;
 import online.partyrun.partyrunmatchingservice.global.sse.exception.SseConnectionException;
 
-import org.springframework.stereotype.Component;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -18,9 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
+public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandler<K, V> {
     private static final int DEFAULT_MINUTE = 3;
     Map<K, Sinks.Many<V>> sinks = new ConcurrentHashMap<>();
 
@@ -38,6 +35,18 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     }
 
     @Override
+    public void create(K key) {
+        checkKeyNotNull(key);
+        sinks.putIfAbsent(key, Sinks.many().unicast().onBackpressureBuffer());
+    }
+
+    private void checkKeyNotNull(K key) {
+        if (Objects.isNull(key)) {
+            throw new NullKeyException();
+        }
+    }
+
+    @Override
     public void sendEvent(final K key, final V value) {
         getSink(key).tryEmitNext(value);
     }
@@ -49,9 +58,9 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     }
 
     @Override
-    public void create(K key) {
-        checkKeyNotNull(key);
-        sinks.putIfAbsent(key, Sinks.many().unicast().onBackpressureBuffer());
+    public void shutdown() {
+        sinks.keySet().forEach(key -> sinks.get(key).tryEmitComplete());
+        sinks.clear();
     }
 
     private Sinks.Many<V> getSink(K key) {
@@ -61,19 +70,13 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
 
     private void validateKey(K key) {
         checkKeyNotNull(key);
-        if (isNonExists(key)) {
+        if (!isExist(key)) {
             throw new KeyNotExistException(key.toString());
         }
     }
 
-    private void checkKeyNotNull(K key) {
-        if (Objects.isNull(key)) {
-            throw new NullKeyException();
-        }
-    }
-
-    private boolean isNonExists(K key) {
-        return !sinks.containsKey(key);
+    private boolean isExist(K key) {
+        return sinks.containsKey(key);
     }
 
     private Duration timeout() {
@@ -81,13 +84,14 @@ public class MultiSinkHandler<K, V> implements ServerSentEventHandler<K, V> {
     }
 
     @Override
-    public void shutdown() {
-        sinks.keySet().forEach(key -> sinks.get(key).tryEmitComplete());
-        sinks.clear();
+    public List<K> getConnectors() {
+        return sinks.keySet().stream().toList();
     }
 
     @Override
-    public List<K> getConnectors() {
-        return sinks.keySet().stream().toList();
+    public void disconnectIfExist(final K key) {
+        if (isExist(key)) {
+            complete(key);
+        }
     }
 }
