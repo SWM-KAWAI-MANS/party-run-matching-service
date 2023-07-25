@@ -70,13 +70,13 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
 
     private void validateKey(K key) {
         checkKeyNotNull(key);
-        if (isNonExists(key)) {
+        if (!isExist(key)) {
             throw new KeyNotExistException(key.toString());
         }
     }
 
-    private boolean isNonExists(K key) {
-        return !sinks.containsKey(key);
+    private boolean isExist(K key) {
+        return sinks.containsKey(key);
     }
 
     private Duration timeout() {
@@ -90,7 +90,7 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
 
     @Override
     public void disconnectIfExist(final K key) {
-        if (sinks.containsKey(key)) {
+        if (isExist(key)) {
             complete(key);
         }
     }
