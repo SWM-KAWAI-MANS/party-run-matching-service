@@ -32,8 +32,4 @@ public class MatchingMember {
     public void changeStatus(final MatchingMemberStatus status) {
         this.status = status;
     }
-
-    public boolean equalsId(final String id) {
-        return this.id.equals(id);
-    }
 }

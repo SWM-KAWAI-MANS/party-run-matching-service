@@ -58,19 +58,23 @@ public class MatchingService {
     public Mono<Matching> setMemberStatus(
             final Mono<String> member, final MatchingRequest request) {
         return member.flatMap(
-                mid ->
-                        matchingRepository
-                                .findByMembersIdAndMembersStatus(
-                                        mid, MatchingMemberStatus.NO_RESPONSE)
-                                .flatMap(
-                                        match -> {
-                                            match.updateMemberStatus(
-                                                    mid,
-                                                    MatchingMemberStatus.getByIsJoin(
-                                                            request.isJoin()));
-                                            return matchingRepository.save(match);
-                                        })
-                                .doOnSuccess(this::sendEvent));
+                        mid ->
+                                matchingRepository
+                                        .findByMembersIdAndMembersStatus(
+                                                mid, MatchingMemberStatus.NO_RESPONSE)
+                                        .flatMap(match ->
+                                                matchingRepository.updateMatchingMemberStatus(match.getId(), mid,
+                                                                MatchingMemberStatus.getByIsJoin(request.isJoin()))
+                                                        .then(Mono.defer(() -> matchingRepository.findById(match.getId())))
+                                        )
+                ).flatMap(match -> {
+                    final boolean isUpdated = match.updateStatus();
+                    if(isUpdated) {
+                        return matchingRepository.save(match);
+                    }
+                   return Mono.just(match);
+                })
+                .doOnSuccess(this::sendEvent);
     }
 
     private void sendEvent(final Matching matching) {

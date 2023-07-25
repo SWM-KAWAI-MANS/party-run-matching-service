@@ -47,20 +47,12 @@ public class Matching {
         members.forEach(member -> member.changeStatus(MatchingMemberStatus.CANCELED));
     }
 
-    public void updateMemberStatus(final String memberId, final MatchingMemberStatus status) {
-        final MatchingMember member = findMember(memberId);
-        member.changeStatus(status);
-        this.status = getMatchStatus();
+    public boolean updateStatus() {
+        this.status = generateMatchingStatus();
+        return !this.status.equals(MatchingStatus.WAIT);
     }
 
-    private MatchingMember findMember(String memberId) {
-        return this.members.stream()
-                .filter(member -> member.equalsId(memberId))
-                .findAny()
-                .orElseThrow();
-    }
-
-    private MatchingStatus getMatchStatus() {
+    private MatchingStatus generateMatchingStatus() {
         final List<MatchingMemberStatus> memberStatuses =
                 members.stream().map(MatchingMember::getStatus).toList();
         if (memberStatuses.contains(MatchingMemberStatus.CANCELED)) {
@@ -69,6 +61,6 @@ public class Matching {
         if (memberStatuses.stream().allMatch(MatchingMemberStatus.READY::equals)) {
             return MatchingStatus.SUCCESS;
         }
-        return this.status;
+        return MatchingStatus.WAIT;
     }
 }
