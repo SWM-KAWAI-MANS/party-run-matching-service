@@ -39,6 +39,7 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
         checkKeyNotNull(key);
         sinks.putIfAbsent(key, Sinks.many().unicast().onBackpressureBuffer());
     }
+
     private void checkKeyNotNull(K key) {
         if (Objects.isNull(key)) {
             throw new NullKeyException();
