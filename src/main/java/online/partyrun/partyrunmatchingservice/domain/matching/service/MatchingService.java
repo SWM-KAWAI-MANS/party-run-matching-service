@@ -38,7 +38,7 @@ public class MatchingService {
                             matching.cancel();
                             return matchingRepository.save(matching);
                         })
-                .blockLast();
+                .subscribe();
     }
 
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
