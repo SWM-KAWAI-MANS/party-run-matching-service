@@ -35,6 +35,17 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
     }
 
     @Override
+    public void create(K key) {
+        checkKeyNotNull(key);
+        sinks.putIfAbsent(key, Sinks.many().unicast().onBackpressureBuffer());
+    }
+    private void checkKeyNotNull(K key) {
+        if (Objects.isNull(key)) {
+            throw new NullKeyException();
+        }
+    }
+
+    @Override
     public void sendEvent(final K key, final V value) {
         getSink(key).tryEmitNext(value);
     }
@@ -46,9 +57,9 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
     }
 
     @Override
-    public void create(K key) {
-        checkKeyNotNull(key);
-        sinks.putIfAbsent(key, Sinks.many().unicast().onBackpressureBuffer());
+    public void shutdown() {
+        sinks.keySet().forEach(key -> sinks.get(key).tryEmitComplete());
+        sinks.clear();
     }
 
     private Sinks.Many<V> getSink(K key) {
@@ -63,24 +74,12 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
         }
     }
 
-    private void checkKeyNotNull(K key) {
-        if (Objects.isNull(key)) {
-            throw new NullKeyException();
-        }
-    }
-
     private boolean isNonExists(K key) {
         return !sinks.containsKey(key);
     }
 
     private Duration timeout() {
         return Duration.ofMinutes(DEFAULT_MINUTE);
-    }
-
-    @Override
-    public void shutdown() {
-        sinks.keySet().forEach(key -> sinks.get(key).tryEmitComplete());
-        sinks.clear();
     }
 
     @Override
