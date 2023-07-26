@@ -50,6 +50,7 @@ public class Matching {
     public void updateStatus() {
         this.status = generateMatchingStatus();
     }
+
     public boolean isWait() {
         return this.status.isWait();
     }
