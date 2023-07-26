@@ -18,7 +18,8 @@ import java.util.Objects;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Matching {
     private static final int MIN_DISTANCE = 1;
-    @Id String id;
+    @Id
+    String id;
     List<MatchingMember> members;
     int distance;
     MatchingStatus status = MatchingStatus.WAIT;
@@ -56,12 +57,10 @@ public class Matching {
     }
 
     private MatchingStatus generateMatchingStatus() {
-        final List<MatchingMemberStatus> memberStatuses =
-                members.stream().map(MatchingMember::getStatus).toList();
-        if (memberStatuses.contains(MatchingMemberStatus.CANCELED)) {
+        if (this.members.stream().anyMatch(MatchingMember::isCanceled)) {
             return MatchingStatus.CANCEL;
         }
-        if (memberStatuses.stream().allMatch(MatchingMemberStatus.READY::equals)) {
+        if (this.members.stream().allMatch(MatchingMember::isReady)) {
             return MatchingStatus.SUCCESS;
         }
         return MatchingStatus.WAIT;

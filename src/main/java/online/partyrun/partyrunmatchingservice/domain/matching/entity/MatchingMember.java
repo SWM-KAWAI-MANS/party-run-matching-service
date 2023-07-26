@@ -32,4 +32,12 @@ public class MatchingMember {
     public void changeStatus(final MatchingMemberStatus status) {
         this.status = status;
     }
+
+    public boolean isCanceled() {
+        return status == MatchingMemberStatus.CANCELED;
+    }
+
+    public boolean isReady() {
+        return status == MatchingMemberStatus.READY;
+    }
 }
