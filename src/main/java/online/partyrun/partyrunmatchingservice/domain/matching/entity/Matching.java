@@ -18,8 +18,7 @@ import java.util.Objects;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Matching {
     private static final int MIN_DISTANCE = 1;
-    @Id
-    String id;
+    @Id String id;
     List<MatchingMember> members;
     int distance;
     MatchingStatus status = MatchingStatus.WAIT;
