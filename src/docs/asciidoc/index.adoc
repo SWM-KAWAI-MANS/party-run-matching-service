@@ -13,3 +13,9 @@ operation::create-waiting[snippets='http-request,http-response']
 === waiting event stream 요청
 
 operation::get-waiting-event[snippets='http-request,http-response']
+
+== Matching
+
+=== Matching 수락/거절 전송
+
+operation::create-matching[snippets='http-request,http-response']

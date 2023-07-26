@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
@@ -52,5 +53,48 @@ public class MatchingService {
                                             matchingSinkHandler.sendEvent(
                                                     member.getId(), new MatchEvent(match));
                                         }));
+    }
+
+    public Mono<Matching> setMemberStatus(
+            final Mono<String> member, final MatchingRequest request) {
+        return member.flatMap(
+                        mid ->
+                                matchingRepository
+                                        .findByMembersIdAndMembersStatus(
+                                                mid, MatchingMemberStatus.NO_RESPONSE)
+                                        .flatMap(
+                                                match ->
+                                                        matchingRepository
+                                                                .updateMatchingMemberStatus(
+                                                                        match.getId(),
+                                                                        mid,
+                                                                        MatchingMemberStatus
+                                                                                .getByIsJoin(
+                                                                                        request
+                                                                                                .isJoin()))
+                                                                .then(
+                                                                        Mono.defer(
+                                                                                () ->
+                                                                                        matchingRepository
+                                                                                                .findById(
+                                                                                                        match
+                                                                                                                .getId())))))
+                .flatMap(
+                        match -> {
+                            match.updateStatus();
+                            if (!match.isWait()) {
+                                return matchingRepository.save(match);
+                            }
+                            return Mono.just(match);
+                        })
+                .doOnSuccess(this::sendEvent);
+    }
+
+    private void sendEvent(final Matching matching) {
+        matching.getMembers()
+                .forEach(
+                        member ->
+                                matchingSinkHandler.sendEvent(
+                                        member.getId(), new MatchEvent(matching)));
     }
 }

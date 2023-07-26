@@ -33,7 +33,11 @@ public class MatchingMember {
         this.status = status;
     }
 
-    public boolean equalsId(final String id) {
-        return this.id.equals(id);
+    public boolean isCanceled() {
+        return status == MatchingMemberStatus.CANCELED;
+    }
+
+    public boolean isReady() {
+        return status == MatchingMemberStatus.READY;
     }
 }

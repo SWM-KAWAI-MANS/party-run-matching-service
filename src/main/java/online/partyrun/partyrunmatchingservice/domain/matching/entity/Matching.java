@@ -47,28 +47,21 @@ public class Matching {
         members.forEach(member -> member.changeStatus(MatchingMemberStatus.CANCELED));
     }
 
-    public void updateMemberStatus(final String memberId, final MatchingMemberStatus status) {
-        final MatchingMember member = findMember(memberId);
-        member.changeStatus(status);
-        this.status = getMatchStatus();
+    public void updateStatus() {
+        this.status = generateMatchingStatus();
     }
 
-    private MatchingMember findMember(String memberId) {
-        return this.members.stream()
-                .filter(member -> member.equalsId(memberId))
-                .findAny()
-                .orElseThrow();
+    public boolean isWait() {
+        return this.status.isWait();
     }
 
-    private MatchingStatus getMatchStatus() {
-        final List<MatchingMemberStatus> memberStatuses =
-                members.stream().map(MatchingMember::getStatus).toList();
-        if (memberStatuses.contains(MatchingMemberStatus.CANCELED)) {
+    private MatchingStatus generateMatchingStatus() {
+        if (this.members.stream().anyMatch(MatchingMember::isCanceled)) {
             return MatchingStatus.CANCEL;
         }
-        if (memberStatuses.stream().allMatch(MatchingMemberStatus.READY::equals)) {
+        if (this.members.stream().allMatch(MatchingMember::isReady)) {
             return MatchingStatus.SUCCESS;
         }
-        return this.status;
+        return MatchingStatus.WAIT;
     }
 }
