@@ -47,9 +47,11 @@ public class Matching {
         members.forEach(member -> member.changeStatus(MatchingMemberStatus.CANCELED));
     }
 
-    public boolean updateStatus() {
+    public void updateStatus() {
         this.status = generateMatchingStatus();
-        return !this.status.equals(MatchingStatus.WAIT);
+    }
+    public boolean isWait() {
+        return this.status.isWait();
     }
 
     private MatchingStatus generateMatchingStatus() {

@@ -81,8 +81,8 @@ public class MatchingService {
                                                                                                                 .getId())))))
                 .flatMap(
                         match -> {
-                            final boolean isUpdated = match.updateStatus();
-                            if (isUpdated) {
+                            match.updateStatus();
+                            if (!match.isWait()) {
                                 return matchingRepository.save(match);
                             }
                             return Mono.just(match);

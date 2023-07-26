@@ -83,7 +83,7 @@ class MatchingServiceTest {
 
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-    class Member생성을_진행한_후_Member_상태_변경_오청시 {
+    class Member생성을_진행한_후_Member_상태_변경_요청시 {
         Mono<String> 현준 = Mono.just(members.get(0));
         Mono<String> 성우 = Mono.just(members.get(1));
         Mono<String> 준혁 = Mono.just(members.get(2));
