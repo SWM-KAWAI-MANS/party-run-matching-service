@@ -126,7 +126,6 @@ class MatchingServiceTest {
                                     assertThat(match.getStatus()).isEqualTo(MatchingStatus.CANCEL);
                                 })
                         .verifyComplete();
-
             }
 
             @Test
@@ -228,14 +227,16 @@ class MatchingServiceTest {
             @DisplayName("구독을 진행시에 수락 이벤트를 받고 종료한다.")
             void runSubscribe() {
                 matchingService.create(members, 1000).block();
-                int eventCount = 1 + members.size(); //Connection 값, 각 member 수락 이벤트 값 포함
-                members.forEach(member -> matchingService.setMemberStatus(Mono.just(member), 수락).block());
+                int eventCount = 1 + members.size(); // Connection 값, 각 member 수락 이벤트 값 포함
+                members.forEach(
+                        member -> matchingService.setMemberStatus(Mono.just(member), 수락).block());
 
-                members.forEach(member ->
-                        StepVerifier.create(matchingService.getEventSteam(Mono.just(member)))
-                                .expectNextCount(eventCount)
-                                .verifyComplete()
-                );
+                members.forEach(
+                        member ->
+                                StepVerifier.create(
+                                                matchingService.getEventSteam(Mono.just(member)))
+                                        .expectNextCount(eventCount)
+                                        .verifyComplete());
                 assertThat(sseHandler.getConnectors()).isEmpty();
             }
         }
