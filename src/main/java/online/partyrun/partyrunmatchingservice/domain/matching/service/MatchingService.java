@@ -9,10 +9,12 @@ import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
+import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 
 import org.springframework.stereotype.Service;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -96,5 +98,14 @@ public class MatchingService {
                         member ->
                                 matchingSinkHandler.sendEvent(
                                         member.getId(), new MatchEvent(matching)));
+    }
+
+    public Flux<MatchEvent> getEventSteam(final Mono<String> member) {
+        return member.flatMapMany(id -> matchingSinkHandler.connect(id)
+                .doOnNext(event -> {
+                    if (!event.status().isWait()) {
+                        matchingSinkHandler.complete(id);
+                    }
+                }));
     }
 }
