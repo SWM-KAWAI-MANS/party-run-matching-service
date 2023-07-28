@@ -22,7 +22,6 @@ jib {
         image = "openjdk:17"
     }
     to {
-        image = "phjppo0918/party-run-matching"
         tags = ["latest"]
     }
     container {
