@@ -4,7 +4,6 @@ spring:
   main:
     allow-bean-definition-overriding: true
     web-application-type: reactive
-
   profiles:
     active: test
 de:
@@ -14,13 +13,16 @@ de:
         version: 6.0.6
 jwt:
   access-secret-key: "asfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasd"
-
 ---
 
 spring:
   config:
     activate:
       on-profile: local, dev, prd
-
+  data:
+    mongodb:
+      uri: ${DB_URI}
+    redis:
+      url: ${REDIS_URL}
 jwt:
   access-secret-key: ${JWT_ACCESS_SECRET_KEY}
