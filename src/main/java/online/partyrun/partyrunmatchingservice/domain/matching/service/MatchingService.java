@@ -50,16 +50,12 @@ public class MatchingService {
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
         return matchingRepository
                 .save(new Matching(members, distance))
-                .doOnSuccess(
-                        match ->
-                                members.forEach(member ->
-                                        createSink(match, member)));
+                .doOnSuccess(match -> members.forEach(member -> createSink(match, member)));
     }
 
     private void createSink(final Matching match, final MatchingMember member) {
         matchingSinkHandler.create(member.getId());
-        matchingSinkHandler.sendEvent(
-                member.getId(), new MatchEvent(match));
+        matchingSinkHandler.sendEvent(member.getId(), new MatchEvent(match));
     }
 
     public Mono<Matching> setMemberStatus(
@@ -69,29 +65,28 @@ public class MatchingService {
                 .doOnSuccess(this::multiCastEvent);
     }
 
-    private Mono<Matching> updateMatchMemberStatus(final MatchingRequest request, final String memberId) {
+    private Mono<Matching> updateMatchMemberStatus(
+            final MatchingRequest request, final String memberId) {
         return findMatchingByNoResponseMember(memberId)
                 .flatMap(toUpdateMatching(request.isJoin(), memberId));
     }
 
     private Mono<Matching> findMatchingByNoResponseMember(final String memberId) {
-        return matchingRepository
-                .findByMembersIdAndMembersStatus(
-                        memberId, MatchingMemberStatus.NO_RESPONSE);
+        return matchingRepository.findByMembersIdAndMembersStatus(
+                memberId, MatchingMemberStatus.NO_RESPONSE);
     }
 
-    private Function<Matching, Mono<? extends Matching>> toUpdateMatching(final boolean isJoin, final String memberId) {
+    private Function<Matching, Mono<? extends Matching>> toUpdateMatching(
+            final boolean isJoin, final String memberId) {
         return matching -> findByMemberIdAndUpdate(isJoin, memberId, matching.getId());
     }
-    private Mono<Matching> findByMemberIdAndUpdate(final boolean isJoin, final String memberId, final String matchingId) {
+
+    private Mono<Matching> findByMemberIdAndUpdate(
+            final boolean isJoin, final String memberId, final String matchingId) {
         return matchingRepository
                 .updateMatchingMemberStatus(
-                        matchingId,
-                        memberId,
-                        MatchingMemberStatus
-                                .getByIsJoin(isJoin))
-                .then(Mono.defer(
-                        () -> matchingRepository.findById(matchingId)));
+                        matchingId, memberId, MatchingMemberStatus.getByIsJoin(isJoin))
+                .then(Mono.defer(() -> matchingRepository.findById(matchingId)));
     }
 
     private Mono<Matching> updateMatchStatus(final Matching match) {
