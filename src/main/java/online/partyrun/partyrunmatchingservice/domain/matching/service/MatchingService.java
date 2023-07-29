@@ -42,7 +42,8 @@ public class MatchingService {
     }
 
     private Function<Matching, Publisher<Void>> cancelMatching() {
-        return matching -> matchingRepository.updateMatchingStatus(matching.getId(), MatchingStatus.CANCEL);
+        return matching ->
+                matchingRepository.updateMatchingStatus(matching.getId(), MatchingStatus.CANCEL);
     }
 
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
@@ -58,8 +59,7 @@ public class MatchingService {
 
     public Mono<Matching> setMemberStatus(
             final Mono<String> member, final MatchingRequest request) {
-        return member
-                .flatMap(memberId -> updateMatchMemberStatus(request, memberId))
+        return member.flatMap(memberId -> updateMatchMemberStatus(request, memberId))
                 .flatMap(this::updateMatchStatus)
                 .doOnSuccess(this::multiCastEvent);
     }
