@@ -23,8 +23,4 @@ public interface MatchingRepository extends ReactiveMongoRepository<Matching, St
     @Update("{$set : {'members.$.status': ?2}}")
     Mono<Void> updateMatchingMemberStatus(
             String matchingId, String memberId, MatchingMemberStatus status);
-
-    @Query("{'id': ?0}")
-    @Update("{$set : {'status': ?1}}")
-    Mono<Void> updateMatchingStatus(String id, MatchingStatus status);
 }

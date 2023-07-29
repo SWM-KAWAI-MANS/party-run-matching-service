@@ -41,9 +41,11 @@ public class MatchingService {
                 .subscribe();
     }
 
-    private Function<Matching, Publisher<Void>> cancelMatching() {
-        return matching ->
-                matchingRepository.updateMatchingStatus(matching.getId(), MatchingStatus.CANCEL);
+    private Function<Matching, Publisher<Matching>> cancelMatching() {
+        return matching -> {
+            matching.cancel();
+            return matchingRepository.save(matching);
+        };
     }
 
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
