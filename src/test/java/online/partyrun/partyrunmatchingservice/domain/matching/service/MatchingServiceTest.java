@@ -37,6 +37,11 @@ class MatchingServiceTest {
     @Autowired MatchingRepository matchingRepository;
 
     final List<String> members = List.of("현준", "성우", "준혁");
+    Mono<String> 현준 = Mono.just(members.get(0));
+    Mono<String> 성우 = Mono.just(members.get(1));
+    Mono<String> 준혁 = Mono.just(members.get(2));
+    MatchingRequest 수락 = new MatchingRequest(true);
+    MatchingRequest 거절 = new MatchingRequest(false);
     final int distance = 1000;
 
     @BeforeEach
@@ -84,11 +89,6 @@ class MatchingServiceTest {
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class Member생성을_진행한_후_Member_상태_변경_요청시 {
-        Mono<String> 현준 = Mono.just(members.get(0));
-        Mono<String> 성우 = Mono.just(members.get(1));
-        Mono<String> 준혁 = Mono.just(members.get(2));
-        MatchingRequest 수락 = new MatchingRequest(true);
-        MatchingRequest 거절 = new MatchingRequest(false);
 
         @Test
         @DisplayName("member 상태를 설정한다")
@@ -186,6 +186,18 @@ class MatchingServiceTest {
                 final Matching block = matchingRepository.findById(matcing.getId()).block();
                 assertThat(block.getStatus()).isEqualTo(MatchingStatus.SUCCESS);
             }
+
+            @Test
+            @DisplayName("구독을 진행시에 거절 이벤트를 받고 종료한다.")
+            void runSubscribe() {
+                matchingService.create(members, 1000).block();
+                matchingService.setMemberStatus(현준, 거절).block();
+
+                StepVerifier.create(matchingService.getEventSteam(현준))
+                        .expectNextCount(2)
+                        .verifyComplete();
+                assertThat(sseHandler.getConnectors()).isNotIn(현준.block());
+            }
         }
 
         @Nested
@@ -209,6 +221,23 @@ class MatchingServiceTest {
                                     assertThat(match.getStatus()).isEqualTo(MatchingStatus.SUCCESS);
                                 })
                         .verifyComplete();
+            }
+
+            @Test
+            @DisplayName("구독을 진행시에 수락 이벤트를 받고 종료한다.")
+            void runSubscribe() {
+                matchingService.create(members, 1000).block();
+                int eventCount = 1 + members.size(); // Connection 값, 각 member 수락 이벤트 값 포함
+                members.forEach(
+                        member -> matchingService.setMemberStatus(Mono.just(member), 수락).block());
+
+                members.forEach(
+                        member ->
+                                StepVerifier.create(
+                                                matchingService.getEventSteam(Mono.just(member)))
+                                        .expectNextCount(eventCount)
+                                        .verifyComplete());
+                assertThat(sseHandler.getConnectors()).isEmpty();
             }
         }
     }

@@ -5,6 +5,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
+import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -31,7 +33,8 @@ class MatchingControllerTest extends WebfluxDocsTest {
     @Test
     @DisplayName("post : match 수락 여부 전송")
     void postMatching() {
-        given(matchingService.setMemberStatus(any(), any())).willReturn(Mono.just(matching));
+        given(matchingService.setMemberStatus(any(Mono.class), any(MatchingRequest.class)))
+                .willReturn(Mono.just(matching));
 
         client.post()
                 .uri("/matching")
@@ -42,5 +45,20 @@ class MatchingControllerTest extends WebfluxDocsTest {
                 .isCreated()
                 .expectBody()
                 .consumeWith(document("create-matching"));
+    }
+
+    @Test
+    @DisplayName("get : waiting event 요청")
+    void getMatching() {
+        given(matchingService.getEventSteam(any(Mono.class)))
+                .willReturn(Flux.just(new MatchEvent(matching), new MatchEvent(matching)));
+        client.get()
+                .uri("/matching/event")
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus()
+                .isOk()
+                .expectBody()
+                .consumeWith(document("get-matching-event"));
     }
 }
