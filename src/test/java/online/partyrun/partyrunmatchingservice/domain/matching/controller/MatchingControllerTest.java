@@ -33,7 +33,8 @@ class MatchingControllerTest extends WebfluxDocsTest {
     @Test
     @DisplayName("post : match 수락 여부 전송")
     void postMatching() {
-        given(matchingService.setMemberStatus(any(Mono.class), any())).willReturn(Mono.just(matching));
+        given(matchingService.setMemberStatus(any(Mono.class), any()))
+                .willReturn(Mono.just(matching));
 
         client.post()
                 .uri("/matching")
