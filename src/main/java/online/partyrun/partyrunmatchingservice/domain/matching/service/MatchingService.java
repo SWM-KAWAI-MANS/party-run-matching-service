@@ -40,7 +40,7 @@ public class MatchingService {
                 .subscribe();
     }
 
-    private Function<Matching, Publisher<? extends Matching>> toCancelAndSave() {
+    private Function<Matching, Publisher<Matching>> toCancelAndSave() {
         return matching -> {
             matching.cancel();
             return matchingRepository.save(matching);
@@ -76,7 +76,7 @@ public class MatchingService {
                 memberId, MatchingMemberStatus.NO_RESPONSE);
     }
 
-    private Function<Matching, Mono<? extends Matching>> toUpdateMatching(
+    private Function<Matching, Mono<Matching>> toUpdateMatching(
             final boolean isJoin, final String memberId) {
         return matching -> findByMemberIdAndUpdate(isJoin, memberId, matching.getId());
     }
