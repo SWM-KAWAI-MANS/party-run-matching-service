@@ -17,7 +17,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.function.Function;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -28,8 +27,7 @@ public class MatchingService {
 
     public Mono<Matching> create(final List<String> memberIds, final int distance) {
         final List<MatchingMember> members = memberIds.stream().map(MatchingMember::new).toList();
-        return disconnectLeftMember(memberIds)
-                .then(saveMatchAndSendEvents(members, distance));
+        return disconnectLeftMember(memberIds).then(saveMatchAndSendEvents(members, distance));
     }
 
     private Mono<Void> disconnectLeftMember(List<String> memberIds) {
@@ -40,7 +38,6 @@ public class MatchingService {
                 .flatMap(matchingRepository::save)
                 .then();
     }
-
 
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
         return matchingRepository
@@ -60,10 +57,10 @@ public class MatchingService {
                 .doOnSuccess(this::multiCastEvent);
     }
 
-    private Mono<Matching> updateMatchingMemberStatus(final MatchingRequest request, final String memberId) {
+    private Mono<Matching> updateMatchingMemberStatus(
+            final MatchingRequest request, final String memberId) {
         return findMatchingByNoResponseMember(memberId)
-                .flatMap(matching ->
-                        updateMatching(request.isJoin(), memberId, matching.getId()));
+                .flatMap(matching -> updateMatching(request.isJoin(), memberId, matching.getId()));
     }
 
     private Mono<Matching> findMatchingByNoResponseMember(final String memberId) {
@@ -71,8 +68,11 @@ public class MatchingService {
                 memberId, MatchingMemberStatus.NO_RESPONSE);
     }
 
-    private Mono<Matching> updateMatching(final boolean isJoin, final String memberId, final String matchingId) {
-        return matchingRepository.updateMatchingMemberStatus(matchingId, memberId, MatchingMemberStatus.getByIsJoin(isJoin))
+    private Mono<Matching> updateMatching(
+            final boolean isJoin, final String memberId, final String matchingId) {
+        return matchingRepository
+                .updateMatchingMemberStatus(
+                        matchingId, memberId, MatchingMemberStatus.getByIsJoin(isJoin))
                 .then(Mono.defer(() -> matchingRepository.findById(matchingId)));
     }
 
