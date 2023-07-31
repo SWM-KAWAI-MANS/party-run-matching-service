@@ -53,9 +53,9 @@ public class InMemoryWaitingQueue implements WaitingQueue {
     }
 
     @Override
-    public boolean hasMember(String userId) {
+    public boolean hasMember(String memberId) {
         return Arrays.stream(RunningDistance.values())
                 .map(map::get)
-                .anyMatch(q -> q.contains(userId));
+                .anyMatch(q -> q.contains(memberId));
     }
 }

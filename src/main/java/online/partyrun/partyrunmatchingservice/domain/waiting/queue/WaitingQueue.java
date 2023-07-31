@@ -12,5 +12,5 @@ public interface WaitingQueue {
 
     List<String> poll(RunningDistance distance);
 
-    boolean hasMember(String userId);
+    boolean hasMember(String memberId);
 }
