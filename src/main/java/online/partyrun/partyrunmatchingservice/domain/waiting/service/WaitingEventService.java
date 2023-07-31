@@ -7,8 +7,8 @@ import lombok.experimental.FieldDefaults;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
-
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -55,10 +55,12 @@ public class WaitingEventService {
     public void removeUnConnectedSink() {
         waitingSinkHandler.getConnectors().stream()
                 .filter(connect -> !waitingQueue.hasMember(connect))
-                .forEach(key -> {
-                    waitingSinkHandler.disconnectIfExist(key);
-                    matchingService.setMemberStatus(Mono.just(key), new MatchingRequest(false)).subscribe();
-                });
-
+                .forEach(
+                        key -> {
+                            waitingSinkHandler.disconnectIfExist(key);
+                            matchingService
+                                    .setMemberStatus(Mono.just(key), new MatchingRequest(false))
+                                    .subscribe();
+                        });
     }
 }

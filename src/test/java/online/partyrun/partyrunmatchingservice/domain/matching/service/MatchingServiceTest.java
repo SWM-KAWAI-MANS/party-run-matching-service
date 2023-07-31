@@ -1,6 +1,9 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import lombok.SneakyThrows;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
@@ -9,10 +12,12 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -22,20 +27,14 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @DisplayName("MatchingService")
 @Import(RedisTestConfig.class)
 class MatchingServiceTest {
-    @Autowired
-    MatchingService matchingService;
-    @Autowired
-    MatchingSinkHandler sseHandler;
-    @Autowired
-    MatchingRepository matchingRepository;
-    @Autowired
-    Clock clock;
+    @Autowired MatchingService matchingService;
+    @Autowired MatchingSinkHandler sseHandler;
+    @Autowired MatchingRepository matchingRepository;
+    @Autowired Clock clock;
 
     final List<String> members = List.of("현준", "성우", "준혁");
     Mono<String> 현준 = Mono.just(members.get(0));
@@ -119,8 +118,8 @@ class MatchingServiceTest {
                         .assertNext(
                                 match -> {
                                     assertThat(
-                                            match.getMembers().stream()
-                                                    .map(MatchingMember::getId))
+                                                    match.getMembers().stream()
+                                                            .map(MatchingMember::getId))
                                             .contains("현준", "성우", "준혁");
                                     assertThat(match.getDistance())
                                             .isEqualTo(RunningDistance.M1000.getMeter());
@@ -140,8 +139,8 @@ class MatchingServiceTest {
                         .assertNext(
                                 match -> {
                                     assertThat(
-                                            match.getMembers().stream()
-                                                    .map(MatchingMember::getId))
+                                                    match.getMembers().stream()
+                                                            .map(MatchingMember::getId))
                                             .contains("현준", "성우", "준혁");
                                     assertThat(match.getDistance())
                                             .isEqualTo(RunningDistance.M1000.getMeter());
@@ -161,8 +160,8 @@ class MatchingServiceTest {
                         .assertNext(
                                 match -> {
                                     assertThat(
-                                            match.getMembers().stream()
-                                                    .map(MatchingMember::getId))
+                                                    match.getMembers().stream()
+                                                            .map(MatchingMember::getId))
                                             .contains("현준", "성우", "준혁");
                                     assertThat(match.getDistance())
                                             .isEqualTo(RunningDistance.M1000.getMeter());
@@ -213,8 +212,8 @@ class MatchingServiceTest {
                         .assertNext(
                                 match -> {
                                     assertThat(
-                                            match.getMembers().stream()
-                                                    .map(MatchingMember::getId))
+                                                    match.getMembers().stream()
+                                                            .map(MatchingMember::getId))
                                             .contains("현준", "성우", "준혁");
                                     assertThat(match.getDistance())
                                             .isEqualTo(RunningDistance.M1000.getMeter());
@@ -247,7 +246,8 @@ class MatchingServiceTest {
     class Scadule이_동작할때 {
         Clock mockClock = Clock.fixed(clock.instant().plusSeconds(14400), clock.getZone());
 
-        MatchingService laterMatchingService = new MatchingService(matchingRepository, sseHandler, mockClock);
+        MatchingService laterMatchingService =
+                new MatchingService(matchingRepository, sseHandler, mockClock);
 
         @Test
         @DisplayName("TIMEOUT된 Match를 삭제한다")
@@ -255,14 +255,21 @@ class MatchingServiceTest {
         void runDeleteIfTimeOver() {
             matchingService.create(members, 1000).block();
 
-            Mono.defer(() -> {
-                laterMatchingService.removeUnConnectedSink();
-                return Mono.delay(Duration.ofMillis(20));
-            }).doOnTerminate(() -> {
-                final Matching matching = matchingRepository.findAllByStatus(MatchingStatus.WAIT).blockLast();
-                assertThat(sseHandler.getConnectors()).isEmpty();
-                assertThat(matching).isNull();
-            }).subscribe();
+            Mono.defer(
+                            () -> {
+                                laterMatchingService.removeUnConnectedSink();
+                                return Mono.delay(Duration.ofMillis(20));
+                            })
+                    .doOnTerminate(
+                            () -> {
+                                final Matching matching =
+                                        matchingRepository
+                                                .findAllByStatus(MatchingStatus.WAIT)
+                                                .blockLast();
+                                assertThat(sseHandler.getConnectors()).isEmpty();
+                                assertThat(matching).isNull();
+                            })
+                    .subscribe();
         }
 
         @Test
