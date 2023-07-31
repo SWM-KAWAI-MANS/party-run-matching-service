@@ -48,4 +48,5 @@ public class WaitingMessageListener implements MessageListener {
                             }
                         });
     }
+
 }

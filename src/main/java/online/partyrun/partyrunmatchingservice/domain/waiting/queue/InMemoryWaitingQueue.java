@@ -51,4 +51,11 @@ public class InMemoryWaitingQueue implements WaitingQueue {
         }
         return IntStream.range(0, SATISFY_COUNT).mapToObj(i -> map.get(distance).poll()).toList();
     }
+
+    @Override
+    public boolean hasMember(String userId) {
+        return Arrays.stream(RunningDistance.values())
+                .map(map::get)
+                .anyMatch(q -> q.contains(userId));
+    }
 }

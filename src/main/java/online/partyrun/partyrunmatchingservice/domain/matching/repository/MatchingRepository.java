@@ -3,6 +3,7 @@ package online.partyrun.partyrunmatchingservice.domain.matching.repository;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 
+import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.data.mongodb.repository.Update;
@@ -22,4 +23,6 @@ public interface MatchingRepository extends ReactiveMongoRepository<Matching, St
     @Update("{$set : {'members.$.status': ?2}}")
     Mono<Void> updateMatchingMemberStatus(
             String matchingId, String memberId, MatchingMemberStatus status);
+
+    Flux<Matching> findAllByStatus(MatchingStatus status);
 }

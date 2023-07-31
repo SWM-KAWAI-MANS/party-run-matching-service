@@ -10,6 +10,7 @@ import online.partyrun.partyrunmatchingservice.domain.matching.exception.Invalid
 
 import org.springframework.data.annotation.Id;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,16 +19,19 @@ import java.util.Objects;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Matching {
     private static final int MIN_DISTANCE = 1;
+    private static final int TIMEOUT_HOUR = 2;
     @Id String id;
     List<MatchingMember> members;
     int distance;
     MatchingStatus status = MatchingStatus.WAIT;
+    LocalDateTime startAt;
 
-    public Matching(final List<MatchingMember> members, int distance) {
+    public Matching(final List<MatchingMember> members, int distance, LocalDateTime startAt) {
         validateMembers(members);
         validateDistance(distance);
         this.members = members;
         this.distance = distance;
+        this.startAt = startAt;
     }
 
     private void validateDistance(int distance) {
@@ -63,5 +67,9 @@ public class Matching {
             return MatchingStatus.SUCCESS;
         }
         return MatchingStatus.WAIT;
+    }
+
+    public boolean isTimeOut(LocalDateTime now) {
+        return this.startAt.isBefore(now.minusHours(TIMEOUT_HOUR));
     }
 }
