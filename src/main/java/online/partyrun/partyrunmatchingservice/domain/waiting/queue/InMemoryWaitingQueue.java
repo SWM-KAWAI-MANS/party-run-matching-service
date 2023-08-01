@@ -40,13 +40,13 @@ public class InMemoryWaitingQueue implements WaitingQueue {
     }
 
     @Override
-    public boolean satisfyCount(final RunningDistance distance) {
+    public boolean isSatisfyCount(final RunningDistance distance) {
         return map.get(distance).size() >= SATISFY_COUNT;
     }
 
     @Override
     public List<String> poll(final RunningDistance distance) {
-        if (!satisfyCount(distance)) {
+        if (!isSatisfyCount(distance)) {
             throw new NotSatisfyCountException();
         }
         return IntStream.range(0, SATISFY_COUNT).mapToObj(i -> map.get(distance).poll()).toList();

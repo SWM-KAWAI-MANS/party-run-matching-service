@@ -8,7 +8,7 @@ import java.util.List;
 public interface WaitingQueue {
     void add(WaitingMember user);
 
-    boolean satisfyCount(RunningDistance distance);
+    boolean isSatisfyCount(RunningDistance distance);
 
     List<String> poll(RunningDistance distance);
 }
