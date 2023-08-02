@@ -2,7 +2,7 @@ package online.partyrun.partyrunmatchingservice.domain.matching.entity;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidMembersException;
+import online.partyrun.partyrunmatchingservice.domain.matching.exception.NotExistMembersException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
 
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +20,7 @@ class MatchingTest {
     @DisplayName("matching 생성 시 members가 null이거나 empty 에외를 반환한다.")
     void throwInvalidMember(List<MatchingMember> members) {
         assertThatThrownBy(() -> new Matching(members, 1000))
-                .isInstanceOf(InvalidMembersException.class);
+                .isInstanceOf(NotExistMembersException.class);
     }
 
     @ParameterizedTest

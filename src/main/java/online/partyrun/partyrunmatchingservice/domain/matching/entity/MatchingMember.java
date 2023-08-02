@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidIdException;
+import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidMatchingIdException;
 
 import java.util.Objects;
 
@@ -25,7 +25,7 @@ public class MatchingMember {
 
     private void validateId(String id) {
         if (Objects.isNull(id) || id.isEmpty()) {
-            throw new InvalidIdException(id);
+            throw new InvalidMatchingIdException(id);
         }
     }
 
