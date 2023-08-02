@@ -6,14 +6,12 @@ import lombok.SneakyThrows;
 
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
-import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
-import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +23,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.util.List;
 
 @SpringBootTest
@@ -32,9 +32,9 @@ import java.util.List;
 @Import(RedisTestConfig.class)
 class MatchingServiceTest {
     @Autowired MatchingService matchingService;
-
-    @Autowired ServerSentEventHandler<String, MatchEvent> sseHandler;
+    @Autowired MatchingSinkHandler sseHandler;
     @Autowired MatchingRepository matchingRepository;
+    @Autowired Clock clock;
 
     final List<String> members = List.of("현준", "성우", "준혁");
     Mono<String> 현준 = Mono.just(members.get(0));
@@ -172,7 +172,6 @@ class MatchingServiceTest {
 
             @Test
             @DisplayName("동시 요청시에도 수행한다.")
-            @SneakyThrows
             void runParallel() {
                 final Matching matcing = matchingService.create(members, distance).block();
 
@@ -239,6 +238,51 @@ class MatchingServiceTest {
                                         .verifyComplete());
                 assertThat(sseHandler.getConnectors()).isEmpty();
             }
+        }
+    }
+
+    @Nested
+    @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+    class Scadule이_동작할때 {
+        Clock mockClock = Clock.fixed(clock.instant().plusSeconds(14400), clock.getZone());
+
+        MatchingService laterMatchingService =
+                new MatchingService(matchingRepository, sseHandler, mockClock);
+
+        @Test
+        @DisplayName("TIMEOUT된 Match를 삭제한다")
+        @SneakyThrows
+        void runDeleteIfTimeOver() {
+            matchingService.create(members, 1000).block();
+
+            Mono.defer(
+                            () -> {
+                                laterMatchingService.removeUnConnectedSink();
+                                return Mono.delay(Duration.ofMillis(20));
+                            })
+                    .doOnTerminate(
+                            () -> {
+                                final Matching matching =
+                                        matchingRepository
+                                                .findAllByStatus(MatchingStatus.WAIT)
+                                                .blockLast();
+                                assertThat(sseHandler.getConnectors()).isEmpty();
+                                assertThat(matching).isNull();
+                            })
+                    .subscribe();
+        }
+
+        @Test
+        @DisplayName("WAIT 된지 2시간이 지나지 않으면 Match를 삭제하지 않는다")
+        void runNotDeleteIfNotTimeOver() {
+
+            matchingService.create(members, 1000).block();
+            matchingService.removeUnConnectedSink();
+
+            StepVerifier.create(matchingRepository.findAllByStatus(MatchingStatus.WAIT))
+                    .expectNextCount(1)
+                    .verifyComplete();
+            assertThat(sseHandler.getConnectors()).isNotEmpty();
         }
     }
 }

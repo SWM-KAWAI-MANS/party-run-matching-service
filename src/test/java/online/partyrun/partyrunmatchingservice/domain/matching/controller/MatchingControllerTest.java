@@ -20,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @ContextConfiguration(classes = MatchingController.class)
@@ -28,7 +29,10 @@ import java.util.List;
 class MatchingControllerTest extends WebfluxDocsTest {
     @MockBean MatchingService matchingService;
     final Matching matching =
-            new Matching(List.of(new MatchingMember("현준"), new MatchingMember("준혁")), 1000);
+            new Matching(
+                    List.of(new MatchingMember("현준"), new MatchingMember("준혁")),
+                    1000,
+                    LocalDateTime.now());
 
     @Test
     @DisplayName("post : match 수락 여부 전송")

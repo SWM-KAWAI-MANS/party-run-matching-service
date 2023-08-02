@@ -1,5 +1,7 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 
 import org.junit.jupiter.api.*;
@@ -12,7 +14,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 @DisplayName("WaitingEventService")
-@SpringBootTest(classes = {WaitingEventService.class, WaitingSinkHandler.class})
+@SpringBootTest
 class WaitingEventServiceTest {
     @Autowired WaitingEventService waitingEventService;
     @Autowired WaitingSinkHandler waitingSinkHandler;
@@ -51,5 +53,15 @@ class WaitingEventServiceTest {
                                     .expectNext(WaitingStatus.MATCHED, WaitingStatus.CONNECTED)
                                     .verifyComplete());
         }
+    }
+
+    @Test
+    @DisplayName("timeout된 sink를 삭제한다")
+    void runDeleteSink() {
+
+        waitingSinkHandler.create("현준");
+        waitingEventService.removeUnConnectedSink();
+
+        assertThat(waitingSinkHandler.getConnectors()).doesNotContain("현준");
     }
 }

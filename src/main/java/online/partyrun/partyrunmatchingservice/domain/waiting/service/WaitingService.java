@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WaitingService {
-
     WaitingEventService eventService;
     WaitingMessagePublisher messagePublisher;
 
