@@ -20,9 +20,9 @@ class InMemoryWaitingQueueTest {
     @DisplayName("큐에 추가를 수행한 후 개수가 만족한 지 확인한다")
     void runAdd() {
         waitingQueue.add(현준);
-        assertThat(waitingQueue.satisfyCount(현준.distance())).isFalse();
+        assertThat(waitingQueue.isSatisfyCount(현준.distance())).isFalse();
         waitingQueue.add(성우);
-        assertThat(waitingQueue.satisfyCount(현준.distance())).isTrue();
+        assertThat(waitingQueue.isSatisfyCount(현준.distance())).isTrue();
     }
 
     @Test

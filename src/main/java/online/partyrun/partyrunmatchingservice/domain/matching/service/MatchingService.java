@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.function.Function;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,23 +34,16 @@ public class MatchingService {
 
     public Mono<Matching> create(final List<String> memberIds, final int distance) {
         final List<MatchingMember> members = memberIds.stream().map(MatchingMember::new).toList();
-        disconnectLeftMember(memberIds);
-        return saveMatchAndSendEvents(members, distance);
+        return disconnectLeftMember(memberIds).then(saveMatchAndSendEvents(members, distance));
     }
 
-    private void disconnectLeftMember(List<String> memberIds) {
+    private Mono<Void> disconnectLeftMember(List<String> memberIds) {
         memberIds.forEach(matchingSinkHandler::disconnectIfExist);
-        matchingRepository
+        return matchingRepository
                 .findAllByMembersIdInAndMembersStatus(memberIds, MatchingMemberStatus.NO_RESPONSE)
-                .flatMap(cancelMatching())
-                .subscribe();
-    }
-
-    private Function<Matching, Publisher<Matching>> cancelMatching() {
-        return matching -> {
-            matching.cancel();
-            return matchingRepository.save(matching);
-        };
+                .doOnNext(Matching::cancel)
+                .flatMap(matchingRepository::save)
+                .then();
     }
 
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
@@ -67,15 +59,15 @@ public class MatchingService {
 
     public Mono<Matching> setMemberStatus(
             final Mono<String> member, final MatchingRequest request) {
-        return member.flatMap(memberId -> updateMatchMemberStatus(request, memberId))
+        return member.flatMap(memberId -> updateMatchingMemberStatus(request, memberId))
                 .flatMap(this::updateMatchStatus)
                 .doOnSuccess(this::multiCastEvent);
     }
 
-    private Mono<Matching> updateMatchMemberStatus(
+    private Mono<Matching> updateMatchingMemberStatus(
             final MatchingRequest request, final String memberId) {
         return findMatchingByNoResponseMember(memberId)
-                .flatMap(updateMatching(request.isJoin(), memberId));
+                .flatMap(matching -> updateMatching(request.isJoin(), memberId, matching.getId()));
     }
 
     private Mono<Matching> findMatchingByNoResponseMember(final String memberId) {
@@ -83,12 +75,7 @@ public class MatchingService {
                 memberId, MatchingMemberStatus.NO_RESPONSE);
     }
 
-    private Function<Matching, Mono<Matching>> updateMatching(
-            final boolean isJoin, final String memberId) {
-        return matching -> findByMemberIdAndUpdate(isJoin, memberId, matching.getId());
-    }
-
-    private Mono<Matching> findByMemberIdAndUpdate(
+    private Mono<Matching> updateMatching(
             final boolean isJoin, final String memberId, final String matchingId) {
         return matchingRepository
                 .updateMatchingMemberStatus(

@@ -41,7 +41,7 @@ public class WaitingMessageListener implements MessageListener {
         Arrays.stream(RunningDistance.values())
                 .forEach(
                         distance -> {
-                            if (queue.satisfyCount(distance)) {
+                            if (queue.isSatisfyCount(distance)) {
                                 List<String> members = queue.poll(distance);
                                 matchingService.create(members, distance.getMeter()).subscribe();
                                 eventService.sendMatchEvent(members);
