@@ -14,12 +14,12 @@ operation::create-waiting[snippets='http-request,http-response']
 
 operation::get-waiting-event[snippets='http-request,http-response']
 
+=== waiting distance 값이 잘못 됨
+
+operation::create-waiting-throw-distance-was-bad-value[snippets='http-request,http-response']
+
 == Matching
 
 === Matching 수락/거절 전송
 
 operation::create-matching[snippets='http-request,http-response']
-
-=== matching event stream 요청
-
-operation::get-matching-event[snippets='http-request,http-response']

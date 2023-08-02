@@ -25,7 +25,7 @@ public class MatchingMember {
 
     private void validateId(String id) {
         if (Objects.isNull(id) || id.isEmpty()) {
-            throw new InvalidIdException();
+            throw new InvalidIdException(id);
         }
     }
 
