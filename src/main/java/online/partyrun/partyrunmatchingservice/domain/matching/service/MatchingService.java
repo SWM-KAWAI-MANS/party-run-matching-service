@@ -12,7 +12,6 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 
-import org.reactivestreams.Publisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
