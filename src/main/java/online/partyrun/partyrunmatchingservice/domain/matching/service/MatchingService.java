@@ -9,21 +9,27 @@ import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
+import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class MatchingService {
+    private static final int REMOVE_SINK_SCHEDULE_TIME = 3_600_000; // 3시간 마다 실행
     MatchingRepository matchingRepository;
     MatchingSinkHandler matchingSinkHandler;
+    Clock clock;
 
     public Mono<Matching> create(final List<String> memberIds, final int distance) {
         final List<MatchingMember> members = memberIds.stream().map(MatchingMember::new).toList();
@@ -41,7 +47,7 @@ public class MatchingService {
 
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
         return matchingRepository
-                .save(new Matching(members, distance))
+                .save(new Matching(members, distance, LocalDateTime.now(clock)))
                 .doOnSuccess(match -> members.forEach(member -> createSink(match, member)));
     }
 
@@ -103,5 +109,21 @@ public class MatchingService {
                                                 matchingSinkHandler.complete(id);
                                             }
                                         }));
+    }
+
+    @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME)
+    public void removeUnConnectedSink() {
+        matchingRepository
+                .findAllByStatus(MatchingStatus.WAIT)
+                .filter(matching -> matching.isTimeOut(LocalDateTime.now(clock)))
+                .doOnNext(Matching::cancel)
+                .doOnNext(this::disconnectAllMember)
+                .flatMap(matchingRepository::save)
+                .subscribe();
+    }
+
+    private void disconnectAllMember(Matching matching) {
+        matching.getMembers()
+                .forEach(member -> matchingSinkHandler.disconnectIfExist(member.getId()));
     }
 }

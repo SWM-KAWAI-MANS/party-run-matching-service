@@ -6,9 +6,11 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember
 import java.util.List;
 
 public interface WaitingQueue {
-    void add(WaitingMember user);
+    void add(WaitingMember member);
 
     boolean isSatisfyCount(RunningDistance distance);
 
     List<String> poll(RunningDistance distance);
+
+    boolean hasMember(String memberId);
 }

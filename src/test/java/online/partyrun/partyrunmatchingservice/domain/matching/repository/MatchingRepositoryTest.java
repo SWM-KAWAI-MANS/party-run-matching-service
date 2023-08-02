@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -22,6 +23,7 @@ import java.util.stream.Stream;
 @DisplayName("MatchingRepository")
 class MatchingRepositoryTest {
     @Autowired MatchingRepository matchRepository;
+    LocalDateTime now = LocalDateTime.now();
     List<MatchingMember> members =
             Stream.of("user1", "user2", "user3").map(MatchingMember::new).toList();
 
@@ -33,7 +35,7 @@ class MatchingRepositoryTest {
     @Test
     @DisplayName("생성을 수행한다")
     void runSave() {
-        Matching match = new Matching(members, 1000);
+        Matching match = new Matching(members, 1000, now);
 
         StepVerifier.create(matchRepository.save(match))
                 .assertNext(
@@ -50,16 +52,16 @@ class MatchingRepositoryTest {
     @Test
     @DisplayName("전채 조회를 수행한다")
     void runFindAll() {
-        matchRepository.save(new Matching(members, 1000)).block();
-        matchRepository.save(new Matching(members, 1000)).block();
-        matchRepository.save(new Matching(members, 1000)).block();
+        matchRepository.save(new Matching(members, 1000, now)).block();
+        matchRepository.save(new Matching(members, 1000, now)).block();
+        matchRepository.save(new Matching(members, 1000, now)).block();
         StepVerifier.create(matchRepository.findAll()).expectNextCount(3).verifyComplete();
     }
 
     @Test
     @DisplayName("matching member 상태를 변경한다")
     void updateMatchingMemberStatus() {
-        final Matching matching = matchRepository.save(new Matching(members, 1000)).block();
+        final Matching matching = matchRepository.save(new Matching(members, 1000, now)).block();
 
         matchRepository
                 .updateMatchingMemberStatus(
