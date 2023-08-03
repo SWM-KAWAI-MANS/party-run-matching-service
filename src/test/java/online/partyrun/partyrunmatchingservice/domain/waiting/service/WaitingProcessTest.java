@@ -41,7 +41,6 @@ class WaitingProcessTest {
 
         StepVerifier.create((sseHandler.connect(성우.block())))
                 .expectNext(WaitingStatus.CONNECTED, WaitingStatus.MATCHED)
-
                 .thenCancel()
                 .verify();
     }
