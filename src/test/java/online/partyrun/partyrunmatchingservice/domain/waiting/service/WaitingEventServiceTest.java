@@ -2,6 +2,7 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 
 import org.junit.jupiter.api.*;
@@ -31,7 +32,7 @@ class WaitingEventServiceTest {
             waitingSinkHandler.create(user1.block());
 
             StepVerifier.create(waitingEventService.getEventStream(user1))
-                    .expectNext(WaitingStatus.CONNECTED)
+                    .expectNext(new WaitingEventResponse(WaitingStatus.CONNECTED))
                     .thenCancel()
                     .verify();
         }
@@ -51,7 +52,9 @@ class WaitingEventServiceTest {
                     member ->
                             StepVerifier.create(
                                             waitingEventService.getEventStream(Mono.just(member)))
-                                    .expectNext(WaitingStatus.MATCHED, WaitingStatus.CONNECTED)
+                                    .expectNext(
+                                            new WaitingEventResponse(WaitingStatus.MATCHED),
+                                            new WaitingEventResponse(WaitingStatus.CONNECTED))
                                     .verifyComplete());
         }
     }
