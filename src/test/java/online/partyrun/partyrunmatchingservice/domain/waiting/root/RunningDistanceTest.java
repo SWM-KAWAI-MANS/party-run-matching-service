@@ -3,7 +3,7 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.root;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotAllowDistanceException;
+import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +34,6 @@ class RunningDistanceTest {
     @DisplayName("허용하지 않은 숫자를 입력하면 예외를 반환한다")
     void throwNotAllowDistanceException() {
         assertThatThrownBy(() -> RunningDistance.getBy(2500))
-                .isInstanceOf(NotAllowDistanceException.class);
+                .isInstanceOf(InvalidDistanceException.class);
     }
 }

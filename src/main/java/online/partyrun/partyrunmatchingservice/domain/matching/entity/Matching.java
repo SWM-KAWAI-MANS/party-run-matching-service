@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidDistanceException;
-import online.partyrun.partyrunmatchingservice.domain.matching.exception.InvalidMembersException;
+import online.partyrun.partyrunmatchingservice.domain.matching.exception.NotExistMembersException;
+import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
 
 import org.springframework.data.annotation.Id;
 
@@ -36,13 +36,13 @@ public class Matching {
 
     private void validateDistance(int distance) {
         if (distance < MIN_DISTANCE) {
-            throw new InvalidDistanceException();
+            throw new InvalidDistanceException(distance);
         }
     }
 
     private void validateMembers(List<MatchingMember> members) {
         if (Objects.isNull(members) || members.isEmpty()) {
-            throw new InvalidMembersException();
+            throw new NotExistMembersException();
         }
     }
 
