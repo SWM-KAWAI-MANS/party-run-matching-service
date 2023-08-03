@@ -63,4 +63,9 @@ public class WaitingEventService {
                                     .subscribe();
                         });
     }
+
+    public void shutdown() {
+        waitingSinkHandler.shutdown();
+        waitingQueue.clear();
+    }
 }

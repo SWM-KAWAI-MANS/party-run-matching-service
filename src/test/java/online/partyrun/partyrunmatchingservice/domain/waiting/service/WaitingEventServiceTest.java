@@ -17,6 +17,7 @@ import java.util.List;
 @SpringBootTest
 class WaitingEventServiceTest {
     @Autowired WaitingEventService waitingEventService;
+    @Autowired WaitingService waitingService;
     @Autowired WaitingSinkHandler waitingSinkHandler;
 
     Mono<String> user1 = Mono.just("현준");
@@ -63,5 +64,15 @@ class WaitingEventServiceTest {
         waitingEventService.removeUnConnectedSink();
 
         assertThat(waitingSinkHandler.getConnectors()).doesNotContain("현준");
+    }
+
+    @Test
+    @DisplayName("shutdown을 진행한다")
+    void runShutdown() {
+        final List<String> members = List.of("현준", "준혁");
+        members.forEach(waitingEventService::register);
+        waitingEventService.shutdown();
+
+        assertThat(waitingSinkHandler.getConnectors()).isEmpty();
     }
 }

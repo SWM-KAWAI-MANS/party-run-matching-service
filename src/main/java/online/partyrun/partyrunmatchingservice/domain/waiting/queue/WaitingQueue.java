@@ -13,4 +13,6 @@ public interface WaitingQueue {
     List<String> poll(RunningDistance distance);
 
     boolean hasMember(String memberId);
+
+    void clear();
 }

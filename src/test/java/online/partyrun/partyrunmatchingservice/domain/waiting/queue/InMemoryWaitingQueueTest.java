@@ -48,4 +48,16 @@ class InMemoryWaitingQueueTest {
         assertThatThrownBy(() -> waitingQueue.poll(현준.distance()))
                 .isInstanceOf(NotSatisfyCountException.class);
     }
+
+    @Test
+    @DisplayName("전체 삭제를 진행한다")
+    void runClear() {
+        waitingQueue.add(현준);
+        waitingQueue.add(성우);
+
+        waitingQueue.clear();
+
+        assertThat(waitingQueue.hasMember(현준.memberId())).isFalse();
+        assertThat(waitingQueue.hasMember(성우.memberId())).isFalse();
+    }
 }

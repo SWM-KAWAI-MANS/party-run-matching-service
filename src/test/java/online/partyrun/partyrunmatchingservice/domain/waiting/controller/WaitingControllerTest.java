@@ -84,4 +84,17 @@ class WaitingControllerTest extends WebfluxDocsTest {
                 .expectBody()
                 .consumeWith(document("create-waiting-throw-distance-was-bad-value"));
     }
+
+    @Test
+    @DisplayName("sink 및 대기열 전체 삭제를 진행한다.")
+    void removeAllSink() {
+        client.delete()
+                .uri("/waiting")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isNoContent()
+                .expectBody()
+                .consumeWith(document("delete waiting"));
+    }
 }
