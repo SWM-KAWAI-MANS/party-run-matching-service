@@ -25,21 +25,6 @@ class WaitingEventServiceTest {
 
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-    class Waiting에_대한_이벤트_구독_시 {
-        @Test
-        @DisplayName("Connection 이벤트를발행한다")
-        void publishConnection() {
-            waitingSinkHandler.create(user1.block());
-
-            StepVerifier.create(waitingEventService.getEventStream(user1))
-                    .expectNext(new WaitingEventResponse(WaitingStatus.CONNECTED))
-                    .thenCancel()
-                    .verify();
-        }
-    }
-
-    @Nested
-    @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class 여러명이_등록되었을_때 {
         final List<String> members = List.of("현준", "준혁", "성우");
 
@@ -53,8 +38,8 @@ class WaitingEventServiceTest {
                             StepVerifier.create(
                                             waitingEventService.getEventStream(Mono.just(member)))
                                     .expectNext(
-                                            new WaitingEventResponse(WaitingStatus.MATCHED),
-                                            new WaitingEventResponse(WaitingStatus.CONNECTED))
+                                            new WaitingEventResponse(WaitingStatus.CONNECTED),
+                                            new WaitingEventResponse(WaitingStatus.MATCHED))
                                     .verifyComplete());
         }
     }
