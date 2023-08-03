@@ -4,8 +4,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import lombok.extern.slf4j.Slf4j;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
+import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
 
@@ -16,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+@Slf4j
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -30,7 +33,7 @@ public class WaitingEventService {
         waitingSinkHandler.create(id);
     }
 
-    public Flux<WaitingStatus> getEventStream(Mono<String> member) {
+    public Flux<WaitingEventResponse> getEventStream(Mono<String> member) {
         return member.flatMapMany(
                 id ->
                         waitingSinkHandler
@@ -44,7 +47,8 @@ public class WaitingEventService {
                                 .doOnSubscribe(
                                         s ->
                                                 waitingSinkHandler.sendEvent(
-                                                        id, WaitingStatus.CONNECTED)));
+                                                        id, WaitingStatus.CONNECTED)))
+                .map(WaitingEventResponse::new);
     }
 
     public void sendMatchEvent(List<String> members) {
