@@ -17,7 +17,9 @@ operation::get-waiting-event[snippets='http-request,http-response']
 === waiting distance 값이 잘못 됨
 
 operation::create-waiting-throw-distance-was-bad-value[snippets='http-request,http-response']
+=== waiting 전체 삭제
 
+operation::delete waiting[snippets='http-request,http-response']
 == Matching
 
 === Matching 수락/거절 전송

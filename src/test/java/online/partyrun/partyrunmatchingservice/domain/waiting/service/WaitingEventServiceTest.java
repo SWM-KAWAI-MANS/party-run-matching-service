@@ -1,22 +1,21 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
-
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @DisplayName("WaitingEventService")
 @SpringBootTest
 class WaitingEventServiceTest {
     @Autowired WaitingEventService waitingEventService;
+    @Autowired WaitingService waitingService;
     @Autowired WaitingSinkHandler waitingSinkHandler;
 
     Mono<String> user1 = Mono.just("현준");
@@ -63,5 +62,15 @@ class WaitingEventServiceTest {
         waitingEventService.removeUnConnectedSink();
 
         assertThat(waitingSinkHandler.getConnectors()).doesNotContain("현준");
+    }
+
+    @Test
+    @DisplayName("shutdown을 진행한다")
+    void runShutdown() {
+        final List<String> members = List.of("현준", "준혁");
+        members.forEach(waitingEventService::register);
+        waitingEventService.shutdown();
+
+        assertThat(waitingSinkHandler.getConnectors()).isEmpty();
     }
 }

@@ -1,9 +1,5 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
-
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
@@ -12,16 +8,18 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingEve
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
 import online.partyrun.partyrunmatchingservice.global.controller.HttpControllerAdvice;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
 @ContextConfiguration(classes = {WaitingController.class, HttpControllerAdvice.class})
 @WithMockUser
@@ -83,5 +81,18 @@ class WaitingControllerTest extends WebfluxDocsTest {
                 .isBadRequest()
                 .expectBody()
                 .consumeWith(document("create-waiting-throw-distance-was-bad-value"));
+    }
+
+    @Test
+    @DisplayName("sink 및 대기열 전체 삭제를 진행한다.")
+    void removeAllSink() {
+        client.delete()
+                .uri("/waiting")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus()
+                .isNoContent()
+                .expectBody()
+                .consumeWith(document("delete waiting"));
     }
 }

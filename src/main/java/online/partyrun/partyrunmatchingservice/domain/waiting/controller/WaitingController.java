@@ -41,4 +41,10 @@ public class WaitingController {
     public Flux<WaitingStatus> getEventSteam(Mono<Authentication> auth) {
         return this.waitingEventService.getEventStream(auth.map(Principal::getName));
     }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteWaiting() {
+        waitingEventService.shutdown();
+    }
 }

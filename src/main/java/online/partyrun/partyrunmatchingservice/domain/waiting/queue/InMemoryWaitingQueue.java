@@ -58,4 +58,9 @@ public class InMemoryWaitingQueue implements WaitingQueue {
                 .map(map::get)
                 .anyMatch(q -> q.contains(memberId));
     }
+
+    @Override
+    public void clear() {
+        Arrays.stream(RunningDistance.values()).forEach(distance -> map.get(distance).clear());
+    }
 }
