@@ -31,6 +31,7 @@ public class WaitingEventService {
 
     public void register(final String id) {
         waitingSinkHandler.create(id);
+        waitingSinkHandler.sendEvent(id, WaitingStatus.CONNECTED);
     }
 
     public Flux<WaitingEventResponse> getEventStream(Mono<String> member) {
@@ -43,11 +44,7 @@ public class WaitingEventService {
                                                     if (status.isCompleted()) {
                                                         waitingSinkHandler.complete(id);
                                                     }
-                                                })
-                                        .doOnSubscribe(
-                                                s ->
-                                                        waitingSinkHandler.sendEvent(
-                                                                id, WaitingStatus.CONNECTED)))
+                                                }))
                 .map(WaitingEventResponse::new);
     }
 

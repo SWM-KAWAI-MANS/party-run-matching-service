@@ -35,12 +35,13 @@ class WaitingProcessTest {
         waitingService.create(성우, request).block();
 
         StepVerifier.create(sseHandler.connect(현준.block()))
-                .expectNext(WaitingStatus.MATCHED)
+                .expectNext(WaitingStatus.CONNECTED, WaitingStatus.MATCHED)
                 .thenCancel()
                 .verify();
 
         StepVerifier.create((sseHandler.connect(성우.block())))
-                .expectNext(WaitingStatus.MATCHED)
+                .expectNext(WaitingStatus.CONNECTED, WaitingStatus.MATCHED)
+
                 .thenCancel()
                 .verify();
     }
