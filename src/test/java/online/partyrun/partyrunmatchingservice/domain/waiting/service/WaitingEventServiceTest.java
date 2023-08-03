@@ -1,16 +1,18 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
+
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("WaitingEventService")
 @SpringBootTest
@@ -50,7 +52,9 @@ class WaitingEventServiceTest {
                     member ->
                             StepVerifier.create(
                                             waitingEventService.getEventStream(Mono.just(member)))
-                                    .expectNext(new WaitingEventResponse(WaitingStatus.MATCHED), new WaitingEventResponse(WaitingStatus.CONNECTED))
+                                    .expectNext(
+                                            new WaitingEventResponse(WaitingStatus.MATCHED),
+                                            new WaitingEventResponse(WaitingStatus.CONNECTED))
                                     .verifyComplete());
         }
     }

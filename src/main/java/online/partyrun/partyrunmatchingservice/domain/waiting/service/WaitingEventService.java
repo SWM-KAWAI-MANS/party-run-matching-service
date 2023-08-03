@@ -3,8 +3,8 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
@@ -18,8 +18,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-@Slf4j
 
+@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -35,19 +35,19 @@ public class WaitingEventService {
 
     public Flux<WaitingEventResponse> getEventStream(Mono<String> member) {
         return member.flatMapMany(
-                id ->
-                        waitingSinkHandler
-                                .connect(id)
-                                .doOnNext(
-                                        status -> {
-                                            if (status.isCompleted()) {
-                                                waitingSinkHandler.complete(id);
-                                            }
-                                        })
-                                .doOnSubscribe(
-                                        s ->
-                                                waitingSinkHandler.sendEvent(
-                                                        id, WaitingStatus.CONNECTED)))
+                        id ->
+                                waitingSinkHandler
+                                        .connect(id)
+                                        .doOnNext(
+                                                status -> {
+                                                    if (status.isCompleted()) {
+                                                        waitingSinkHandler.complete(id);
+                                                    }
+                                                })
+                                        .doOnSubscribe(
+                                                s ->
+                                                        waitingSinkHandler.sendEvent(
+                                                                id, WaitingStatus.CONNECTED)))
                 .map(WaitingEventResponse::new);
     }
 
