@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.partyrunmatchingservice.domain.battle.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
@@ -12,8 +13,10 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -86,10 +89,14 @@ public class MatchingService {
     private Mono<Matching> updateMatchStatus(final Matching matching) {
         matching.updateStatus();
         if (!matching.isWait()) {
-            if(matching.isSuccess() && matching.isNullBattleId()) {
-                final List<String> memberIds = matching.getMembers().stream().map(MatchingMember::getId).toList();
+            if (matching.isSuccess() && matching.isNullBattleId()) {
+                final List<String> memberIds =
+                        matching.getMembers().stream().map(MatchingMember::getId).toList();
                 log.info("{}", memberIds);
-                matching.setBattleId(battleService.create(memberIds, matching.getDistance()).block()); // TODO blocking 로직 제거
+                matching.setBattleId(
+                        battleService
+                                .create(memberIds, matching.getDistance())
+                                .block()); // TODO blocking 로직 제거
             }
             return matchingRepository.save(matching);
         }

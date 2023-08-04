@@ -1,6 +1,9 @@
 package online.partyrun.partyrunmatchingservice.domain.battle.external;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.partyrunmatchingservice.domain.battle.BattleService;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,14 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 class ExternalBattleServiceTest {
 
-    @Autowired
-    BattleService battleService;
-
+    @Autowired BattleService battleService;
 
     @Test
     @DisplayName("실제 생성 요청을 보낸다")
@@ -26,5 +25,4 @@ class ExternalBattleServiceTest {
         System.out.println(result);
         assertThat(result).isNotNull();
     }
-
 }
