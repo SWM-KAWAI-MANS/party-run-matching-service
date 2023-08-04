@@ -3,7 +3,8 @@ package online.partyrun.partyrunmatchingservice.domain.matching.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
+import lombok.extern.slf4j.Slf4j;
+import online.partyrun.partyrunmatchingservice.domain.battle.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
@@ -11,10 +12,8 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
-
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -22,6 +21,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -29,6 +29,7 @@ public class MatchingService {
     private static final int REMOVE_SINK_SCHEDULE_TIME = 3_600_000; // 3시간 마다 실행
     MatchingRepository matchingRepository;
     MatchingSinkHandler matchingSinkHandler;
+    BattleService battleService;
     Clock clock;
 
     public Mono<Matching> create(final List<String> memberIds, final int distance) {
@@ -82,12 +83,17 @@ public class MatchingService {
                 .then(Mono.defer(() -> matchingRepository.findById(matchingId)));
     }
 
-    private Mono<Matching> updateMatchStatus(final Matching match) {
-        match.updateStatus();
-        if (!match.isWait()) {
-            return matchingRepository.save(match);
+    private Mono<Matching> updateMatchStatus(final Matching matching) {
+        matching.updateStatus();
+        if (!matching.isWait()) {
+            if(matching.isSuccess() && matching.isNullBattleId()) {
+                final List<String> memberIds = matching.getMembers().stream().map(MatchingMember::getId).toList();
+                log.info("{}", memberIds);
+                matching.setBattleId(battleService.create(memberIds, matching.getDistance()).block()); // TODO blocking 로직 제거
+            }
+            return matchingRepository.save(matching);
         }
-        return Mono.just(match);
+        return Mono.just(matching);
     }
 
     private void multiCastEvent(final Matching matching) {

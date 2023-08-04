@@ -6,8 +6,8 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingSt
 
 import java.util.List;
 
-public record MatchEvent(List<MatchingMember> members, MatchingStatus status) {
+public record MatchEvent(List<MatchingMember> members, MatchingStatus status, String battleId) {
     public MatchEvent(Matching matching) {
-        this(matching.getMembers(), matching.getStatus());
+        this(matching.getMembers(), matching.getStatus(), matching.getBattleId());
     }
 }

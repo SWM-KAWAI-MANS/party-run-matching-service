@@ -8,4 +8,8 @@ public enum MatchingStatus {
     public boolean isWait() {
         return this == WAIT;
     }
+
+    public boolean isSuccess() {
+        return this == SUCCESS;
+    }
 }

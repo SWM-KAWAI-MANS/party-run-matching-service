@@ -4,10 +4,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
+import online.partyrun.partyrunmatchingservice.domain.matching.exception.BattleAlreadyExistException;
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.NotExistMembersException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
-
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
@@ -25,6 +24,14 @@ public class Matching {
     int distance;
     MatchingStatus status = MatchingStatus.WAIT;
     LocalDateTime startAt;
+    String battleId;
+
+    public void setBattleId(final String battleId) throws BattleAlreadyExistException {
+        if(Objects.nonNull(battleId)) {
+            throw new BattleAlreadyExistException();
+        }
+        this.battleId = battleId;
+    }
 
     public Matching(final List<MatchingMember> members, int distance, LocalDateTime startAt) {
         validateMembers(members);
@@ -71,5 +78,13 @@ public class Matching {
 
     public boolean isTimeOut(LocalDateTime now) {
         return this.startAt.isBefore(now.minusHours(TIMEOUT_HOUR));
+    }
+
+    public boolean isSuccess() {
+        return this.status.isSuccess();
+    }
+
+    public boolean isNullBattleId() {
+        return Objects.isNull(this.battleId);
     }
 }

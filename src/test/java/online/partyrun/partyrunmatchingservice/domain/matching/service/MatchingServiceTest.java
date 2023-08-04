@@ -1,10 +1,8 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import lombok.SneakyThrows;
-
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+import online.partyrun.partyrunmatchingservice.domain.battle.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
@@ -12,12 +10,11 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
-
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -27,6 +24,10 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 @SpringBootTest
 @DisplayName("MatchingService")
 @Import(RedisTestConfig.class)
@@ -35,6 +36,8 @@ class MatchingServiceTest {
     @Autowired MatchingSinkHandler sseHandler;
     @Autowired MatchingRepository matchingRepository;
     @Autowired Clock clock;
+    @MockBean
+    BattleService battleService;
 
     final List<String> members = List.of("현준", "성우", "준혁");
     Mono<String> 현준 = Mono.just(members.get(0));
@@ -46,6 +49,8 @@ class MatchingServiceTest {
 
     @BeforeEach
     void cleanup() {
+        given(battleService.create(any(List.class), any(Integer.class))).willReturn(Mono.just("battleId"));
+
         sseHandler.shutdown();
         matchingRepository.deleteAll().block();
     }
@@ -247,7 +252,7 @@ class MatchingServiceTest {
         Clock mockClock = Clock.fixed(clock.instant().plusSeconds(14400), clock.getZone());
 
         MatchingService laterMatchingService =
-                new MatchingService(matchingRepository, sseHandler, mockClock);
+                new MatchingService(matchingRepository, sseHandler, battleService, mockClock);
 
         @Test
         @DisplayName("TIMEOUT된 Match를 삭제한다")
