@@ -13,12 +13,31 @@ de:
         version: 6.0.6
 jwt:
   access-secret-key: "asfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasd"
+external:
+  battle:
+    url: "https://dev.partyrun.online"
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  data:
+    mongodb:
+      uri: ${DB_URI}
+    redis:
+      url: redis://localhost:6379/0
+jwt:
+  access-secret-key: "asfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasd"
+  access-expire-second: 1000000
+external:
+  battle:
+    url: "https://dev.partyrun.online"
 ---
 
 spring:
   config:
     activate:
-      on-profile: local, dev, prd
+      on-profile: dev, prd
   data:
     mongodb:
       uri: ${DB_URI}
@@ -26,3 +45,7 @@ spring:
       url: ${REDIS_URL}
 jwt:
   access-secret-key: ${JWT_ACCESS_SECRET_KEY}
+  access-expire-second: 1000000
+external:
+  battle:
+    url: ${BATTLE_SERVICE_URL}
