@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.partyrunmatchingservice.domain.battle.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
@@ -13,8 +14,10 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -22,6 +25,7 @@ import reactor.core.scheduler.Schedulers;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -58,29 +62,48 @@ public class MatchingService {
         matchingSinkHandler.sendEvent(member.getId(), new MatchEvent(match));
     }
 
-    public Mono<Void> setMemberStatus(
-            final Mono<String> member, final MatchingRequest request) {
-        return member
-                .flatMap(memberId ->
-                        matchingRepository.findByMembersIdAndMembersStatus(memberId, MatchingMemberStatus.NO_RESPONSE)
-                        .map(Matching::getId)
-                        .flatMap(
-                                matchingId -> matchingRepository.updateMatchingMemberStatus(matchingId, memberId, MatchingMemberStatus.getByIsJoin(request.isJoin()))
-                                        .publishOn(Schedulers.boundedElastic())
-                                        .then(Mono.fromRunnable(() -> confirmMatching(matchingId)))));
+    public Mono<Void> setMemberStatus(final Mono<String> member, final MatchingRequest request) {
+        return member.flatMap(
+                memberId ->
+                        matchingRepository
+                                .findByMembersIdAndMembersStatus(
+                                        memberId, MatchingMemberStatus.NO_RESPONSE)
+                                .map(Matching::getId)
+                                .flatMap(
+                                        matchingId ->
+                                                matchingRepository
+                                                        .updateMatchingMemberStatus(
+                                                                matchingId,
+                                                                memberId,
+                                                                MatchingMemberStatus.getByIsJoin(
+                                                                        request.isJoin()))
+                                                        .publishOn(Schedulers.boundedElastic())
+                                                        .then(
+                                                                Mono.fromRunnable(
+                                                                        () ->
+                                                                                confirmMatching(
+                                                                                        matchingId)))));
     }
 
     @Synchronized
     private void confirmMatching(String matchingId) {
-        matchingRepository.findById(matchingId)
-                .map(matching -> {
-                    if(matching.getStatus().equals(MatchingStatus.SUCCESS)) {
-                        final List<String> memberIds = matching.getMembers().stream().map(MatchingMember::getId).toList();
-                        final String battleId = battleService.create(memberIds, matching.getDistance()).block();
-                        matching.setBattleId(battleId);
-                    }
-                    return matching;
-                })
+        matchingRepository
+                .findById(matchingId)
+                .map(
+                        matching -> {
+                            if (matching.getStatus().equals(MatchingStatus.SUCCESS)) {
+                                final List<String> memberIds =
+                                        matching.getMembers().stream()
+                                                .map(MatchingMember::getId)
+                                                .toList();
+                                final String battleId =
+                                        battleService
+                                                .create(memberIds, matching.getDistance())
+                                                .block();
+                                matching.setBattleId(battleId);
+                            }
+                            return matching;
+                        })
                 .flatMap(matchingRepository::save)
                 .doOnNext(this::multiCastEvent)
                 .subscribe();

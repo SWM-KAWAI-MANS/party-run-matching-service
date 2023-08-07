@@ -4,9 +4,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.BattleAlreadyExistException;
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.NotExistMembersException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
+
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
