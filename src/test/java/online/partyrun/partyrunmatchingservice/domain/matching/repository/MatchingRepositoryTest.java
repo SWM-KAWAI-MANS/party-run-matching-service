@@ -75,4 +75,47 @@ class MatchingRepositoryTest {
         assertThat(getMembers.get(1).getStatus()).isEqualTo(MatchingMemberStatus.NO_RESPONSE);
         assertThat(getMembers.get(2).getStatus()).isEqualTo(MatchingMemberStatus.NO_RESPONSE);
     }
+
+    @Test
+    @DisplayName("noResponse인 member가 있는 Matching을 탐색한다")
+    void runFindByNoResponse() {
+        Matching matching1 = matchRepository.save(new Matching(members, 1000, now)).block();
+        Matching matching2 = matchRepository.save(new Matching(members, 1000, now)).block();
+        Matching matching3 = matchRepository.save(new Matching(members, 1000, now)).block();
+        Matching matching4 = matchRepository.save(new Matching(members, 1000, now)).block();
+
+        matching1
+                .getMembers()
+                .forEach(
+                        member ->
+                                matchRepository
+                                        .updateMatchingMemberStatus(
+                                                matching1.getId(),
+                                                member.getId(),
+                                                MatchingMemberStatus.READY)
+                                        .block());
+
+        matching2
+                .getMembers()
+                .forEach(
+                        member ->
+                                matchRepository
+                                        .updateMatchingMemberStatus(
+                                                matching2.getId(),
+                                                member.getId(),
+                                                MatchingMemberStatus.CANCELED)
+                                        .block());
+
+        matchRepository
+                .updateMatchingMemberStatus(
+                        matching3.getId(), members.get(0).getId(), MatchingMemberStatus.READY)
+                .block();
+
+        StepVerifier.create(
+                        matchRepository
+                                .findAllByMembersStatus(MatchingMemberStatus.NO_RESPONSE)
+                                .map(Matching::getId))
+                .expectNext(matching3.getId(), matching4.getId())
+                .verifyComplete();
+    }
 }
