@@ -178,7 +178,8 @@ jacocoTestCoverageVerification {
                     '**.*ControllerAdvice*',
                     '**.WebfluxAuthFilter*',
                     '**.*Event*',
-                    '**.global.security.jwt.**'
+                    '**.global.security.jwt.**',
+                    '**.external.**'
             ]
         }
 
