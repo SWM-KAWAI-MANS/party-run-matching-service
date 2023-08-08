@@ -1,6 +1,11 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 import lombok.SneakyThrows;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
@@ -10,12 +15,14 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -26,10 +33,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-
 @SpringBootTest
 @DisplayName("MatchingService")
 @Import(RedisTestConfig.class)
@@ -38,8 +41,7 @@ class MatchingServiceTest {
     @Autowired MatchingSinkHandler sseHandler;
     @Autowired MatchingRepository matchingRepository;
     @Autowired Clock clock;
-    @MockBean
-    BattleService battleService;
+    @MockBean BattleService battleService;
     String 현준 = "현준";
     String 성우 = "성우";
     String 준혁 = "준혁";
@@ -56,8 +58,8 @@ class MatchingServiceTest {
 
     @BeforeEach
     public void setupBattle() {
-        given(battleService.create(any(List.class), any(Integer.class))).willReturn(Mono.just("battleId"));
-
+        given(battleService.create(any(List.class), any(Integer.class)))
+                .willReturn(Mono.just("battleId"));
     }
 
     @Test
@@ -72,7 +74,6 @@ class MatchingServiceTest {
                                     .containsAll(members);
                         })
                 .verifyComplete();
-
     }
 
     @Test
@@ -87,8 +88,10 @@ class MatchingServiceTest {
     void runDeleteSinkBeforeCreate() {
         final Matching matching = matchingService.create(members, distance).block();
         final Matching matchingResult = matchingRepository.save(matching).block();
-        matchingRepository.updateMatchingMemberStatus(
-                matchingResult.getId(), members.get(0), MatchingMemberStatus.CANCELED).block();
+        matchingRepository
+                .updateMatchingMemberStatus(
+                        matchingResult.getId(), members.get(0), MatchingMemberStatus.CANCELED)
+                .block();
 
         matchingService.create(members, distance).block();
 
@@ -127,10 +130,12 @@ class MatchingServiceTest {
         @Test
         @DisplayName("배틀 생성을 요청한 후에 배틀 id를 이벤트로 전송한다")
         void createBattle() {
-            final Flux<String> getEvent = matchingService.getEventSteam(Mono.just(현준)).filter(matchEvent -> Objects.nonNull(matchEvent.battleId())).map(MatchEvent::battleId);
-            StepVerifier.create(getEvent)
-                    .expectNext("battleId")
-                    .verifyComplete();
+            final Flux<String> getEvent =
+                    matchingService
+                            .getEventSteam(Mono.just(현준))
+                            .filter(matchEvent -> Objects.nonNull(matchEvent.battleId()))
+                            .map(MatchEvent::battleId);
+            StepVerifier.create(getEvent).expectNext("battleId").verifyComplete();
         }
     }
 

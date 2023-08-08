@@ -86,15 +86,22 @@ public class MatchingService {
         matchingRepository
                 .findById(matchingId)
                 .publishOn(Schedulers.boundedElastic())
-                .flatMap(matching -> {
-                    if(matching.getStatus().equals(MatchingStatus.SUCCESS)) {
-                        final List<String> members = matching.getMembers().stream().map(MatchingMember::getId).toList();
-                        final String battleId = battleService.create(members, matching.getDistance()).block();
-                        matching.setBattleId(battleId);
-                        return matchingRepository.save(matching);
-                    }
-                    return Mono.just(matching);
-                })
+                .flatMap(
+                        matching -> {
+                            if (matching.getStatus().equals(MatchingStatus.SUCCESS)) {
+                                final List<String> members =
+                                        matching.getMembers().stream()
+                                                .map(MatchingMember::getId)
+                                                .toList();
+                                final String battleId =
+                                        battleService
+                                                .create(members, matching.getDistance())
+                                                .block();
+                                matching.setBattleId(battleId);
+                                return matchingRepository.save(matching);
+                            }
+                            return Mono.just(matching);
+                        })
                 .doOnNext(this::multiCastEvent)
                 .subscribe();
     }

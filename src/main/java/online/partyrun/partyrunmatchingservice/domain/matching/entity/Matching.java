@@ -66,7 +66,7 @@ public class Matching {
     }
 
     public void setBattleId(final String battleId) {
-        if(Objects.nonNull(this.battleId)) {
+        if (Objects.nonNull(this.battleId)) {
             throw new BattleAlreadyExistException();
         }
         this.battleId = battleId;
