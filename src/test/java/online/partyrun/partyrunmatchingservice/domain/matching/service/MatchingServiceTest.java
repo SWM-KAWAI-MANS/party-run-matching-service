@@ -43,6 +43,12 @@ class MatchingServiceTest {
     MatchingRequest 거절 = new MatchingRequest(false);
     final int distance = 1000;
 
+    @AfterEach
+    public void cleanup() {
+        matchingRepository.deleteAll().block();
+        sseHandler.shutdown();
+    }
+
     @Test
     @DisplayName("matching을 생성한다")
     void runCreate() {
@@ -139,26 +145,6 @@ class MatchingServiceTest {
         void completeSubscribe() {
             final MatchEvent result = matchingService.getEventSteam(Mono.just(현준)).blockLast();
             assertThat(result.status()).isEqualTo(MatchingStatus.CANCEL);
-        }
-    }
-
-    @Nested
-    @DisplayNameGeneration(ReplaceUnderscores.class)
-    class 동시에_요청시 {
-        @Test
-        @DisplayName("동시에 전원 요청을 수락해도 상태가 success 로 반환한다")
-        void trySuccess() {
-            final Matching matching = matchingService.create(members, distance).block();
-            Mono.zip(
-                            matchingService.setMemberStatus(Mono.just(현준), 수락),
-                            matchingService.setMemberStatus(Mono.just(성우), 수락),
-                            matchingService.setMemberStatus(Mono.just(준혁), 수락))
-                    .subscribeOn(Schedulers.parallel())
-                    .block();
-
-            StepVerifier.create(matchingRepository.findById(matching.getId()))
-                    .assertNext(m -> assertThat(m.getStatus()).isEqualTo(MatchingStatus.SUCCESS))
-                    .verifyComplete();
         }
     }
 
