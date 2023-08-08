@@ -42,7 +42,6 @@ public class ExternalBattleService implements BattleService {
                 .bodyValue(new CreateBattleRequest(memberIds, distance))
                 .retrieve()
                 .bodyToMono(BattleResponse.class)
-                .log()
                 .map(BattleResponse::id);
     }
 }
