@@ -9,7 +9,6 @@ import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
-import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -56,38 +56,35 @@ public class MatchingService {
         matchingSinkHandler.sendEvent(member.getId(), new MatchEvent(match));
     }
 
-    public Mono<Matching> setMemberStatus(
-            final Mono<String> member, final MatchingRequest request) {
-        return member.flatMap(memberId -> updateMatchingMemberStatus(request, memberId))
-                .flatMap(this::updateMatchStatus)
-                .doOnSuccess(this::multiCastEvent);
+    public Mono<Void> setMemberStatus(final Mono<String> member, final MatchingRequest request) {
+        return member.flatMap(
+                memberId ->
+                        matchingRepository
+                                .findByMembersIdAndMembersStatus(
+                                        memberId, MatchingMemberStatus.NO_RESPONSE)
+                                .map(Matching::getId)
+                                .flatMap(
+                                        matchingId ->
+                                                matchingRepository
+                                                        .updateMatchingMemberStatus(
+                                                                matchingId,
+                                                                memberId,
+                                                                MatchingMemberStatus.getByIsJoin(
+                                                                        request.isJoin()))
+                                                        .publishOn(Schedulers.boundedElastic())
+                                                        .then(
+                                                                Mono.fromRunnable(
+                                                                        () ->
+                                                                                confirmMatching(
+                                                                                        matchingId)))));
     }
 
-    private Mono<Matching> updateMatchingMemberStatus(
-            final MatchingRequest request, final String memberId) {
-        return findMatchingByNoResponseMember(memberId)
-                .flatMap(matching -> updateMatching(request.isJoin(), memberId, matching.getId()));
-    }
-
-    private Mono<Matching> findMatchingByNoResponseMember(final String memberId) {
-        return matchingRepository.findByMembersIdAndMembersStatus(
-                memberId, MatchingMemberStatus.NO_RESPONSE);
-    }
-
-    private Mono<Matching> updateMatching(
-            final boolean isJoin, final String memberId, final String matchingId) {
-        return matchingRepository
-                .updateMatchingMemberStatus(
-                        matchingId, memberId, MatchingMemberStatus.getByIsJoin(isJoin))
-                .then(Mono.defer(() -> matchingRepository.findById(matchingId)));
-    }
-
-    private Mono<Matching> updateMatchStatus(final Matching match) {
-        match.updateStatus();
-        if (!match.isWait()) {
-            return matchingRepository.save(match);
-        }
-        return Mono.just(match);
+    private void confirmMatching(String matchingId) {
+        matchingRepository
+                .findById(matchingId)
+                // TODO create Battle 요청
+                .doOnNext(this::multiCastEvent)
+                .subscribe();
     }
 
     private void multiCastEvent(final Matching matching) {
@@ -114,7 +111,7 @@ public class MatchingService {
     @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME)
     public void removeUnConnectedSink() {
         matchingRepository
-                .findAllByStatus(MatchingStatus.WAIT)
+                .findAllByMembersStatus(MatchingMemberStatus.NO_RESPONSE)
                 .filter(matching -> matching.isTimeOut(LocalDateTime.now(clock)))
                 .doOnNext(Matching::cancel)
                 .doOnNext(this::disconnectAllMember)

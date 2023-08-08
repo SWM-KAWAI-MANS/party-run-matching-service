@@ -31,7 +31,7 @@ public class MatchingController {
             Mono<Authentication> auth, @RequestBody MatchingRequest request) {
         return matchingService
                 .setMemberStatus(auth.map(Principal::getName), request)
-                .flatMap(i -> Mono.just(new MessageResponse("참여여부 등록")));
+                .then(Mono.defer(() -> Mono.just(new MessageResponse("참여여부 등록"))));
     }
 
     @GetMapping(path = "event", produces = MediaType.TEXT_EVENT_STREAM_VALUE)

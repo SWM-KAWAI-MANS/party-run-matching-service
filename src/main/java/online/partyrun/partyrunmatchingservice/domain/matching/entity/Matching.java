@@ -23,7 +23,6 @@ public class Matching {
     @Id String id;
     List<MatchingMember> members;
     int distance;
-    MatchingStatus status = MatchingStatus.WAIT;
     LocalDateTime startAt;
 
     public Matching(final List<MatchingMember> members, int distance, LocalDateTime startAt) {
@@ -47,19 +46,10 @@ public class Matching {
     }
 
     public void cancel() {
-        status = MatchingStatus.CANCEL;
         members.forEach(member -> member.changeStatus(MatchingMemberStatus.CANCELED));
     }
 
-    public void updateStatus() {
-        this.status = generateMatchingStatus();
-    }
-
-    public boolean isWait() {
-        return this.status.isWait();
-    }
-
-    private MatchingStatus generateMatchingStatus() {
+    public MatchingStatus getStatus() {
         if (this.members.stream().anyMatch(MatchingMember::isCanceled)) {
             return MatchingStatus.CANCEL;
         }
