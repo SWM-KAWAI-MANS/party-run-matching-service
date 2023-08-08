@@ -1,6 +1,9 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import lombok.SneakyThrows;
+
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
@@ -9,11 +12,13 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
@@ -22,19 +27,14 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @DisplayName("MatchingService")
 @Import(RedisTestConfig.class)
 class MatchingServiceTest {
-    @Autowired
-    MatchingService matchingService;
+    @Autowired MatchingService matchingService;
     @Autowired MatchingSinkHandler sseHandler;
-    @Autowired
-    MatchingRepository matchingRepository;
-    @Autowired
-    Clock clock;
+    @Autowired MatchingRepository matchingRepository;
+    @Autowired Clock clock;
     String 현준 = "현준";
     String 성우 = "성우";
     String 준혁 = "준혁";
@@ -56,6 +56,7 @@ class MatchingServiceTest {
                         })
                 .verifyComplete();
     }
+
     @Test
     @DisplayName("match 생성 시 sink connect를 생성한다")
     void runCreateSink() {
@@ -81,6 +82,7 @@ class MatchingServiceTest {
     @DisplayNameGeneration(ReplaceUnderscores.class)
     class member_모두가_승인시 {
         Matching matching;
+
         @BeforeEach
         void setup() {
             matching = matchingService.create(members, distance).block();
@@ -109,14 +111,13 @@ class MatchingServiceTest {
         void createBattle() {
             // TODO
         }
-
-
     }
 
     @Nested
     @DisplayNameGeneration(ReplaceUnderscores.class)
     class 한_명이라도_거절_시 {
         Matching matching;
+
         @BeforeEach
         void setup() {
             matching = matchingService.create(members, distance).block();
@@ -139,7 +140,6 @@ class MatchingServiceTest {
             final MatchEvent result = matchingService.getEventSteam(Mono.just(현준)).blockLast();
             assertThat(result.status()).isEqualTo(MatchingStatus.CANCEL);
         }
-
     }
 
     @Nested
@@ -149,12 +149,12 @@ class MatchingServiceTest {
         @DisplayName("동시에 전원 요청을 수락해도 상태가 success 로 반환한다")
         void trySuccess() {
             final Matching matching = matchingService.create(members, distance).block();
-            Mono.zip(matchingService.setMemberStatus(Mono.just(현준), 수락),
-                    matchingService.setMemberStatus(Mono.just(성우), 수락),
-                    matchingService.setMemberStatus(Mono.just(준혁), 수락))
+            Mono.zip(
+                            matchingService.setMemberStatus(Mono.just(현준), 수락),
+                            matchingService.setMemberStatus(Mono.just(성우), 수락),
+                            matchingService.setMemberStatus(Mono.just(준혁), 수락))
                     .subscribeOn(Schedulers.parallel())
                     .block();
-
 
             StepVerifier.create(matchingRepository.findById(matching.getId()))
                     .assertNext(m -> assertThat(m.getStatus()).isEqualTo(MatchingStatus.SUCCESS))
@@ -186,7 +186,8 @@ class MatchingServiceTest {
                             () -> {
                                 final Matching matching =
                                         matchingRepository
-                                                .findAllByMembersStatus(MatchingMemberStatus.NO_RESPONSE)
+                                                .findAllByMembersStatus(
+                                                        MatchingMemberStatus.NO_RESPONSE)
                                                 .blockLast();
                                 assertThat(sseHandler.getConnectors()).isEmpty();
                                 assertThat(matching).isNull();
@@ -201,7 +202,9 @@ class MatchingServiceTest {
             matchingService.create(members, 1000).block();
             matchingService.removeUnConnectedSink();
 
-            StepVerifier.create(matchingRepository.findAllByMembersStatus(MatchingMemberStatus.NO_RESPONSE))
+            StepVerifier.create(
+                            matchingRepository.findAllByMembersStatus(
+                                    MatchingMemberStatus.NO_RESPONSE))
                     .expectNextCount(1)
                     .verifyComplete();
             assertThat(sseHandler.getConnectors()).isNotEmpty();
