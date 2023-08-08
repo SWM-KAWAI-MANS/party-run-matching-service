@@ -4,11 +4,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
+import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,6 +31,7 @@ public class MatchingService {
     private static final int REMOVE_SINK_SCHEDULE_TIME = 3_600_000; // 3시간 마다 실행
     MatchingRepository matchingRepository;
     MatchingSinkHandler matchingSinkHandler;
+    BattleService battleService;
     Clock clock;
 
     public Mono<Matching> create(final List<String> memberIds, final int distance) {
@@ -82,7 +85,16 @@ public class MatchingService {
     private void confirmMatching(String matchingId) {
         matchingRepository
                 .findById(matchingId)
-                // TODO create Battle 요청
+                .publishOn(Schedulers.boundedElastic())
+                .flatMap(matching -> {
+                    if(matching.getStatus().equals(MatchingStatus.SUCCESS)) {
+                        final List<String> members = matching.getMembers().stream().map(MatchingMember::getId).toList();
+                        final String battleId = battleService.create(members, matching.getDistance()).block();
+                        matching.setBattleId(battleId);
+                        return matchingRepository.save(matching);
+                    }
+                    return Mono.just(matching);
+                })
                 .doOnNext(this::multiCastEvent)
                 .subscribe();
     }
@@ -102,7 +114,7 @@ public class MatchingService {
                                 .connect(id)
                                 .doOnNext(
                                         event -> {
-                                            if (!event.status().isWait()) {
+                                            if (event.isComplete()) {
                                                 matchingSinkHandler.complete(id);
                                             }
                                         }));
