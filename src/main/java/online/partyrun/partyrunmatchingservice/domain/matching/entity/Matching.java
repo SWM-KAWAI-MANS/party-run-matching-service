@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import online.partyrun.partyrunmatchingservice.domain.battle.service.external.exception.BattleAlreadyExistException;
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.NotExistMembersException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
 
@@ -24,6 +25,7 @@ public class Matching {
     List<MatchingMember> members;
     int distance;
     LocalDateTime startAt;
+    String battleId;
 
     public Matching(final List<MatchingMember> members, int distance, LocalDateTime startAt) {
         validateMembers(members);
@@ -61,5 +63,12 @@ public class Matching {
 
     public boolean isTimeOut(LocalDateTime now) {
         return this.startAt.isBefore(now.minusHours(TIMEOUT_HOUR));
+    }
+
+    public void setBattleId(final String battleId) {
+        if (Objects.nonNull(this.battleId)) {
+            throw new BattleAlreadyExistException();
+        }
+        this.battleId = battleId;
     }
 }
