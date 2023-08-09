@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
@@ -13,8 +14,10 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.global.annotation.DistributedLock;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -90,8 +93,13 @@ public class MatchingService {
                 .flatMap(
                         matching -> {
                             log.info("{}", matching.getStatus());
-                            log.info("{}", matching.getMembers().stream().map(MatchingMember::getStatus).toList());
-                            if (matching.getStatus().equals(MatchingStatus.SUCCESS) && matching.isUnConnectBattle()) {
+                            log.info(
+                                    "{}",
+                                    matching.getMembers().stream()
+                                            .map(MatchingMember::getStatus)
+                                            .toList());
+                            if (matching.getStatus().equals(MatchingStatus.SUCCESS)
+                                    && matching.isUnConnectBattle()) {
                                 final List<String> members =
                                         matching.getMembers().stream()
                                                 .map(MatchingMember::getId)
