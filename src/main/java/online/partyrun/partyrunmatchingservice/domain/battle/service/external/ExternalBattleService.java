@@ -8,6 +8,7 @@ import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleServi
 import online.partyrun.partyrunmatchingservice.domain.battle.service.external.dto.BattleResponse;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.external.dto.CreateBattleRequest;
 
+import online.partyrun.partyrunmatchingservice.domain.battle.service.external.dto.IsRunningResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -22,18 +23,17 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ExternalBattleService implements BattleService {
     WebClient battleClient;
-    JwtGenerator jwtGenerator;
+    String systemToken;
 
     public ExternalBattleService(
             @Value("${external.battle.url}") String battleUrl, JwtGenerator jwtGenerator) {
         this.battleClient = WebClient.create(battleUrl);
-        this.jwtGenerator = jwtGenerator;
+        this.systemToken = jwtGenerator.generate("MATCHING_SERVICE", Set.of("ROLE_SYSTEM")).accessToken();
     }
 
     @Override
     public Mono<String> create(List<String> memberIds, int distance) {
-        final String systemToken =
-                jwtGenerator.generate("MATCHING_SERVICE", Set.of("ROLE_SYSTEM")).accessToken();
+
         return battleClient
                 .post()
                 .uri("/api/battles")
@@ -43,5 +43,16 @@ public class ExternalBattleService implements BattleService {
                 .retrieve()
                 .bodyToMono(BattleResponse.class)
                 .map(BattleResponse::id);
+    }
+
+    @Override
+    public Mono<Boolean> isRunning(final String memberId) {
+        return battleClient.get().uri(uriBuilder -> uriBuilder
+                        .path("/api/battles/runners/{id}/is-running")
+                        .build(memberId))
+                .header("Authorization", systemToken)
+                .retrieve()
+                .bodyToMono(IsRunningResponse.class)
+                .map(IsRunningResponse::isRunning);
     }
 }

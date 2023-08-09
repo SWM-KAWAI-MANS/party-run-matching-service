@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface BattleService {
     Mono<String> create(List<String> memberIds, int distance);
+
+    Mono<Boolean> isRunning(String memberId);
 }
