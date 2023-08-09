@@ -25,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WaitingEventService {
     private static final int REMOVE_SINK_SCHEDULE_TIME = 14_400_000; // 12시간 마다 실행
+    private static final int INITAL_DELAY_SCHEDULE_TIME = 14_400_000; // 12시간 이후 실행
     WaitingSinkHandler waitingSinkHandler;
     WaitingQueue waitingQueue;
     MatchingService matchingService;
@@ -52,7 +53,7 @@ public class WaitingEventService {
         members.forEach(member -> waitingSinkHandler.sendEvent(member, WaitingStatus.MATCHED));
     }
 
-    @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME) // 12시간 마다 실행
+    @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME, initialDelay = INITAL_DELAY_SCHEDULE_TIME) // 12시간 마다 실행
     public void removeUnConnectedSink() {
         waitingSinkHandler.getConnectors().stream()
                 .filter(connect -> !waitingQueue.hasMember(connect))
