@@ -29,3 +29,10 @@ operation::create-matching[snippets='http-request,http-response']
 === matching event stream 요청
 
 operation::get-matching-event[snippets='http-request,http-response']
+
+
+=== matching id를 통한 조회
+
+operation::get-matching-by-id[snippets='http-request,http-response']
+
+
