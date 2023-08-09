@@ -1,4 +1,4 @@
-package online.partyrun.partyrunmatchingservice.global.mongo;
+package online.partyrun.partyrunmatchingservice.global.db.mongo;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;

@@ -1,11 +1,6 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-
 import lombok.SneakyThrows;
-
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
@@ -15,14 +10,12 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
-
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -33,15 +26,24 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+
 @SpringBootTest
 @DisplayName("MatchingService")
 @Import(RedisTestConfig.class)
 class MatchingServiceTest {
-    @Autowired MatchingService matchingService;
-    @Autowired MatchingSinkHandler sseHandler;
-    @Autowired MatchingRepository matchingRepository;
-    @Autowired Clock clock;
-    @MockBean BattleService battleService;
+    @Autowired
+    MatchingService matchingService;
+    @Autowired
+    MatchingSinkHandler sseHandler;
+    @Autowired
+    MatchingRepository matchingRepository;
+    @Autowired
+    Clock clock;
+    @MockBean
+    BattleService battleService;
     String 현준 = "현준";
     String 성우 = "성우";
     String 준혁 = "준혁";
@@ -214,6 +216,39 @@ class MatchingServiceTest {
                     .expectNextCount(1)
                     .verifyComplete();
             assertThat(sseHandler.getConnectors()).isNotEmpty();
+        }
+    }
+
+    @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class 동시에_요청시 {
+        Matching matching;
+
+        @BeforeEach
+        void setup() {
+            matching = matchingService.create(members, distance).block();
+        }
+
+        @Test
+        @DisplayName("battle 생성 요청을 단 1회만 동작한다")
+        @SneakyThrows
+        void requestCreateBattleOnce() {
+            given(battleService.create(any(List.class), any(Integer.class)))
+                    .willReturn(Mono.just("battleId"));
+
+            Flux.zip( matchingService.setMemberStatus(Mono.just(현준), 수락),
+                    matchingService.setMemberStatus(Mono.just(성우), 수락),
+                    matchingService.setMemberStatus(Mono.just(준혁), 수락)
+            ).subscribeOn(Schedulers.parallel()).subscribe();
+//            matchingService.setMemberStatus(Mono.just(현준), 수락).block();
+//            matchingService.setMemberStatus(Mono.just(준혁), 수락).block();
+//            matchingService.setMemberStatus(Mono.just(성우), 수락).block();
+
+            Thread.sleep(1000);
+
+            StepVerifier.create(matchingRepository.findById(matching.getId()))
+                    .assertNext(res -> assertThat(res.getBattleId()).isEqualTo("battleId"))
+                    .verifyComplete();
         }
     }
 }

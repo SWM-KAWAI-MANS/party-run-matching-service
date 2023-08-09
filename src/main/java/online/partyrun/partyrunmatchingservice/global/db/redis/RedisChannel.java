@@ -12,7 +12,8 @@ import org.springframework.data.redis.listener.ChannelTopic;
 @RequiredArgsConstructor
 public enum RedisChannel {
     WAITING(new ChannelTopic("waiting")),
-    WAITING_COUNT(new ChannelTopic("waiting-count"));
+    WAITING_COUNT(new ChannelTopic("waiting-count")),
+    DISTRIBUTED_LOCK(new ChannelTopic("distributed-lock"));
     ChannelTopic topic;
 
     public String getChannel() {

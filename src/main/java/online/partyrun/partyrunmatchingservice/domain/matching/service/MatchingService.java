@@ -3,7 +3,7 @@ package online.partyrun.partyrunmatchingservice.domain.matching.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
+import lombok.extern.slf4j.Slf4j;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
@@ -12,10 +12,9 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
-
+import online.partyrun.partyrunmatchingservice.global.annotation.DistributedLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -24,6 +23,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -39,6 +39,7 @@ public class MatchingService {
         return disconnectLeftMember(memberIds).then(saveMatchAndSendEvents(members, distance));
     }
 
+    @DistributedLock(key = "adsf")
     private Mono<Void> disconnectLeftMember(List<String> memberIds) {
         memberIds.forEach(matchingSinkHandler::disconnectIfExist);
         return matchingRepository
@@ -88,7 +89,9 @@ public class MatchingService {
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(
                         matching -> {
-                            if (matching.getStatus().equals(MatchingStatus.SUCCESS)) {
+                            log.info("{}", matching.getStatus());
+                            log.info("{}", matching.getMembers().stream().map(MatchingMember::getStatus).toList());
+                            if (matching.getStatus().equals(MatchingStatus.SUCCESS) && matching.isUnConnectBattle()) {
                                 final List<String> members =
                                         matching.getMembers().stream()
                                                 .map(MatchingMember::getId)
@@ -97,6 +100,7 @@ public class MatchingService {
                                         battleService
                                                 .create(members, matching.getDistance())
                                                 .block();
+                                log.info("{}", battleId);
                                 matching.setBattleId(battleId);
                                 return matchingRepository.save(matching);
                             }

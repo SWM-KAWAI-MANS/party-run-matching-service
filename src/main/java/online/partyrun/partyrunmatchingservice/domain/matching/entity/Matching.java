@@ -71,4 +71,8 @@ public class Matching {
         }
         this.battleId = battleId;
     }
+
+    public boolean isUnConnectBattle() {
+        return Objects.isNull(this.battleId);
+    }
 }
