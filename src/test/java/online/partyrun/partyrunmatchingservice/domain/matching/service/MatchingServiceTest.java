@@ -216,4 +216,19 @@ class MatchingServiceTest {
             assertThat(sseHandler.getConnectors()).isNotEmpty();
         }
     }
+
+    @Test
+    @DisplayName("id에 해당되는 matching을 탐색한다")
+    void runFindById() {
+        final Matching matching = matchingService.create(members, distance).block();
+
+        StepVerifier.create(matchingService.getById(matching.getId()))
+                .assertNext(
+                        m -> {
+                            assertThat(m.id()).isEqualTo(matching.getId());
+                            assertThat(m.distance()).isEqualTo(matching.getDistance());
+                            assertThat(m.members()).hasSize(matching.getMembers().size());
+                        })
+                .verifyComplete();
+    }
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
+import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingResponse;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 
@@ -37,5 +38,10 @@ public class MatchingController {
     @GetMapping(path = "event", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<MatchEvent> getEventSteam(Mono<Authentication> auth) {
         return matchingService.getEventSteam(auth.map(Principal::getName));
+    }
+
+    @GetMapping("{id}")
+    public Mono<MatchingResponse> getById(@PathVariable String id) {
+        return matchingService.getById(id);
     }
 }
