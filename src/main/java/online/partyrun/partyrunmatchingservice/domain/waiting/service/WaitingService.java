@@ -24,15 +24,20 @@ public class WaitingService {
     WaitingMessagePublisher messagePublisher;
 
     public Mono<MessageResponse> create(Mono<String> member, CreateWaitingRequest request) {
-        return member.flatMap(id ->
-                battleService.isRunning(id).flatMap(isRunning -> {
-                    if (isRunning) {
-                        return Mono.error(new RunnerAlreadyRunningException());
-                    }
-                    eventService.register(id);
-                    messagePublisher.publish(new WaitingMember(id, request.distance()));
-                    return Mono.just(new MessageResponse(id + "님 대기열 등록"));
-                })
-        );
+        return member.flatMap(
+                id ->
+                        battleService
+                                .isRunning(id)
+                                .flatMap(
+                                        isRunning -> {
+                                            if (isRunning) {
+                                                return Mono.error(
+                                                        new RunnerAlreadyRunningException());
+                                            }
+                                            eventService.register(id);
+                                            messagePublisher.publish(
+                                                    new WaitingMember(id, request.distance()));
+                                            return Mono.just(new MessageResponse(id + "님 대기열 등록"));
+                                        }));
     }
 }

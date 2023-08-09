@@ -53,7 +53,9 @@ public class WaitingEventService {
         members.forEach(member -> waitingSinkHandler.sendEvent(member, WaitingStatus.MATCHED));
     }
 
-    @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME, initialDelay = INITAL_DELAY_SCHEDULE_TIME) // 12시간 마다 실행
+    @Scheduled(
+            fixedDelay = REMOVE_SINK_SCHEDULE_TIME,
+            initialDelay = INITAL_DELAY_SCHEDULE_TIME) // 12시간 마다 실행
     public void removeUnConnectedSink() {
         waitingSinkHandler.getConnectors().stream()
                 .filter(connect -> !waitingQueue.hasMember(connect))

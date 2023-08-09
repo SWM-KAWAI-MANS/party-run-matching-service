@@ -7,8 +7,8 @@ import online.partyrun.jwtmanager.JwtGenerator;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.external.dto.BattleResponse;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.external.dto.CreateBattleRequest;
-
 import online.partyrun.partyrunmatchingservice.domain.battle.service.external.dto.IsRunningResponse;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,8 @@ public class ExternalBattleService implements BattleService {
     public ExternalBattleService(
             @Value("${external.battle.url}") String battleUrl, JwtGenerator jwtGenerator) {
         this.battleClient = WebClient.create(battleUrl);
-        this.systemToken = jwtGenerator.generate("MATCHING_SERVICE", Set.of("ROLE_SYSTEM")).accessToken();
+        this.systemToken =
+                jwtGenerator.generate("MATCHING_SERVICE", Set.of("ROLE_SYSTEM")).accessToken();
     }
 
     @Override
@@ -47,9 +48,13 @@ public class ExternalBattleService implements BattleService {
 
     @Override
     public Mono<Boolean> isRunning(final String memberId) {
-        return battleClient.get().uri(uriBuilder -> uriBuilder
-                        .path("/api/battles/runners/{id}/is-running")
-                        .build(memberId))
+        return battleClient
+                .get()
+                .uri(
+                        uriBuilder ->
+                                uriBuilder
+                                        .path("/api/battles/runners/{id}/is-running")
+                                        .build(memberId))
                 .header("Authorization", systemToken)
                 .retrieve()
                 .bodyToMono(IsRunningResponse.class)
