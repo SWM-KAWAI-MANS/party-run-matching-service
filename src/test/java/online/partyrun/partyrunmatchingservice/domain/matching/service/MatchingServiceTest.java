@@ -1,11 +1,6 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-
 import lombok.SneakyThrows;
-
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
@@ -16,23 +11,26 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMe
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
-
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple3;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 @DisplayName("MatchingService")
@@ -231,5 +229,25 @@ class MatchingServiceTest {
                             assertThat(m.members()).hasSize(matching.getMembers().size());
                         })
                 .verifyComplete();
+    }
+
+    @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class 동시에_수락시 {
+        @Test
+        @DisplayName("단 하나의 battle만 생성한다")
+        void onlyOne() {
+            given(battleService.create(any(List.class), any(Integer.class)))
+                    .willReturn(Mono.just("battleId"));
+
+            final Flux<Tuple3<Void, Void, Void>> plan = Flux.zip(
+                            matchingService.setMemberStatus(Mono.just(현준), 수락),
+                            matchingService.setMemberStatus(Mono.just(성우), 수락),
+                            matchingService.setMemberStatus(Mono.just(준혁), 수락))
+                    .subscribeOn(Schedulers.parallel());
+
+            StepVerifier.create(plan)
+                    .verifyComplete();
+        }
     }
 }

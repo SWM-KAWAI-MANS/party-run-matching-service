@@ -75,7 +75,7 @@ public class MatchingService {
                                                                 memberId,
                                                                 MatchingMemberStatus.getByIsJoin(
                                                                         request.isJoin()))
-                                                        .publishOn(Schedulers.boundedElastic())
+                                                        .publishOn(Schedulers.single())
                                                         .then(
                                                                 Mono.fromRunnable(
                                                                         () ->
@@ -86,7 +86,6 @@ public class MatchingService {
     private void confirmMatching(String matchingId) {
         matchingRepository
                 .findById(matchingId)
-                .publishOn(Schedulers.boundedElastic())
                 .flatMap(
                         matching -> {
                             if (matching.getStatus().equals(MatchingStatus.SUCCESS)) {
