@@ -43,7 +43,7 @@ class MatchingControllerTest extends WebfluxDocsTest {
                 .willReturn(Mono.empty());
 
         client.post()
-                .uri("/matching")
+                .uri("/matching/members/join")
                 .bodyValue(new MatchingRequest(true))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
