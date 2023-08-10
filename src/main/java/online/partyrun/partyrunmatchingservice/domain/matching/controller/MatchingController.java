@@ -40,7 +40,7 @@ public class MatchingController {
         return matchingService.getEventSteam(auth.map(Principal::getName));
     }
 
-    @GetMapping("members/resent")
+    @GetMapping("recent/members")
     public Mono<MatchingMembersResponse> getBy(Mono<Authentication> auth) {
         return matchingService.getResent(auth.map(Principal::getName));
     }
