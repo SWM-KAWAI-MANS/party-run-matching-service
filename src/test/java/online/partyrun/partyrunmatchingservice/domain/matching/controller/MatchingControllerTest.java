@@ -1,9 +1,5 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
-
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingResponse;
@@ -11,19 +7,21 @@ import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.global.controller.HttpControllerAdvice;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
 @ContextConfiguration(classes = {MatchingController.class, HttpControllerAdvice.class})
 @DisplayName("MatchingController")
@@ -43,7 +41,7 @@ class MatchingControllerTest extends WebfluxDocsTest {
                 .willReturn(Mono.empty());
 
         client.post()
-                .uri("/matching")
+                .uri("/matching/members/join")
                 .bodyValue(new MatchingRequest(true))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()

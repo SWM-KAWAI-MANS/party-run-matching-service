@@ -26,7 +26,7 @@ import java.security.Principal;
 public class MatchingController {
     MatchingService matchingService;
 
-    @PostMapping
+    @PostMapping("members/join")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<MessageResponse> postMatchStatus(
             Mono<Authentication> auth, @RequestBody MatchingRequest request) {
