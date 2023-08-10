@@ -10,6 +10,7 @@ import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
+import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingMemberResponse;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
@@ -218,15 +219,15 @@ class MatchingServiceTest {
     }
 
     @Test
-    @DisplayName("id에 해당되는 matching을 탐색한다")
+    @DisplayName("로그인한 member의 최근 matching을 탐색한다")
     void runFindById() {
         final Matching matching = matchingService.create(members, distance).block();
 
-        StepVerifier.create(matchingService.getById(matching.getId()))
+        StepVerifier.create(matchingService.getResent(Mono.just(현준)))
                 .assertNext(
                         m -> {
-                            assertThat(m.id()).isEqualTo(matching.getId());
-                            assertThat(m.distance()).isEqualTo(matching.getDistance());
+                            assertThat(m.members().stream().map(MatchingMemberResponse::id))
+                                    .contains(현준);
                             assertThat(m.members()).hasSize(matching.getMembers().size());
                         })
                 .verifyComplete();

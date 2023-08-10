@@ -6,7 +6,7 @@ import static org.springframework.restdocs.webtestclient.WebTestClientRestDocume
 
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
-import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingResponse;
+import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingMembersResponse;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
@@ -71,11 +71,11 @@ class MatchingControllerTest extends WebfluxDocsTest {
     @Test
     @DisplayName("get : matching 탐색")
     void getMatchingById() {
-        given(matchingService.getById(any(String.class)))
-                .willReturn(Mono.just(new MatchingResponse(matching)));
+        given(matchingService.getResent(any(Mono.class)))
+                .willReturn(Mono.just(new MatchingMembersResponse(matching)));
 
         client.get()
-                .uri("/matching/{}", matching.getId())
+                .uri("/matching/recent/members")
                 .exchange()
                 .expectStatus()
                 .isOk()

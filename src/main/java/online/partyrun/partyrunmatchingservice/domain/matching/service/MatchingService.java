@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
-import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingResponse;
+import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingMembersResponse;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
@@ -144,7 +144,11 @@ public class MatchingService {
                 .forEach(member -> matchingSinkHandler.disconnectIfExist(member.getId()));
     }
 
-    public Mono<MatchingResponse> getById(final String id) {
-        return matchingRepository.findById(id).mapNotNull(MatchingResponse::new);
+    public Mono<MatchingMembersResponse> getResent(Mono<String> auth) {
+        return auth.flatMap(
+                        memberId ->
+                                matchingRepository.findByMembersIdAndMembersStatus(
+                                        memberId, MatchingMemberStatus.NO_RESPONSE))
+                .map(MatchingMembersResponse::new);
     }
 }
