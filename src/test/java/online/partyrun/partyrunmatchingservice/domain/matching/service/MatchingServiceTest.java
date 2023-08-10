@@ -1,28 +1,22 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-
 import lombok.SneakyThrows;
-
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
+import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingMemberResponse;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
-
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -32,6 +26,10 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 @DisplayName("MatchingService")
@@ -218,17 +216,16 @@ class MatchingServiceTest {
     }
 
     @Test
-    @DisplayName("id에 해당되는 matching을 탐색한다")
+    @DisplayName("로그인한 member의 최근 matching을 탐색한다")
     void runFindById() {
         final Matching matching = matchingService.create(members, distance).block();
 
-        StepVerifier.create(matchingService.getById(matching.getId()))
+        StepVerifier.create(matchingService.getResent(Mono.just(현준)))
                 .assertNext(
                         m -> {
-                            assertThat(m.id()).isEqualTo(matching.getId());
-                            assertThat(m.distance()).isEqualTo(matching.getDistance());
+                            assertThat(m.members().stream().map(MatchingMemberResponse::id)).contains(현준);
                             assertThat(m.members()).hasSize(matching.getMembers().size());
-                        })
+                       })
                 .verifyComplete();
     }
 }

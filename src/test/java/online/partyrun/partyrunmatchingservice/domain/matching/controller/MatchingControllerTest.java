@@ -1,29 +1,27 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
-
 import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
-import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingResponse;
+import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingMembersResponse;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.global.controller.HttpControllerAdvice;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 
 @ContextConfiguration(classes = {MatchingController.class, HttpControllerAdvice.class})
 @DisplayName("MatchingController")
@@ -71,11 +69,11 @@ class MatchingControllerTest extends WebfluxDocsTest {
     @Test
     @DisplayName("get : matching 탐색")
     void getMatchingById() {
-        given(matchingService.getById(any(String.class)))
-                .willReturn(Mono.just(new MatchingResponse(matching)));
+        given(matchingService.getResent(any(Mono.class)))
+                .willReturn(Mono.just(new MatchingMembersResponse(matching)));
 
         client.get()
-                .uri("/matching/{}", matching.getId())
+                .uri("/matching/members/resent")
                 .exchange()
                 .expectStatus()
                 .isOk()

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
-import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingResponse;
+import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchingMembersResponse;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 
@@ -40,8 +40,8 @@ public class MatchingController {
         return matchingService.getEventSteam(auth.map(Principal::getName));
     }
 
-    @GetMapping("{id}")
-    public Mono<MatchingResponse> getById(@PathVariable String id) {
-        return matchingService.getById(id);
+    @GetMapping("members/resent")
+    public Mono<MatchingMembersResponse> getBy(Mono<Authentication> auth) {
+        return matchingService.getResent(auth.map(Principal::getName));
     }
 }
