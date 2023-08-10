@@ -28,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple3;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -231,5 +232,25 @@ class MatchingServiceTest {
                             assertThat(m.members()).hasSize(matching.getMembers().size());
                         })
                 .verifyComplete();
+    }
+
+    @Nested
+    @DisplayNameGeneration(ReplaceUnderscores.class)
+    class 동시에_수락시 {
+        @Test
+        @DisplayName("단 하나의 battle만 생성한다")
+        void onlyOne() {
+            given(battleService.create(any(List.class), any(Integer.class)))
+                    .willReturn(Mono.just("battleId"));
+
+            final Flux<Tuple3<Void, Void, Void>> plan =
+                    Flux.zip(
+                                    matchingService.setMemberStatus(Mono.just(현준), 수락),
+                                    matchingService.setMemberStatus(Mono.just(성우), 수락),
+                                    matchingService.setMemberStatus(Mono.just(준혁), 수락))
+                            .subscribeOn(Schedulers.parallel());
+
+            StepVerifier.create(plan).verifyComplete();
+        }
     }
 }
