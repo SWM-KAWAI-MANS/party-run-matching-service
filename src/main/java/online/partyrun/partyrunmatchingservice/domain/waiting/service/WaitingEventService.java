@@ -11,6 +11,7 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventRe
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
 
+import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -68,5 +69,12 @@ public class WaitingEventService {
     public void shutdown() {
         waitingSinkHandler.shutdown();
         waitingQueue.clear();
+    }
+
+    public Mono<MessageResponse> cancel(final Mono<String> member) {
+        return member.doOnNext(memberId -> {
+            waitingSinkHandler.disconnectIfExist(memberId);
+            waitingQueue.delete(memberId);
+        }).then(Mono.just(new MessageResponse("cancelled")));
     }
 }

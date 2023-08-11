@@ -36,3 +36,8 @@ operation::get-matching-event[snippets='http-request,http-response']
 operation::get-matching-by-id[snippets='http-request,http-response']
 
 
+=== waiting event 취소
+operation::cancel-waiting-event[snippets='http-request,http-response']
+
+
+
