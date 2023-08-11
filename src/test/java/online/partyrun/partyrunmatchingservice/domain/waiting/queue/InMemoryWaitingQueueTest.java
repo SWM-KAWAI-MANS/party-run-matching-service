@@ -1,13 +1,14 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.queue;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateMemberException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotSatisfyCountException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("InMemoryWaitingQueue")
 class InMemoryWaitingQueueTest {

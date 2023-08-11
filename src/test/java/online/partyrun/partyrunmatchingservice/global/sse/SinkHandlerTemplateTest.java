@@ -1,19 +1,20 @@
 package online.partyrun.partyrunmatchingservice.global.sse;
 
-import online.partyrun.partyrunmatchingservice.global.sse.exception.KeyNotExistException;
-import online.partyrun.partyrunmatchingservice.global.sse.exception.NullKeyException;
-import org.junit.jupiter.api.*;
-import reactor.core.publisher.Flux;
-import reactor.test.StepVerifier;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import online.partyrun.partyrunmatchingservice.global.sse.exception.KeyNotExistException;
+import online.partyrun.partyrunmatchingservice.global.sse.exception.NullKeyException;
+
+import org.junit.jupiter.api.*;
+
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
 @DisplayName("MultiSinkHandler")
 class SinkHandlerTemplateTest {
-    SinkHandlerTemplate<String, String> sinkHandlerTemplate = new SinkHandlerTemplate<>() {
-    };
+    SinkHandlerTemplate<String, String> sinkHandlerTemplate = new SinkHandlerTemplate<>() {};
 
     final String 현준 = "현준";
     final String 성우 = "성우";
