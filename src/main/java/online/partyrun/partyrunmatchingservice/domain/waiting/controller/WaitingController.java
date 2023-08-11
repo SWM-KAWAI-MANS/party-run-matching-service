@@ -47,4 +47,10 @@ public class WaitingController {
     public void deleteWaiting() {
         waitingEventService.shutdown();
     }
+
+    @PostMapping("event/cancel")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<MessageResponse> cancelEvent(Mono<Authentication> auth) {
+        return waitingEventService.cancel(auth.map(Principal::getName));
+    }
 }

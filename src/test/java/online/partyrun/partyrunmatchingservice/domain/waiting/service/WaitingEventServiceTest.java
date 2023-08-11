@@ -81,4 +81,15 @@ class WaitingEventServiceTest {
                 () -> assertThat(waitingQueue.hasMember(user1.block())).isFalse(),
                 () -> assertThat(waitingSinkHandler.getConnectors()).isNotIn(user1.block()));
     }
+
+    @Test
+    @DisplayName("취소 요청을 보내면 sink를 삭제하고, 대기queue에도 삭제한다")
+    void requestCancel() {
+        waitingService.create(user1, new CreateWaitingRequest(1000)).block();
+
+        waitingEventService.cancel(user1).block();
+        assertAll(
+                () -> assertThat(waitingQueue.hasMember(user1.block())).isFalse(),
+                () -> assertThat(waitingSinkHandler.getConnectors()).isNotIn(user1.block()));
+    }
 }

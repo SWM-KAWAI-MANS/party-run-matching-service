@@ -95,6 +95,21 @@ class WaitingControllerTest extends WebfluxDocsTest {
                 .expectStatus()
                 .isNoContent()
                 .expectBody()
-                .consumeWith(document("delete waiting"));
+                .consumeWith(document("shutdown"));
+    }
+
+    @Test
+    @DisplayName("event cancel을 수행한다")
+    void cancelEvent() {
+        given(waitingEventService.cancel(any(Mono.class)))
+                .willReturn(Mono.just(new MessageResponse("cancelled")));
+
+        client.post()
+                .uri("/waiting/event/cancel")
+                .exchange()
+                .expectStatus()
+                .isNoContent()
+                .expectBody()
+                .consumeWith(document("cancel-waiting-event"));
     }
 }
