@@ -1,21 +1,23 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.Matching;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMember;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingMemberStatus;
 import online.partyrun.partyrunmatchingservice.domain.matching.entity.MatchingStatus;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @DataMongoTest
 @DisplayName("MatchingRepository")
@@ -120,12 +122,18 @@ class MatchingRepositoryTest {
     @Test
     @DisplayName("가장 최근에 등록한 matching을 탐색한다")
     void findResent() {
-        Matching matching1 = matchRepository.save(new Matching(members, 1000, now.minusHours(1))).block();
-        Matching matching2 = matchRepository.save(new Matching(members, 1000, now.minusHours(2))).block();
+        Matching matching1 =
+                matchRepository.save(new Matching(members, 1000, now.minusHours(1))).block();
+        Matching matching2 =
+                matchRepository.save(new Matching(members, 1000, now.minusHours(2))).block();
         Matching expect = matchRepository.save(new Matching(members, 1000, now)).block();
-        Matching matching4 = matchRepository.save(new Matching(members, 1000, now.minusHours(3))).block();
+        Matching matching4 =
+                matchRepository.save(new Matching(members, 1000, now.minusHours(3))).block();
 
-        final Matching target = matchRepository.findFirstByMembersIdOrderByStartAtDesc(members.get(0).getId()).block();
+        final Matching target =
+                matchRepository
+                        .findFirstByMembersIdOrderByStartAtDesc(members.get(0).getId())
+                        .block();
         assertThat(target.getId()).isEqualTo(expect.getId());
     }
 }
