@@ -10,8 +10,8 @@ import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingS
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
-
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -72,9 +72,11 @@ public class WaitingEventService {
     }
 
     public Mono<MessageResponse> cancel(final Mono<String> member) {
-        return member.doOnNext(memberId -> {
-            waitingSinkHandler.disconnectIfExist(memberId);
-            waitingQueue.delete(memberId);
-        }).then(Mono.just(new MessageResponse("cancelled")));
+        return member.doOnNext(
+                        memberId -> {
+                            waitingSinkHandler.disconnectIfExist(memberId);
+                            waitingQueue.delete(memberId);
+                        })
+                .then(Mono.just(new MessageResponse("cancelled")));
     }
 }
