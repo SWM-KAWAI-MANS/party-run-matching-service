@@ -26,13 +26,22 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
         return getSink(key)
                 .asFlux()
                 .timeout(timeout())
-                .doOnCancel(() -> sinks.remove(key))
+                .doOnCancel(doOnCancel(key))
                 .doOnError(
                         e -> {
                             sinks.remove(key);
                             throw new SseConnectionException();
                         });
     }
+
+    private Runnable doOnCancel(K key) {
+        return () -> {
+            sinks.remove(key);
+            onCancel(key);
+        };
+    }
+
+    protected abstract Runnable onCancel(K key);
 
     @Override
     public void create(K key) {

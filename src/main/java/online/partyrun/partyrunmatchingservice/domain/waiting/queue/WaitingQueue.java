@@ -15,4 +15,5 @@ public interface WaitingQueue {
     boolean hasMember(String memberId);
 
     void clear();
+    void delete(String memberId);
 }

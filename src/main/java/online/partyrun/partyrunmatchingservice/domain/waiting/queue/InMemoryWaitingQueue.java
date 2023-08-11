@@ -19,7 +19,7 @@ import java.util.stream.IntStream;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class InMemoryWaitingQueue implements WaitingQueue {
     private static final int SATISFY_COUNT = 2;
-    Map<RunningDistance, Queue<String>> map = new ConcurrentHashMap<>();
+    Map<RunningDistance, LinkedList<String>> map = new ConcurrentHashMap<>();
 
     public InMemoryWaitingQueue() {
         Arrays.stream(RunningDistance.values())
@@ -62,5 +62,12 @@ public class InMemoryWaitingQueue implements WaitingQueue {
     @Override
     public void clear() {
         Arrays.stream(RunningDistance.values()).forEach(distance -> map.get(distance).clear());
+    }
+
+    @Override
+    public void delete(String memberId) {
+        Arrays.stream(RunningDistance.values())
+                .map(map::get)
+                .forEach(queue -> queue.remove(memberId));
     }
 }
