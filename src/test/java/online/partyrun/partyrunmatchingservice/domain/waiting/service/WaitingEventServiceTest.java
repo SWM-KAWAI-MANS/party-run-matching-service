@@ -1,13 +1,18 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
+import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
+import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -16,10 +21,12 @@ import java.util.List;
 
 @DisplayName("WaitingEventService")
 @SpringBootTest
+@Import(RedisTestConfig.class)
 class WaitingEventServiceTest {
     @Autowired WaitingEventService waitingEventService;
     @Autowired WaitingService waitingService;
     @Autowired WaitingSinkHandler waitingSinkHandler;
+    @Autowired WaitingQueue waitingQueue;
 
     Mono<String> user1 = Mono.just("현준");
 
@@ -62,5 +69,16 @@ class WaitingEventServiceTest {
         waitingEventService.shutdown();
 
         assertThat(waitingSinkHandler.getConnectors()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("매칭 중 취소하면 sink를 삭제하고, 대기queue에도 삭제한다")
+    void runCancel() {
+        waitingService.create(user1, new CreateWaitingRequest(1000)).block();
+
+        waitingEventService.getEventStream(user1).subscribe().dispose();
+        assertAll(
+                () -> assertThat(waitingQueue.hasMember(user1.block())).isFalse(),
+                () -> assertThat(waitingSinkHandler.getConnectors()).isNotIn(user1.block()));
     }
 }
