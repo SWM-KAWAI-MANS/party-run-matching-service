@@ -93,7 +93,7 @@ class WaitingControllerTest extends WebfluxDocsTest {
                 .expectStatus()
                 .isNoContent()
                 .expectBody()
-                .consumeWith(document("delete waiting"));
+                .consumeWith(document("shutdown"));
     }
 
     @Test
