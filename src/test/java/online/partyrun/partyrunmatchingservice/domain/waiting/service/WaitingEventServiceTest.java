@@ -1,6 +1,7 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
@@ -18,21 +19,14 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 @DisplayName("WaitingEventService")
 @SpringBootTest
 @Import(RedisTestConfig.class)
 class WaitingEventServiceTest {
-    @Autowired
-    WaitingEventService waitingEventService;
-    @Autowired
-    WaitingService waitingService;
-    @Autowired
-    WaitingSinkHandler waitingSinkHandler;
-    @Autowired
-    WaitingQueue waitingQueue;
+    @Autowired WaitingEventService waitingEventService;
+    @Autowired WaitingService waitingService;
+    @Autowired WaitingSinkHandler waitingSinkHandler;
+    @Autowired WaitingQueue waitingQueue;
 
     Mono<String> user1 = Mono.just("현준");
 
@@ -85,9 +79,6 @@ class WaitingEventServiceTest {
         waitingEventService.getEventStream(user1).subscribe().dispose();
         assertAll(
                 () -> assertThat(waitingQueue.hasMember(user1.block())).isFalse(),
-                () -> assertThat(waitingSinkHandler.getConnectors()).isNotIn(user1.block())
-        );
-
-
+                () -> assertThat(waitingSinkHandler.getConnectors()).isNotIn(user1.block()));
     }
 }
