@@ -41,7 +41,9 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
         };
     }
 
-    protected abstract Runnable onCancel(K key);
+    protected Runnable onCancel(K key) {
+        return () -> {};
+    }
 
     @Override
     public void create(K key) {
