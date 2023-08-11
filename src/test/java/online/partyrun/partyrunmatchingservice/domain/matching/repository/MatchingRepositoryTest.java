@@ -118,4 +118,22 @@ class MatchingRepositoryTest {
                 .expectNext(matching3.getId(), matching4.getId())
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("가장 최근에 등록한 matching을 탐색한다")
+    void findResent() {
+        Matching matching1 =
+                matchRepository.save(new Matching(members, 1000, now.minusHours(1))).block();
+        Matching matching2 =
+                matchRepository.save(new Matching(members, 1000, now.minusHours(2))).block();
+        Matching expect = matchRepository.save(new Matching(members, 1000, now)).block();
+        Matching matching4 =
+                matchRepository.save(new Matching(members, 1000, now.minusHours(3))).block();
+
+        final Matching target =
+                matchRepository
+                        .findFirstByMembersIdOrderByStartAtDesc(members.get(0).getId())
+                        .block();
+        assertThat(target.getId()).isEqualTo(expect.getId());
+    }
 }

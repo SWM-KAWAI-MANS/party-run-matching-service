@@ -144,10 +144,7 @@ public class MatchingService {
     }
 
     public Mono<MatchingMembersResponse> getResent(Mono<String> auth) {
-        return auth.flatMap(
-                        memberId ->
-                                matchingRepository.findByMembersIdAndMembersStatus(
-                                        memberId, MatchingMemberStatus.NO_RESPONSE))
+        return auth.flatMap(matchingRepository::findFirstByMembersIdOrderByStartAtDesc)
                 .map(MatchingMembersResponse::new);
     }
 }

@@ -18,6 +18,8 @@ public interface MatchingRepository extends ReactiveMongoRepository<Matching, St
 
     Mono<Matching> findByMembersIdAndMembersStatus(String id, MatchingMemberStatus status);
 
+    Mono<Matching> findFirstByMembersIdOrderByStartAtDesc(String id);
+
     @Query("{'id': ?0, 'members.id': ?1}")
     @Update("{$set : {'members.$.status': ?2}}")
     Mono<Void> updateMatchingMemberStatus(
