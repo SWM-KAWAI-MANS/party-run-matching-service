@@ -1,6 +1,7 @@
 package online.partyrun.partyrunmatchingservice.global.advisor;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -12,17 +13,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogAdvisor {
 
-    //partyrunservice 속한 모든 패키지의 모든 클래스의 모든 메서드
+    // partyrunservice 속한 모든 패키지의 모든 클래스의 모든 메서드
     @Pointcut("execution(* online.partyrun.partyrunmatchingservice..*.*(..))")
-    public void allComponents(){}
-
+    public void allComponents() {}
 
     @Before("allComponents()")
-    public void generateTraceLong(JoinPoint joinPoint)  {
+    public void generateTraceLong(JoinPoint joinPoint) {
         log.debug(
                 "METHOD : {}, ARGS : {}",
                 joinPoint.getSignature().toShortString(),
                 joinPoint.getArgs());
-
     }
 }
