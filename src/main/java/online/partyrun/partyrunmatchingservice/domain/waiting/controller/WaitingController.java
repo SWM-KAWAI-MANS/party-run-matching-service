@@ -45,7 +45,7 @@ public class WaitingController {
     }
 
     @PostMapping("event/cancel")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     public Mono<MessageResponse> cancelEvent(Mono<Authentication> auth) {
         return waitingEventService.cancel(auth.map(Principal::getName));
     }
