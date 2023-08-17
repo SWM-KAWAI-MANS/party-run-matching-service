@@ -16,6 +16,9 @@ jwt:
 external:
   battle:
     url: "https://dev.partyrun.online"
+logging:
+  level:
+    root: debug
 ---
 spring:
   config:
@@ -52,3 +55,6 @@ jwt:
 external:
   battle:
     url: ${BATTLE_SERVICE_URL}
+logging:
+  level:
+    root: debug

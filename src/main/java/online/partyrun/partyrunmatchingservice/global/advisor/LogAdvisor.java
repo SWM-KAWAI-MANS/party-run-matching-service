@@ -1,7 +1,6 @@
 package online.partyrun.partyrunmatchingservice.global.advisor;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -19,9 +18,9 @@ public class LogAdvisor {
 
     @Before("allComponents()")
     public void generateTraceLong(JoinPoint joinPoint) {
-        log.debug(
-                "METHOD : {}, ARGS : {}",
-                joinPoint.getSignature().toShortString(),
+        log.debug("{}.{}({})",
+                joinPoint.getSignature().getDeclaringType().getSimpleName(),
+                joinPoint.getSignature().getName(),
                 joinPoint.getArgs());
     }
 }
