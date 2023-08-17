@@ -30,6 +30,12 @@ class WaitingEventServiceTest {
 
     Mono<String> user1 = Mono.just("현준");
 
+    @BeforeEach
+    void before() {
+        waitingSinkHandler.shutdown();
+        waitingQueue.clear();
+    }
+
     @Nested
     @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
     class 여러명이_등록되었을_때 {
@@ -74,17 +80,6 @@ class WaitingEventServiceTest {
     @Test
     @DisplayName("매칭 중 취소하면 sink를 삭제하고, 대기queue에도 삭제한다")
     void runCancel() {
-        waitingService.create(user1, new CreateWaitingRequest(1000)).block();
-
-        waitingEventService.getEventStream(user1).subscribe().dispose();
-        assertAll(
-                () -> assertThat(waitingQueue.hasMember(user1.block())).isFalse(),
-                () -> assertThat(waitingSinkHandler.getConnectors()).isNotIn(user1.block()));
-    }
-
-    @Test
-    @DisplayName("취소 요청을 보내면 sink를 삭제하고, 대기queue에도 삭제한다")
-    void requestCancel() {
         waitingService.create(user1, new CreateWaitingRequest(1000)).block();
 
         waitingEventService.cancel(user1).block();
