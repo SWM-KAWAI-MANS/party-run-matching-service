@@ -33,17 +33,20 @@ public class WaitingEventService {
     }
 
     public Flux<WaitingEventResponse> getEventStream(Mono<String> member) {
-        return member.flatMapMany(
-                        id ->
-                                waitingSinkHandler
-                                        .connect(id)
-                                        .doOnNext(
-                                                status -> {
-                                                    if (status.isCompleted()) {
-                                                        waitingSinkHandler.complete(id);
-                                                    }
-                                                }))
+        return member.flatMapMany(this::connectSink)
                 .map(WaitingEventResponse::new);
+    }
+
+    private Flux<WaitingStatus> connectSink(final String id) {
+        return waitingSinkHandler
+                .connect(id)
+                .doOnNext(status -> checkComplete(id, status));
+    }
+
+    private void checkComplete(final String id, final WaitingStatus status) {
+        if (status.isCompleted()) {
+            waitingSinkHandler.complete(id);
+        }
     }
 
     public void sendMatchEvent(List<String> members) {
@@ -54,13 +57,14 @@ public class WaitingEventService {
     public void removeUnConnectedSink() {
         waitingSinkHandler.getConnectors().stream()
                 .filter(connect -> !waitingQueue.hasMember(connect))
-                .forEach(
-                        key -> {
-                            waitingSinkHandler.disconnectIfExist(key);
-                            matchingService
-                                    .setMemberStatus(Mono.just(key), new MatchingRequest(false))
-                                    .subscribe();
-                        });
+                .forEach(this::checkDisconnectAndSendMatchingFalse);
+    }
+
+    private void checkDisconnectAndSendMatchingFalse(final String key) {
+        waitingSinkHandler.disconnectIfExist(key);
+        matchingService
+                .setMemberStatus(Mono.just(key), new MatchingRequest(false))
+                .subscribe();
     }
 
     public void shutdown() {
@@ -69,11 +73,12 @@ public class WaitingEventService {
     }
 
     public Mono<MessageResponse> cancel(final Mono<String> member) {
-        return member.doOnNext(
-                        memberId -> {
-                            waitingSinkHandler.disconnectIfExist(memberId);
-                            waitingQueue.delete(memberId);
-                        })
+        return member.doOnNext(this::checkDisconnectAndDeleteWaiting)
                 .then(Mono.just(new MessageResponse("cancelled")));
+    }
+
+    private void checkDisconnectAndDeleteWaiting(final String memberId) {
+        waitingSinkHandler.disconnectIfExist(memberId);
+        waitingQueue.delete(memberId);
     }
 }
