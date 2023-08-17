@@ -32,6 +32,9 @@ jwt:
 external:
   battle:
     url: "https://dev.partyrun.online"
+logging:
+  level:
+    root: debug
 ---
 
 spring:
