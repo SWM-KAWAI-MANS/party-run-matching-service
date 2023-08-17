@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class LogAdvisor {
 
     // partyrunservice 속한 모든 패키지의 모든 클래스의 모든 메서드
-    @Pointcut("execution(* online.partyrun.partyrunmatchingservice..*.*(..))")
+    @Pointcut("within(online.partyrun.partyrunmatchingservice..*)")
     public void allComponents() {}
 
     @Before("allComponents()")
