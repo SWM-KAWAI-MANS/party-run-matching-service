@@ -2,4 +2,5 @@ package online.partyrun.partyrunmatchingservice.domain.battle.service.external.d
 
 import java.util.List;
 
-public record CreateBattleRequest(List<String> runnerIds, int distance) {}
+public record CreateBattleRequest(List<String> runnerIds, int distance) {
+}

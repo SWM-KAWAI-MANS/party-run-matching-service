@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
 
 import java.util.Arrays;
