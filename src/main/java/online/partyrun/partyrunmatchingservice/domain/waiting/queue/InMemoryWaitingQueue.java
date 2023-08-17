@@ -3,15 +3,16 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.queue;
 import lombok.AccessLevel;
 import lombok.Synchronized;
 import lombok.experimental.FieldDefaults;
-
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.DuplicateMemberException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.NotSatisfyCountException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember;
-
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.IntStream;
 

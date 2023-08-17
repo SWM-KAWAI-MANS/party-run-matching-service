@@ -1,3 +1,4 @@
 package online.partyrun.partyrunmatchingservice.global.dto;
 
-public record MessageResponse(String message) {}
+public record MessageResponse(String message) {
+}

@@ -3,7 +3,6 @@ package online.partyrun.partyrunmatchingservice.global.security;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -45,7 +44,7 @@ public class WebfluxSecurityConfig {
     }
 
     private Customizer<ServerHttpSecurity.AuthorizeExchangeSpec>
-            getAuthorizeExchangeSpecCustomizer() {
+    getAuthorizeExchangeSpecCustomizer() {
         return r -> r.pathMatchers("/**").permitAll();
     }
 }

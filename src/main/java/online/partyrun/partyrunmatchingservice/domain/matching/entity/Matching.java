@@ -4,11 +4,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
 import online.partyrun.partyrunmatchingservice.domain.battle.service.external.exception.BattleAlreadyExistException;
 import online.partyrun.partyrunmatchingservice.domain.matching.exception.NotExistMembersException;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
-
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
@@ -21,7 +19,8 @@ import java.util.Objects;
 public class Matching {
     private static final int MIN_DISTANCE = 1;
     private static final int TIMEOUT_HOUR = 2;
-    @Id String id;
+    @Id
+    String id;
     List<MatchingMember> members;
     int distance;
     LocalDateTime startAt;
