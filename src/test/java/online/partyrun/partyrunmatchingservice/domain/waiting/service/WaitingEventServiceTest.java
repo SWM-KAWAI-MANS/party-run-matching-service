@@ -32,6 +32,7 @@ class WaitingEventServiceTest {
     void before() {
         waitingSinkHandler.shutdown();
         waitingQueue.clear();
+        waitingQueue.delete(user1.block());
     }
 
     @Nested
