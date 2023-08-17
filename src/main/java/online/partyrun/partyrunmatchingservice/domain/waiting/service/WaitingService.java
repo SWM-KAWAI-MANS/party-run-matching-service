@@ -18,11 +18,10 @@ public class WaitingService {
     WaitingMessagePublisher messagePublisher;
 
     public Mono<MessageResponse> create(Mono<String> member, CreateWaitingRequest request) {
-        return member.map(
+        return member.doOnNext(
                 id -> {
                     eventService.register(id);
                     messagePublisher.publish(new WaitingMember(id, request.distance()));
-                    return new MessageResponse(id + "님 대기열 등록");
-                });
+                }).then(Mono.just(new MessageResponse("대기열 등록")));
     }
 }
