@@ -78,7 +78,7 @@ public class WaitingEventService {
     }
 
     private void checkDisconnectAndDeleteWaiting(final String memberId) {
-        waitingSinkHandler.disconnectIfExist(memberId);
+        waitingSinkHandler.sendEvent(memberId, WaitingStatus.CANCEL);
         waitingQueue.delete(memberId);
     }
 }

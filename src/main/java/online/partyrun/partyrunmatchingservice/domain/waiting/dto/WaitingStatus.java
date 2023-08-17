@@ -2,9 +2,10 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.dto;
 
 public enum WaitingStatus {
     CONNECTED,
-    MATCHED;
+    MATCHED,
+    CANCEL;
 
     public boolean isCompleted() {
-        return this.equals(MATCHED);
+        return !this.equals(CONNECTED);
     }
 }
