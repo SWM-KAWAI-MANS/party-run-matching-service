@@ -15,11 +15,10 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandler<K, V> {
+public abstract class SinkHandlerTemplate<K, V> {
     private static final int DEFAULT_MINUTE = 3;
     Map<K, Sinks.Many<V>> sinks = new ConcurrentHashMap<>();
 
-    @Override
     public Flux<V> connect(final K key) {
         return getSink(key)
                 .asFlux()
@@ -32,7 +31,6 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
                         });
     }
 
-    @Override
     public void create(K key) {
         checkKeyNotNull(key);
         sinks.putIfAbsent(key, Sinks.many().unicast().onBackpressureBuffer());
@@ -44,18 +42,15 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
         }
     }
 
-    @Override
     public void sendEvent(final K key, final V value) {
         getSink(key).tryEmitNext(value);
     }
 
-    @Override
     public void complete(final K key) {
         getSink(key).tryEmitComplete();
         sinks.remove(key);
     }
 
-    @Override
     public void shutdown() {
         sinks.keySet().forEach(key -> sinks.get(key).tryEmitComplete());
         sinks.clear();
@@ -73,7 +68,7 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
         }
     }
 
-    private boolean isExist(K key) {
+    public boolean isExist(K key) {
         return sinks.containsKey(key);
     }
 
@@ -81,12 +76,10 @@ public abstract class SinkHandlerTemplate<K, V> implements ServerSentEventHandle
         return Duration.ofMinutes(DEFAULT_MINUTE);
     }
 
-    @Override
     public List<K> getConnectors() {
         return sinks.keySet().stream().toList();
     }
 
-    @Override
     public void disconnectIfExist(final K key) {
         if (isExist(key)) {
             complete(key);

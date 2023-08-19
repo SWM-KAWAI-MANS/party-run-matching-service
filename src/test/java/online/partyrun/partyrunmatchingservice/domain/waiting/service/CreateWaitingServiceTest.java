@@ -18,8 +18,9 @@ import reactor.test.StepVerifier;
 @SpringBootTest
 @DisplayName("WaitingService")
 @Import(RedisTestConfig.class)
-class WaitingServiceTest {
-    @Autowired WaitingService waitingService;
+class CreateWaitingServiceTest {
+    @Autowired
+    CreateWaitingService createWaitingService;
     @Autowired ServerSentEventHandler<String, WaitingStatus> sseHandler;
 
     Mono<String> user1 = Mono.just("현준");
@@ -30,7 +31,7 @@ class WaitingServiceTest {
         @Test
         @DisplayName("Message를 반환한다")
         void returnMessage() {
-            StepVerifier.create(waitingService.create(user1, new CreateWaitingRequest(1000)))
+            StepVerifier.create(createWaitingService.create(user1, new CreateWaitingRequest(1000)))
                     .expectNextCount(1)
                     .verifyComplete();
         }
@@ -38,7 +39,7 @@ class WaitingServiceTest {
         @Test
         @DisplayName("Sink를 생성한다.")
         void createSseSink() {
-            waitingService.create(user1, new CreateWaitingRequest(1000)).block();
+            createWaitingService.create(user1, new CreateWaitingRequest(1000)).block();
 
             assertThat(sseHandler.getConnectors()).contains(user1.block());
         }

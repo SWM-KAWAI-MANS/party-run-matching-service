@@ -9,7 +9,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
 
 @Configuration
 public class WaitingMessageConfig {
@@ -27,12 +26,7 @@ public class WaitingMessageConfig {
             RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, WaitingMember> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
-        template.setValueSerializer(waitingUserSerializer());
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(WaitingMember.class));
         return template;
-    }
-
-    @Bean
-    public RedisSerializer<WaitingMember> waitingUserSerializer() {
-        return new Jackson2JsonRedisSerializer<>(WaitingMember.class);
     }
 }

@@ -17,4 +17,8 @@ public class WaitingMessagePublisher {
     public void publish(WaitingMember user) {
         redisTemplate.convertAndSend(RedisChannel.WAITING.getChannel(), user);
     }
+
+    public void publish(String user) {
+        redisTemplate.convertAndSend(RedisChannel.WAITING.getChannel(), user);
+    }
 }

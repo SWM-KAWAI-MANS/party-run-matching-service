@@ -18,7 +18,8 @@ import reactor.test.StepVerifier;
 @SpringBootTest
 @Import(RedisTestConfig.class)
 class WaitingProcessTest {
-    @Autowired WaitingService waitingService;
+    @Autowired
+    CreateWaitingService createWaitingService;
     @Autowired WaitingEventService waitingEventService;
 
     @Autowired ServerSentEventHandler<String, WaitingStatus> sseHandler;
@@ -31,8 +32,8 @@ class WaitingProcessTest {
     @Test
     @DisplayName("waiting 생성이 일정 회수가 되면, 각 사용자에게 sink를 제공하고 구독한다")
     void runProcess() {
-        waitingService.create(현준, request).block();
-        waitingService.create(성우, request).block();
+        createWaitingService.create(현준, request).block();
+        createWaitingService.create(성우, request).block();
 
         StepVerifier.create(sseHandler.connect(현준.block()))
                 .expectNext(WaitingStatus.CONNECTED, WaitingStatus.MATCHED)

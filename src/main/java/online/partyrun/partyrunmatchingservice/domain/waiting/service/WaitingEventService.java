@@ -3,12 +3,11 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
-import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
+import online.partyrun.partyrunmatchingservice.domain.waiting.queue.redis.WaitingQueue;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -53,32 +51,42 @@ public class WaitingEventService {
         members.forEach(member -> waitingSinkHandler.sendEvent(member, WaitingStatus.MATCHED));
     }
 
-    @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME) // 12시간 마다 실행
+    @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME, initialDelay = REMOVE_SINK_SCHEDULE_TIME) // 12시간 마다 실행
     public void removeUnConnectedSink() {
-        waitingSinkHandler.getConnectors().stream()
-                .filter(connect -> !waitingQueue.hasMember(connect))
-                .forEach(this::checkDisconnectAndSendMatchingFalse);
-    }
-
-    private void checkDisconnectAndSendMatchingFalse(final String key) {
-        waitingSinkHandler.disconnectIfExist(key);
-        matchingService
-                .setMemberStatus(Mono.just(key), new MatchingRequest(false))
+        Flux.fromIterable(waitingSinkHandler.getConnectors())
+                .parallel()
+                .flatMap(member -> waitingQueue.hasMember(member)
+                        .filter(is -> is)
+                        .flatMap(is -> checkDisconnectAndSendMatchingFalse(member))
+                        .then())
                 .subscribe();
     }
 
-    public void shutdown() {
+    private Mono<Void> checkDisconnectAndSendMatchingFalse(final String key) {
+        waitingSinkHandler.disconnectIfExist(key);
+        return matchingService
+                .setMemberStatus(Mono.just(key), new MatchingRequest(false))
+                .then();
+    }
+
+    public Mono<Void> shutdown() {
         waitingSinkHandler.shutdown();
-        waitingQueue.clear();
+        return waitingQueue.clear().then();
     }
 
     public Mono<MessageResponse> cancel(final Mono<String> member) {
-        return member.doOnNext(this::checkDisconnectAndDeleteWaiting)
+        return member.flatMap(this::checkDisconnectAndDeleteWaiting)
                 .then(Mono.just(new MessageResponse("cancelled")));
     }
 
-    private void checkDisconnectAndDeleteWaiting(final String memberId) {
+    private Mono<Void> checkDisconnectAndDeleteWaiting(final String memberId) {
         waitingSinkHandler.sendEvent(memberId, WaitingStatus.CANCEL);
-        waitingQueue.delete(memberId);
+        return waitingQueue.delete(memberId);
+    }
+
+    public void sendMatchEventIfExist(String member) {
+        if(waitingSinkHandler.isExist(member)) {
+            waitingSinkHandler.sendEvent(member, WaitingStatus.MATCHED);
+        }
     }
 }

@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingEventService;
-import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
+import online.partyrun.partyrunmatchingservice.domain.waiting.service.CreateWaitingService;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -22,14 +22,14 @@ import java.security.Principal;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("waiting")
 public class WaitingController {
-    WaitingService waitingService;
+    CreateWaitingService createWaitingService;
     WaitingEventService waitingEventService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<MessageResponse> postWaitingRunner(
             Mono<Authentication> auth, @Valid @RequestBody CreateWaitingRequest request) {
-        return waitingService.create(auth.map(Principal::getName), request);
+        return createWaitingService.create(auth.map(Principal::getName), request);
     }
 
     @GetMapping(path = "event", produces = "text/event-stream")
@@ -40,8 +40,8 @@ public class WaitingController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteWaiting() {
-        waitingEventService.shutdown();
+    public Mono<Void> deleteWaiting() {
+        return waitingEventService.shutdown();
     }
 
     @PostMapping("event/cancel")
