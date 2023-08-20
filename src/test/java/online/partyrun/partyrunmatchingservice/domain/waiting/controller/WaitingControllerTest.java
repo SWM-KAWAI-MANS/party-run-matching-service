@@ -4,8 +4,8 @@ import online.partyrun.partyrunmatchingservice.config.docs.WebfluxDocsTest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.exception.InvalidDistanceException;
+import online.partyrun.partyrunmatchingservice.domain.waiting.service.CreateWaitingService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingEventService;
-import online.partyrun.partyrunmatchingservice.domain.waiting.service.WaitingService;
 import online.partyrun.partyrunmatchingservice.global.controller.HttpControllerAdvice;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +25,8 @@ import static org.springframework.restdocs.webtestclient.WebTestClientRestDocume
 @WithMockUser
 @DisplayName("WaitingController")
 class WaitingControllerTest extends WebfluxDocsTest {
-    @MockBean WaitingService waitingService;
+    @MockBean
+    CreateWaitingService createWaitingService;
     @MockBean WaitingEventService waitingEventService;
 
     @Test
@@ -33,7 +34,7 @@ class WaitingControllerTest extends WebfluxDocsTest {
     void postWaiting() {
         final CreateWaitingRequest request = new CreateWaitingRequest(1000);
         final Mono<MessageResponse> response = Mono.just(new MessageResponse("testUser님 대기열 등록"));
-        given(waitingService.create(any(Mono.class), any(CreateWaitingRequest.class)))
+        given(createWaitingService.create(any(Mono.class), any(CreateWaitingRequest.class)))
                 .willReturn(response);
 
         client.post()
@@ -68,7 +69,7 @@ class WaitingControllerTest extends WebfluxDocsTest {
     @DisplayName("distance값을_적절하게_요청하지_않으면_예외을 반환한다")
     void throwException() {
         final int distance = 100;
-        given(waitingService.create(any(Mono.class), any(CreateWaitingRequest.class)))
+        given(createWaitingService.create(any(Mono.class), any(CreateWaitingRequest.class)))
                 .willThrow(new InvalidDistanceException(distance));
 
         final CreateWaitingRequest request = new CreateWaitingRequest(distance);

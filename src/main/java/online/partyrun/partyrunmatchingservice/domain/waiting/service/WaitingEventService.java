@@ -4,11 +4,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
-import online.partyrun.partyrunmatchingservice.domain.waiting.queue.WaitingQueue;
 import online.partyrun.partyrunmatchingservice.global.dto.MessageResponse;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,7 +22,7 @@ import java.util.List;
 public class WaitingEventService {
     private static final int REMOVE_SINK_SCHEDULE_TIME = 14_400_000; // 12시간 마다 실행
     WaitingSinkHandler waitingSinkHandler;
-    WaitingQueue waitingQueue;
+    //WaitingQueue waitingQueue;
     MatchingService matchingService;
 
     public void register(final String id) {
@@ -55,30 +53,14 @@ public class WaitingEventService {
 
     @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME) // 12시간 마다 실행
     public void removeUnConnectedSink() {
-        waitingSinkHandler.getConnectors().stream()
-                .filter(connect -> !waitingQueue.hasMember(connect))
-                .forEach(this::checkDisconnectAndSendMatchingFalse);
+        throw new UnsupportedOperationException("Not supported yet");
     }
 
-    private void checkDisconnectAndSendMatchingFalse(final String key) {
-        waitingSinkHandler.disconnectIfExist(key);
-        matchingService
-                .setMemberStatus(Mono.just(key), new MatchingRequest(false))
-                .subscribe();
-    }
-
-    public void shutdown() {
-        waitingSinkHandler.shutdown();
-        waitingQueue.clear();
+    public Mono<Void> shutdown() {
+        throw new UnsupportedOperationException("Not supported yet");
     }
 
     public Mono<MessageResponse> cancel(final Mono<String> member) {
-        return member.doOnNext(this::checkDisconnectAndDeleteWaiting)
-                .then(Mono.just(new MessageResponse("cancelled")));
-    }
-
-    private void checkDisconnectAndDeleteWaiting(final String memberId) {
-        waitingSinkHandler.sendEvent(memberId, WaitingStatus.CANCEL);
-        waitingQueue.delete(memberId);
+        throw new UnsupportedOperationException("Not supported yet");
     }
 }
