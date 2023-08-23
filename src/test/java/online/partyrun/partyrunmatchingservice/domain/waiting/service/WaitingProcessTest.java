@@ -3,7 +3,6 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
-import online.partyrun.partyrunmatchingservice.global.sse.ServerSentEventHandler;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ class WaitingProcessTest {
     CreateWaitingService createWaitingService;
     @Autowired WaitingEventService waitingEventService;
 
-    @Autowired ServerSentEventHandler<String, WaitingStatus> sseHandler;
+    @Autowired WaitingSinkHandler waitingSinkHandler;
 
     Mono<String> 현준 = Mono.just("현준");
     Mono<String> 성우 = Mono.just("성우");
@@ -35,12 +34,12 @@ class WaitingProcessTest {
         createWaitingService.create(현준, request).block();
         createWaitingService.create(성우, request).block();
 
-        StepVerifier.create(sseHandler.connect(현준.block()))
+        StepVerifier.create(waitingSinkHandler.connect(현준.block()))
                 .expectNext(WaitingStatus.CONNECTED, WaitingStatus.MATCHED)
                 .thenCancel()
                 .verify();
 
-        StepVerifier.create((sseHandler.connect(성우.block())))
+        StepVerifier.create((waitingSinkHandler.connect(성우.block())))
                 .expectNext(WaitingStatus.CONNECTED, WaitingStatus.MATCHED)
                 .thenCancel()
                 .verify();

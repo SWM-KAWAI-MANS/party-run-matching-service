@@ -52,14 +52,18 @@ public class WaitingEventService {
     }
 
     @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME, initialDelay = REMOVE_SINK_SCHEDULE_TIME) // 12시간 마다 실행
-    public void removeUnConnectedSink() {
-        Flux.fromIterable(waitingSinkHandler.getConnectors())
+    public void runSchedule() {
+        removeUnConnectedSinks().subscribe();
+    }
+
+    private Mono<Void> removeUnConnectedSinks() {
+        return Flux.fromIterable(waitingSinkHandler.getConnectors())
                 .parallel()
                 .flatMap(member -> waitingQueue.hasMember(member)
-                        .filter(is -> is)
+                        .filter(is -> !is)
                         .flatMap(is -> checkDisconnectAndSendMatchingFalse(member))
                         .then())
-                .subscribe();
+                .then();
     }
 
     private Mono<Void> checkDisconnectAndSendMatchingFalse(final String key) {
