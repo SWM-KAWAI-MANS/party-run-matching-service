@@ -1,6 +1,7 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.redis.WaitingQueue;
@@ -15,6 +16,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("WaitingEventService")
 @SpringBootTest
@@ -70,7 +72,6 @@ class WaitingEventServiceTest {
         waitingSinkHandler.create(id1);
         waitingSinkHandler.create(id2);
 
-
         waitingEventService.runSchedule();
 
         assertThat(waitingSinkHandler.getConnectors()).doesNotContain(id1, id2);
@@ -85,10 +86,20 @@ class WaitingEventServiceTest {
 
         assertThat(waitingSinkHandler.getConnectors()).isEmpty();
     }
-    
+
     @Test
-    @DisplayName("취소 시에 cancel 이벤트를 전송하는가")        
+    @DisplayName("취소 시에 cancel 이벤트를 전송한다")
     void runCancel() {
-        
+        createWaitingService.create(user1, new CreateWaitingRequest(1000)).block();
+
+        waitingEventService.cancel(user1).block();
+
+        final String waitingStatus = waitingEventService.getEventStream(user1).blockLast().status();
+        assertAll(
+                () -> assertThat(waitingQueue.hasMember(user1.block()).block()).isFalse(),
+                () -> assertThat(waitingStatus).isEqualTo(WaitingStatus.CANCEL.name()),
+                () -> assertThat(waitingSinkHandler.isExist(user1.block())).isFalse()
+        );
+
     }
 }
