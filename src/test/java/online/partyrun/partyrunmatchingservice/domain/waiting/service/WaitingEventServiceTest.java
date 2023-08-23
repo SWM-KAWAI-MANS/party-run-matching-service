@@ -8,8 +8,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.util.List;
@@ -20,17 +20,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @Import(RedisTestConfig.class)
 class WaitingEventServiceTest {
-    @Autowired WaitingEventService waitingEventService;
+    @Autowired
+    WaitingEventService waitingEventService;
     @Autowired
     CreateWaitingService createWaitingService;
-    @Autowired WaitingSinkHandler waitingSinkHandler;
+    @Autowired
+    WaitingSinkHandler waitingSinkHandler;
     @Autowired
     WaitingQueue waitingQueue;
+    @Autowired
+    ThreadPoolTaskScheduler taskScheduler;
+
 
     Mono<String> user1 = Mono.just("현준");
 
-    @BeforeEach
-    void before() {
+    @AfterEach
+    void after() {
         waitingSinkHandler.shutdown();
         waitingQueue.clear().block();
         waitingQueue.delete(user1.block()).block();
@@ -60,15 +65,15 @@ class WaitingEventServiceTest {
     @Test
     @DisplayName("timeout된 sink를 삭제한다")
     void runDeleteSink() {
+        final String id1 = "삭제예정1";
+        final String id2 = "삭제예정2";
+        waitingSinkHandler.create(id1);
+        waitingSinkHandler.create(id2);
 
-        waitingSinkHandler.create("현준");
 
         waitingEventService.runSchedule();
-        StepVerifier.create(Mono.fromRunnable(() -> waitingEventService.runSchedule())
-                        .subscribeOn(Schedulers.immediate()))
-                        .verifyComplete();
 
-        assertThat(waitingSinkHandler.getConnectors()).doesNotContain("현준");
+        assertThat(waitingSinkHandler.getConnectors()).doesNotContain(id1, id2);
     }
 
     @Test
@@ -79,5 +84,11 @@ class WaitingEventServiceTest {
         waitingEventService.shutdown().block();
 
         assertThat(waitingSinkHandler.getConnectors()).isEmpty();
+    }
+    
+    @Test
+    @DisplayName("취소 시에 cancel 이벤트를 전송하는가")        
+    void runCancel() {
+        
     }
 }

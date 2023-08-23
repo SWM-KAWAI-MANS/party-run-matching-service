@@ -14,10 +14,6 @@ import org.springframework.stereotype.Component;
 public class WaitingMessagePublisher {
     RedisTemplate<String, WaitingMember> redisTemplate;
 
-    public void publish(WaitingMember user) {
-        redisTemplate.convertAndSend(RedisChannel.WAITING.getChannel(), user);
-    }
-
     public void publish(String user) {
         redisTemplate.convertAndSend(RedisChannel.WAITING.getChannel(), user);
     }

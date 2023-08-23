@@ -24,7 +24,6 @@ public class WaitingEventService {
     WaitingSinkHandler waitingSinkHandler;
     WaitingQueue waitingQueue;
     MatchingService matchingService;
-
     public void register(final String id) {
         waitingSinkHandler.create(id);
         waitingSinkHandler.sendEvent(id, WaitingStatus.CONNECTED);
@@ -53,7 +52,7 @@ public class WaitingEventService {
 
     @Scheduled(fixedDelay = REMOVE_SINK_SCHEDULE_TIME, initialDelay = REMOVE_SINK_SCHEDULE_TIME) // 12시간 마다 실행
     public void runSchedule() {
-        removeUnConnectedSinks().subscribe();
+        removeUnConnectedSinks().block();
     }
 
     private Mono<Void> removeUnConnectedSinks() {
