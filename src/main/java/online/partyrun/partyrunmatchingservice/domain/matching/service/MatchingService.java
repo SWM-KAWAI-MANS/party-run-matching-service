@@ -3,7 +3,6 @@ package online.partyrun.partyrunmatchingservice.domain.matching.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
 import online.partyrun.partyrunmatchingservice.domain.matching.dto.MatchEvent;
@@ -23,7 +22,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -49,7 +47,6 @@ public class MatchingService {
     }
 
     private Mono<Matching> saveMatchAndSendEvents(List<MatchingMember> members, int distance) {
-        log.info("{}", members);
         return matchingRepository
                 .save(new Matching(members, distance, LocalDateTime.now(clock)))
                 .doOnSuccess(match -> members.forEach(member -> createSink(match, member)));

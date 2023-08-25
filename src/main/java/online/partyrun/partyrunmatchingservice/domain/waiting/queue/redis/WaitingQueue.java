@@ -24,14 +24,18 @@ public class WaitingQueue {
         return waitingListOperations.leftPush(member.distance(), member.memberId()).then();
     }
 
-    public Mono<Boolean> isSatisfyCount(final RunningDistance distance) {
-        return waitingListOperations.size(distance).map(count -> count >= SATISFY_COUNT);
+    public Mono<List<String>> findNextGroup(final RunningDistance distance) {
+        return isSatisfyCount(distance).flatMap(isSatisfy -> {
+            if (isSatisfy) {
+                return Flux.range(0, SATISFY_COUNT)
+                        .flatMap(i -> waitingListOperations.rightPop(distance))
+                        .collectList();
+            }
+            return Mono.empty();
+        });
     }
-
-    public Mono<List<String>> poll(final RunningDistance distance) {
-        return Flux.range(0, SATISFY_COUNT)
-                .flatMap(i -> waitingListOperations.rightPop(distance))
-                .collectList();
+    private Mono<Boolean> isSatisfyCount(final RunningDistance distance) {
+        return waitingListOperations.size(distance).map(count -> count >= SATISFY_COUNT);
     }
 
     public Mono<Boolean> hasMember(final String memberId) {

@@ -20,11 +20,14 @@ public class WaitingCheckService {
     MatchingService matchingService;
 
     public Mono<Matching> check(RunningDistance distance) {
-        return waitingQueue.isSatisfyCount(distance)
-                .filter(isSatisfy -> isSatisfy)
-                .flatMap(isSatisfy -> waitingQueue.poll(distance))
+        return waitingQueue.findNextGroup(distance)
                 .doOnNext(members -> members.forEach(publisher::publish))
-                .flatMap(members -> matchingService.create(members, distance.getMeter()))
-                .switchIfEmpty(Mono.empty());
+                .flatMap(members -> {
+                            if(members.isEmpty()) {
+                                return Mono.empty();
+                            }
+                            return matchingService.create(members, distance.getMeter());
+                        }
+                );
     }
 }

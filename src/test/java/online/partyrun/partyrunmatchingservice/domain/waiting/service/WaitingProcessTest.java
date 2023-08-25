@@ -1,6 +1,5 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
-import lombok.SneakyThrows;
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
@@ -57,17 +56,23 @@ class WaitingProcessTest {
 
     @Test
     @DisplayName("동시에 요청해도 단 1회의 matching만 생성한다.")
-    @SneakyThrows
     void runParallel() {
+        Mono<String> aa = Mono.just("aa");
+        Mono<String> bb = Mono.just("bb");
+
         Mono.zip(
                 createWaitingService.create(현준, request),
-                createWaitingService.create(성우, request)
+                createWaitingService.create(성우, request),
+                createWaitingService.create(aa, request),
+                createWaitingService.create(bb, request)
         ).publishOn(Schedulers.parallel()).then()
                 .publishOn(Schedulers.boundedElastic())
-                        .doOnSuccess(s ->  assertThat(matchingRepository.findAll().count().block()).isOne())
+                        .doOnSuccess(s ->  assertThat(matchingRepository.findAll().count().block()).isEqualTo(2))
                                 .block();
 
         assertThat(waitingQueue.hasMember(현준.block()).block()).isFalse();
         assertThat(waitingQueue.hasMember(성우.block()).block()).isFalse();
+        assertThat(waitingQueue.hasMember(aa.block()).block()).isFalse();
+        assertThat(waitingQueue.hasMember(bb.block()).block()).isFalse();
     }
 }
