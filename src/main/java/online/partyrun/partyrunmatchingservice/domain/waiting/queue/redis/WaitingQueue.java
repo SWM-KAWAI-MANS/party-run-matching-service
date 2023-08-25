@@ -27,7 +27,7 @@ public class WaitingQueue {
     public Mono<List<String>> findNextGroup(final RunningDistance distance) {
         return isSatisfyCount(distance).flatMap(isSatisfy -> {
             if (isSatisfy) {
-                return  Flux.range(0, SATISFY_COUNT)
+                return Flux.range(0, SATISFY_COUNT)
                         .flatMap(i -> waitingListOperations.rightPop(distance))
                         .collectList()
                         .flatMap(list -> rollbackIfSingle(distance, list));
@@ -35,7 +35,6 @@ public class WaitingQueue {
             return Mono.empty();
         });
     }
-
 
     private Mono<Boolean> isSatisfyCount(final RunningDistance distance) {
         return waitingListOperations.size(distance).map(count -> count >= SATISFY_COUNT);
@@ -52,7 +51,7 @@ public class WaitingQueue {
         return Flux.fromIterable(list)
                 .map(member -> new WaitingMember(member, distance))
                 .doOnNext(this::add)
-                .then(Mono.defer(Mono::empty));
+                .then(Mono.empty());
     }
 
     public Mono<Boolean> hasMember(final String memberId) {
@@ -74,6 +73,5 @@ public class WaitingQueue {
         return Flux.fromArray(RunningDistance.values())
                 .flatMap(distance -> waitingListOperations.remove(distance, 1, memberId))
                 .then();
-
     }
 }
