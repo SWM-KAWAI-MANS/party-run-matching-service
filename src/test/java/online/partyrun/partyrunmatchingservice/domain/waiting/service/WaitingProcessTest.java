@@ -55,16 +55,18 @@ class WaitingProcessTest {
 
 
     @Test
-    @DisplayName("동시에 요청해도 단 1회의 matching만 생성한다.")
+    @DisplayName("동시에 요청해도 단 중복 없이 매칭을 생성하고, 큐에 삭제한다.")
     void runParallel() {
-        Mono<String> aa = Mono.just("aa");
-        Mono<String> bb = Mono.just("bb");
+        Mono<String> 현식 = Mono.just("현식");
+        Mono<String> 준혁 = Mono.just("준혁");
+        Mono<String> 세연 = Mono.just("세연");
 
         Mono.zip(
                 createWaitingService.create(현준, request),
                 createWaitingService.create(성우, request),
-                createWaitingService.create(aa, request),
-                createWaitingService.create(bb, request)
+                createWaitingService.create(현식, request),
+                createWaitingService.create(준혁, request),
+                createWaitingService.create(세연, request)
         ).publishOn(Schedulers.parallel()).then()
                 .publishOn(Schedulers.boundedElastic())
                         .doOnSuccess(s ->  assertThat(matchingRepository.findAll().count().block()).isEqualTo(2))
@@ -72,7 +74,7 @@ class WaitingProcessTest {
 
         assertThat(waitingQueue.hasMember(현준.block()).block()).isFalse();
         assertThat(waitingQueue.hasMember(성우.block()).block()).isFalse();
-        assertThat(waitingQueue.hasMember(aa.block()).block()).isFalse();
-        assertThat(waitingQueue.hasMember(bb.block()).block()).isFalse();
+        assertThat(waitingQueue.hasMember(현식.block()).block()).isFalse();
+        assertThat(waitingQueue.hasMember(준혁.block()).block()).isFalse();
     }
 }
