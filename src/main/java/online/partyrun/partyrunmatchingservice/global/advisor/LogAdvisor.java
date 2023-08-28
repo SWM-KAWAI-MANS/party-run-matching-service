@@ -19,7 +19,7 @@ public class LogAdvisor {
 
     @Before("allComponents()")
     public void generateTraceLong(JoinPoint joinPoint) {
-        log.debug("{}.{}({})",
+        log.info("{}.{}({})",
                 joinPoint.getSignature().getDeclaringType().getSimpleName(),
                 joinPoint.getSignature().getName(),
                 joinPoint.getArgs());

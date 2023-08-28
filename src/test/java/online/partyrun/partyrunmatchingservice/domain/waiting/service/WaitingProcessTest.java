@@ -44,6 +44,9 @@ class WaitingProcessTest {
 
     Mono<String> 현준 = Mono.just("현준");
     Mono<String> 성우 = Mono.just("성우");
+    Mono<String> 현식 = Mono.just("현식");
+    Mono<String> 준혁 = Mono.just("준혁");
+    Mono<String> 세연 = Mono.just("세연");
 
     CreateWaitingRequest request = new CreateWaitingRequest(1000);
     @AfterEach
@@ -67,16 +70,28 @@ class WaitingProcessTest {
                 .verify();
     }
 
+    @Test
+    @DisplayName("순차적으로 동작했을 때 매칭을 생성하고, 큐에 삭제한다")
+    void runCreate() {
+        Flux.concat(
+                        createWaitingService.create(현준, request),
+                        createWaitingService.create(성우, request),
+                        createWaitingService.create(현식, request),
+                        createWaitingService.create(준혁, request),
+                        createWaitingService.create(세연, request)
+                ).publishOn(Schedulers.boundedElastic()).then()
+                .block();
+
+        final Mono<Long> count = waitingListOperations.range(RunningDistance.M1000, 0, -1).count();
+        assertThat(matchingRepository.findAll().count().block()).isEqualTo(2);
+        StepVerifier.create(count).expectNext(1L).verifyComplete();
+    }
+
 
     @Test
     @DisplayName("동시에 요청해도 단 중복 없이 매칭을 생성하고, 큐에 삭제한다.")
     @SneakyThrows
     void runParallel() {
-
-        Mono<String> 현식 = Mono.just("현식");
-        Mono<String> 준혁 = Mono.just("준혁");
-        Mono<String> 세연 = Mono.just("세연");
-
         Flux.concat(
                         createWaitingService.create(현준, request),
                         createWaitingService.create(성우, request),
