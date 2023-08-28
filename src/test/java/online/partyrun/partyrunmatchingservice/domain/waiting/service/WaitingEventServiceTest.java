@@ -1,6 +1,7 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
@@ -32,6 +33,8 @@ class WaitingEventServiceTest {
     WaitingQueue waitingQueue;
     @Autowired
     ThreadPoolTaskScheduler taskScheduler;
+    @Autowired
+    MatchingRepository matchingRepository;
 
 
     Mono<String> user1 = Mono.just("현준");
@@ -41,6 +44,7 @@ class WaitingEventServiceTest {
         waitingSinkHandler.shutdown();
         waitingQueue.clear().block();
         waitingQueue.delete(user1.block()).block();
+        matchingRepository.deleteAll().block();
     }
 
     @Nested
