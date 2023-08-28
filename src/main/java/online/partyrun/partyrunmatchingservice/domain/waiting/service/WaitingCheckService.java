@@ -22,12 +22,6 @@ public class WaitingCheckService {
     public Mono<Matching> check(RunningDistance distance) {
         return waitingQueue.findNextGroup(distance)
                 .doOnNext(members -> members.forEach(publisher::publish))
-                .flatMap(members -> {
-                            if(members.isEmpty()) {
-                                return Mono.empty();
-                            }
-                            return matchingService.create(members, distance.getMeter());
-                        }
-                );
+                .flatMap(members -> matchingService.create(members, distance.getMeter()));
     }
 }

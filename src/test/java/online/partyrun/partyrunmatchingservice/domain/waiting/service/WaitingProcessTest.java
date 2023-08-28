@@ -1,7 +1,5 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
@@ -22,7 +20,6 @@ import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Slf4j
 @DisplayName("waiting 프로세스 테스트")
 @SpringBootTest
 @Import(RedisTestConfig.class)
@@ -52,6 +49,8 @@ class WaitingProcessTest {
     @AfterEach
     void afterEach() {
         waitingListOperations.delete(RunningDistance.M1000).block();
+        waitingSinkHandler.shutdown();
+        matchingRepository.deleteAll().block();
     }
     @Test
     @DisplayName("waiting 생성이 일정 회수가 되면, 각 사용자에게 sink를 제공하고 구독한다")
@@ -79,7 +78,7 @@ class WaitingProcessTest {
                         createWaitingService.create(현식, request),
                         createWaitingService.create(준혁, request),
                         createWaitingService.create(세연, request)
-                ).publishOn(Schedulers.boundedElastic()).then()
+                ).publishOn(Schedulers.single()).then()
                 .block();
 
         final Mono<Long> count = waitingListOperations.range(RunningDistance.M1000, 0, -1).count();
@@ -90,7 +89,6 @@ class WaitingProcessTest {
 
     @Test
     @DisplayName("동시에 요청해도 단 중복 없이 매칭을 생성하고, 큐에 삭제한다.")
-    @SneakyThrows
     void runParallel() {
         Flux.concat(
                         createWaitingService.create(현준, request),
