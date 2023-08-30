@@ -14,7 +14,7 @@ public class RedisTestConfig {
     @Value("${spring.data.redis.port:#{6379}}")
     private int redisPort;
 
-    private RedisServer redisServer;
+    private static RedisServer redisServer;
 
     @PostConstruct
     public void redisServer() {
