@@ -1,6 +1,6 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
-import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+import online.partyrun.partyrunmatchingservice.config.IntegrationTest;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingEventResponse;
@@ -8,8 +8,6 @@ import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.redis.WaitingQueue;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -20,8 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("WaitingEventService")
-@SpringBootTest
-@Import(RedisTestConfig.class)
+@IntegrationTest
 class WaitingEventServiceTest {
     @Autowired
     WaitingEventService waitingEventService;

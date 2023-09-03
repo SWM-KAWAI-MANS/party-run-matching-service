@@ -1,22 +1,19 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
-import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+import online.partyrun.partyrunmatchingservice.config.IntegrationTest;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.ReactiveListOperations;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@IntegrationTest
 @DisplayName("WaitingService")
-@Import(RedisTestConfig.class)
 class CreateWaitingServiceTest {
     @Autowired
     CreateWaitingService createWaitingService;

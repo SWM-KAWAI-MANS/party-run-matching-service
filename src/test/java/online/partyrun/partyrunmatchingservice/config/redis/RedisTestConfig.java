@@ -1,33 +1,27 @@
 package online.partyrun.partyrunmatchingservice.config.redis;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
-
-import redis.embedded.RedisServer;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.DockerImageName;
 
 @TestConfiguration
 public class RedisTestConfig {
+    private static final int REDIS_PORT = 6379;
 
-    @Value("${spring.data.redis.port:#{6379}}")
-    private int redisPort;
+    @Container
+    private static GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:7.0.8-alpine"))
+            .withExposedPorts(REDIS_PORT);
 
-    private static RedisServer redisServer;
-
-    @PostConstruct
-    public void redisServer() {
-        redisServer = new RedisServer(redisPort);
-        try {
-            redisServer.start();
-
-        } catch (Exception e) {
-        }
+    static {
+        REDIS.start();
+        System.setProperty("spring.data.redis.host", REDIS.getHost());
+        System.setProperty("spring.data.redis.port", String.valueOf(REDIS.getMappedPort(REDIS_PORT)));
     }
 
     @PreDestroy
-    public void stopRedis() {
-        redisServer.stop();
+    void preDestroy() {
+        REDIS.stop();
     }
 }

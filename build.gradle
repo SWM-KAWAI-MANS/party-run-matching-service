@@ -80,9 +80,6 @@ dependencies {
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
-    testImplementation('it.ozimov:embedded-redis:0.7.3') {
-        exclude group: 'org.slf4j', module: 'slf4j-simple'
-    }
 
     // mongodb
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
@@ -102,6 +99,9 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    //testcontainers
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
 }
 
 jar {

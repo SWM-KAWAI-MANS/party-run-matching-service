@@ -1,14 +1,12 @@
 package online.partyrun.partyrunmatchingservice.domain.waiting.queue.redis;
 
-import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
+import online.partyrun.partyrunmatchingservice.config.IntegrationTest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.WaitingMember;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -16,8 +14,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-@Import(RedisTestConfig.class)
+@IntegrationTest
 @DisplayName("WaitingQueue에서")
 class WaitingQueueTest {
 

@@ -4,8 +4,6 @@ spring:
   main:
     allow-bean-definition-overriding: true
     web-application-type: reactive
-  profiles:
-    active: test
 de:
   flapdoodle:
     mongodb:
