@@ -4,11 +4,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
     web-application-type: reactive
-de:
-  flapdoodle:
-    mongodb:
-      embedded:
-        version: 6.0.6
+
 jwt:
   access-secret-key: "asfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasd"
 external:

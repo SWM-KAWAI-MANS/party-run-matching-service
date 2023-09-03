@@ -83,7 +83,6 @@ dependencies {
 
     // mongodb
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
-    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring30x:4.7.0'
 
     // for apple silicon
     developmentOnly 'io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64'
@@ -102,6 +101,7 @@ dependencies {
     //testcontainers
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:junit-jupiter:1.19.0'
+    testImplementation "org.testcontainers:mongodb:1.19.0"
 }
 
 jar {
