@@ -12,7 +12,7 @@ public class RedisTestConfig {
 
     @Container
     private static GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:7.0.8-alpine"))
-            .withExposedPorts(REDIS_PORT);
+            .withExposedPorts(REDIS_PORT).withReuse(true);
 
     static {
         REDIS.start();
