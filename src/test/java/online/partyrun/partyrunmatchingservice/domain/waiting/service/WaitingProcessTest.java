@@ -2,6 +2,7 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingService;
 import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingSinkHandler;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
@@ -42,6 +43,9 @@ class WaitingProcessTest {
     @Autowired
     MatchingSinkHandler matchingSinkHandler;
 
+    @Autowired
+    MatchingService matchingService;
+
     Mono<String> 현준 = Mono.just("현준");
     Mono<String> 성우 = Mono.just("성우");
     Mono<String> 현식 = Mono.just("현식");
@@ -49,13 +53,16 @@ class WaitingProcessTest {
     Mono<String> 세연 = Mono.just("세연");
 
     CreateWaitingRequest request = new CreateWaitingRequest(1000);
+
     @AfterEach
     void afterEach() {
-       waitingQueue.clear().block();
+        waitingQueue.clear().block();
         waitingSinkHandler.shutdown();
         matchingSinkHandler.shutdown();
         matchingRepository.deleteAll().block();
+        matchingService.removeUnConnectedSink();
     }
+
     @Test
     @DisplayName("waiting 생성이 일정 회수가 되면, 각 사용자에게 sink를 제공하고 구독한다")
     void runProcess() {

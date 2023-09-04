@@ -6,7 +6,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class WaitingMessageListener implements MessageListener {
     WaitingEventService eventService;
-    RedisSerializer<String> serializer = new StringRedisSerializer();
+    RedisSerializer<String> serializer = RedisSerializer.string();
 
     @Override
     public void onMessage(final Message message, final byte[] pattern) {
