@@ -5,6 +5,10 @@ spring:
     allow-bean-definition-overriding: true
     web-application-type: reactive
 
+  data:
+    redis:
+      timeout: 10000
+
 jwt:
   access-secret-key: "asfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasdfasdfasdfaasfasdfasdfadfasd"
 external:
