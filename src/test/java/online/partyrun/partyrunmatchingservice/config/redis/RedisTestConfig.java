@@ -1,6 +1,5 @@
 package online.partyrun.partyrunmatchingservice.config.redis;
 
-import jakarta.annotation.PreDestroy;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -18,10 +17,5 @@ public class RedisTestConfig {
         REDIS.start();
         System.setProperty("spring.data.redis.host", REDIS.getHost());
         System.setProperty("spring.data.redis.port", String.valueOf(REDIS.getMappedPort(REDIS_PORT)));
-    }
-
-    @PreDestroy
-    void preDestroy() {
-        REDIS.stop();
     }
 }
