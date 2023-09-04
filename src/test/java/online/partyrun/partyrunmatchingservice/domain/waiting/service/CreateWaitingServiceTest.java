@@ -3,10 +3,9 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 import online.partyrun.partyrunmatchingservice.config.IntegrationTest;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
-import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
+import online.partyrun.partyrunmatchingservice.domain.waiting.queue.redis.WaitingQueue;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ReactiveListOperations;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -21,11 +20,11 @@ class CreateWaitingServiceTest {
     @Autowired
     MatchingRepository matchingRepository;
     @Autowired
-    ReactiveListOperations<RunningDistance, String> waitingListOperations;
+    WaitingQueue waitingQueue;
 
     @AfterEach
     void afterEach() {
-        waitingListOperations.delete(RunningDistance.M1000).block();
+        waitingQueue.clear().block();
         sseHandler.shutdown();
         matchingRepository.deleteAll().block();
     }

@@ -1,5 +1,7 @@
 package online.partyrun.partyrunmatchingservice.config.mongodb;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -18,4 +20,15 @@ public class MongodbTestConfig {
         System.setProperty("spring.data.mongodb.port", String.valueOf(MONGODB.getMappedPort(MONGO_PORT)));
     }
 
+    @BeforeEach
+    void setup() {
+        if(!MONGODB.isCreated()) {
+            MONGODB.start();
+        }
+    }
+
+    @AfterEach
+    void finish() {
+        MONGODB.stop();
+    }
 }

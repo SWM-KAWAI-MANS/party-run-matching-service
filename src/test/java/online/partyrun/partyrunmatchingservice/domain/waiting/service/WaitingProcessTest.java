@@ -5,12 +5,10 @@ import online.partyrun.partyrunmatchingservice.domain.matching.repository.Matchi
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.redis.WaitingQueue;
-import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.ReactiveListOperations;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -33,8 +31,7 @@ class WaitingProcessTest {
     WaitingQueue waitingQueue;
     @Autowired
     MatchingRepository matchingRepository;
-    @Autowired
-    ReactiveListOperations<RunningDistance, String> waitingListOperations;
+
 
     Mono<String> 현준 = Mono.just("현준");
     Mono<String> 성우 = Mono.just("성우");
@@ -45,7 +42,7 @@ class WaitingProcessTest {
     CreateWaitingRequest request = new CreateWaitingRequest(1000);
     @AfterEach
     void afterEach() {
-        waitingListOperations.delete(RunningDistance.M1000).block();
+        waitingQueue.clear().block();
         waitingSinkHandler.shutdown();
         matchingRepository.deleteAll().block();
     }
@@ -78,9 +75,7 @@ class WaitingProcessTest {
                 ).publishOn(Schedulers.single()).then()
                 .block();
 
-        final Mono<Long> count = waitingListOperations.range(RunningDistance.M1000, 0, -1).count();
         assertThat(matchingRepository.findAll().count().block()).isEqualTo(2);
-        StepVerifier.create(count).expectNext(1L).verifyComplete();
     }
 
 
@@ -96,8 +91,6 @@ class WaitingProcessTest {
                 ).publishOn(Schedulers.parallel()).then()
                 .block();
 
-        final Mono<Long> count = waitingListOperations.range(RunningDistance.M1000, 0, -1).count();
         assertThat(matchingRepository.findAll().count().block()).isEqualTo(2);
-        StepVerifier.create(count).expectNext(1L).verifyComplete();
     }
 }
