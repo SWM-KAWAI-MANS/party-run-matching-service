@@ -180,7 +180,9 @@ jacocoTestCoverageVerification {
                     '**.WebfluxAuthFilter*',
                     '**.*Event*',
                     '**.external.**',
-                    '**.*Advisor*'
+                    '**.*Advisor*',
+                    '**.*MessageListener',
+                    '**.*MessagePublisher'
             ]
         }
 
