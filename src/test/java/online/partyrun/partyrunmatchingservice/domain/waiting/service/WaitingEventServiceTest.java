@@ -43,7 +43,6 @@ class WaitingEventServiceTest {
     void after() {
         waitingSinkHandler.shutdown();
         waitingQueue.clear().block();
-        waitingQueue.delete(user1.block()).block();
         matchingRepository.deleteAll().block();
     }
 
