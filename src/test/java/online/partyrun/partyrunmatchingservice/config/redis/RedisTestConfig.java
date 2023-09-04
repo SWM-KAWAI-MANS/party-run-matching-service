@@ -1,5 +1,7 @@
 package online.partyrun.partyrunmatchingservice.config.redis;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -18,4 +20,17 @@ public class RedisTestConfig {
         System.setProperty("spring.data.redis.host", REDIS.getHost());
         System.setProperty("spring.data.redis.port", String.valueOf(REDIS.getMappedPort(REDIS_PORT)));
     }
+
+    @BeforeEach
+    void setup() {
+        if (!REDIS.isCreated()) {
+            REDIS.start();
+        }
+    }
+
+    @AfterEach
+    void finish() {
+        REDIS.stop();
+    }
+
 }
