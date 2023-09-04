@@ -2,6 +2,7 @@ package online.partyrun.partyrunmatchingservice.domain.waiting.service;
 
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.matching.repository.MatchingRepository;
+import online.partyrun.partyrunmatchingservice.domain.matching.service.MatchingSinkHandler;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.CreateWaitingRequest;
 import online.partyrun.partyrunmatchingservice.domain.waiting.dto.WaitingStatus;
 import online.partyrun.partyrunmatchingservice.domain.waiting.queue.redis.WaitingQueue;
@@ -38,6 +39,8 @@ class WaitingProcessTest {
     MatchingRepository matchingRepository;
     @Autowired
     ReactiveListOperations<RunningDistance, String> waitingListOperations;
+    @Autowired
+    MatchingSinkHandler matchingSinkHandler;
 
     Mono<String> 현준 = Mono.just("현준");
     Mono<String> 성우 = Mono.just("성우");
@@ -50,6 +53,7 @@ class WaitingProcessTest {
     void afterEach() {
         waitingListOperations.delete(RunningDistance.M1000).block();
         waitingSinkHandler.shutdown();
+        matchingSinkHandler.shutdown();
         matchingRepository.deleteAll().block();
     }
     @Test
