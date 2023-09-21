@@ -1,6 +1,5 @@
 package online.partyrun.partyrunmatchingservice.domain.matching.service;
 
-import lombok.SneakyThrows;
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.matching.controller.MatchingRequest;
@@ -179,7 +178,6 @@ class MatchingServiceTest {
 
         @Test
         @DisplayName("TIMEOUT된 Match를 삭제한다")
-        @SneakyThrows
         void runDeleteIfTimeOver() {
             matchingService.create(members, 1000).block();
 
