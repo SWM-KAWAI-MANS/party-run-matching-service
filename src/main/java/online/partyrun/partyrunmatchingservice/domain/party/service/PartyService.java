@@ -31,7 +31,7 @@ public class PartyService {
                 .map(PartyIdResponse::new);
     }
 
-    public Flux<PartyEvent> getEventStream(Mono<String> member, String entryCode) {
+    public Flux<PartyEvent> joinAndConnectSink(Mono<String> member, String entryCode) {
         return member
                 .doOnNext(partySinkHandler::create)
                 .flatMap(memberId -> joinParty(memberId, entryCode))

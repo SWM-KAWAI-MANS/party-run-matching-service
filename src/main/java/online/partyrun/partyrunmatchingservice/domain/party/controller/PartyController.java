@@ -30,7 +30,7 @@ public class PartyController {
 
     @GetMapping(path = "{entryCode}/join", produces = "text/event-stream")
     public Flux<PartyEvent> getPartyEventStream(Mono<Authentication> auth, @PathVariable String entryCode) {
-        return partyService.getEventStream(auth.map(Principal::getName), entryCode);
+        return partyService.joinAndConnectSink(auth.map(Principal::getName), entryCode);
     }
 
     @PostMapping("{entryCode}/start")
