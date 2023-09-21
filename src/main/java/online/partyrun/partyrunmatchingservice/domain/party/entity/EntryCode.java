@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.security.SecureRandom;
 
 @Getter
 @AllArgsConstructor
@@ -21,6 +21,6 @@ public class EntryCode {
     }
 
     private String generateRandomRoomId() {
-        return String.valueOf(ThreadLocalRandom.current().nextInt(MIN_RANDOM_NUMBER, MAX_RANDOM_NUMBER + 1));
+        return String.valueOf(new SecureRandom().nextInt(MIN_RANDOM_NUMBER, MAX_RANDOM_NUMBER + 1));
     }
 }
