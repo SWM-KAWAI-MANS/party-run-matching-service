@@ -6,7 +6,8 @@ import online.partyrun.partyrunmatchingservice.domain.party.entity.PartyStatus;
 import java.util.List;
 
 public record PartyEvent(String entryCode,
-                         int distance, String leaderId,
+                         int distance,
+                         String managerId,
                          PartyStatus status,
                          List<String> participants,
                          String battleId) {
