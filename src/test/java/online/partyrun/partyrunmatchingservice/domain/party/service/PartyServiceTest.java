@@ -52,7 +52,7 @@ class PartyServiceTest {
     @DisplayNameGeneration(ReplaceUnderscores.class)
     class 파티가_생성된_후 {
         EntryCode code = partyRepository.save(partySample).block().getEntryCode();
-        PartyEvent event = new PartyEvent(code.getCode(), 현준.block(), PartyStatus.WAITING, List.of(현준.block()), null);
+        PartyEvent event = new PartyEvent(code.getCode(),1000, 현준.block(), PartyStatus.WAITING, List.of(현준.block()), null);
 
         @BeforeEach
         void setUp() {
