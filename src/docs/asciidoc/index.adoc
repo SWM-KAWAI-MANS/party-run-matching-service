@@ -41,5 +41,14 @@ operation::shutdown[snippets='http-request,http-response']
 === waiting event 취소
 operation::cancel-waiting-event[snippets='http-request,http-response']
 
+== Party
 
+=== party 생성
+operation::create-party[snippets='http-request,http-response']
+=== party 참여
+operation::join-party[snippets='http-request,http-response']
+=== party running 시작
+operation::start-party[snippets='http-request,http-response']
+=== party 나가기
+operation::quit-party[snippets='http-request,http-response']
 
