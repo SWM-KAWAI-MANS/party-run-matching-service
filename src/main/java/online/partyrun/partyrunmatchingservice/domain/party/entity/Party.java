@@ -17,15 +17,15 @@ public class Party {
     @Id
     String id;
     EntryCode entryCode = new EntryCode();
-    String leaderId;
+    String managerId;
     RunningDistance distance;
 
     PartyStatus status = PartyStatus.WAITING;
     List<String> participants = new ArrayList<>();
     String battleId;
 
-    public Party(String leaderId, RunningDistance distance) {
-        this.leaderId = leaderId;
+    public Party(String managerId, RunningDistance distance) {
+        this.managerId = managerId;
         this.distance = distance;
     }
 

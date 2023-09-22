@@ -53,9 +53,9 @@ class PartyControllerTest extends WebfluxDocsTest {
     @DisplayName("get : join party")
     void getPartyEventStream() {
         final Flux<PartyEvent> eventResult = Flux.just(
-                new PartyEvent(ENTRY_CODE, "member1", PartyStatus.WAITING, List.of("member1"), null),
-                new PartyEvent(ENTRY_CODE, "member1", PartyStatus.WAITING, List.of("member1", "member2"), null),
-                new PartyEvent(ENTRY_CODE, "member1", PartyStatus.COMPLETED, List.of("member1", "member2"), "battle-id")
+                new PartyEvent(ENTRY_CODE,1000, "member1", PartyStatus.WAITING, List.of("member1"), null),
+                new PartyEvent(ENTRY_CODE, 1000, "member1", PartyStatus.WAITING, List.of("member1", "member2"), null),
+                new PartyEvent(ENTRY_CODE, 1000, "member1", PartyStatus.COMPLETED, List.of("member1", "member2"), "battle-id")
         );
         given(partyService.joinAndConnectSink(any(Mono.class), any(String.class)))
                 .willReturn(eventResult);
