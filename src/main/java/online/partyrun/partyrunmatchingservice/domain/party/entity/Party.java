@@ -38,4 +38,15 @@ public class Party {
         this.battleId = battleId;
         status = PartyStatus.COMPLETED;
     }
+
+    public void quit(final String memberId) {
+        participants.remove(memberId);
+        if(memberId.equals(managerId)) {
+            status = PartyStatus.CANCELLED;
+        }
+    }
+
+    public boolean isRecruitClosed() {
+        return !status.isWaiting();
+    }
 }
