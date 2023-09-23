@@ -8,6 +8,7 @@ import online.partyrun.partyrunmatchingservice.domain.party.dto.PartyRequest;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.EntryCode;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.Party;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.PartyStatus;
+import online.partyrun.partyrunmatchingservice.domain.party.exception.PartyNotFoundException;
 import online.partyrun.partyrunmatchingservice.domain.party.repository.PartyRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import org.junit.jupiter.api.*;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -68,7 +70,7 @@ class PartyServiceTest {
     @DisplayNameGeneration(ReplaceUnderscores.class)
     class 파티가_생성된_후 {
         EntryCode code = partyRepository.save(partySample).block().getEntryCode();
-        PartyEvent event = new PartyEvent(code.getCode(), 1000, 현준.block(), PartyStatus.WAITING, List.of(현준.block()), null);
+        PartyEvent event = new PartyEvent(code.getCode(), 1000, 현준.block(), PartyStatus.WAITING, Set.of(현준.block()), null);
 
         @BeforeEach
         void setUp() {
@@ -101,12 +103,12 @@ class PartyServiceTest {
             assertAll(
                     () -> assertThat(partySinkHandler.isExist(현준.block())).isFalse(),
                     () -> assertThat(partySinkHandler.isExist(성우.block())).isFalse(),
-                    () -> assertThat(partyResult.getParticipants()).contains(현준.block(), 성우.block())
+                    () -> assertThat(partyResult.getParticipantIds()).contains(현준.block(), 성우.block())
             );
         }
 
         @Test
-        @DisplayName("미구현 : 파티 나가기를 수행한다.")
+        @DisplayName("파티 나가기를 수행한다.")
         void quitParty() {
             partyService.joinAndConnectSink(현준, code.getCode()).blockFirst();
             partySinkHandler.create(현준.block());
@@ -119,10 +121,18 @@ class PartyServiceTest {
             assertAll(
                     () -> assertThat(partySinkHandler.isExist(현준.block())).isFalse(),
                     () -> assertThat(partySinkHandler.isExist(성우.block())).isFalse(),
-                    () -> assertThat(partyResult.getParticipants()).isNotIn(현준.block()),
-                    () -> assertThat(partyResult.getParticipants()).contains(성우.block())
+                    () -> assertThat(partyResult.getParticipantIds()).isNotIn(현준.block()),
+                    () -> assertThat(partyResult.getParticipantIds()).contains(성우.block())
             );
 
         }
+    }
+
+    @Test
+    @DisplayName("join 시에 없는 존재하지 않은 entryCode를 참고하면 예외를 발생한다")
+    void throwPartyNotFoundException() {
+        StepVerifier.create(partyService.joinAndConnectSink(현준, "123456"))
+                .verifyError(PartyNotFoundException.class);
+        assertThat(partySinkHandler.isExist(현준.block())).isFalse();
     }
 }

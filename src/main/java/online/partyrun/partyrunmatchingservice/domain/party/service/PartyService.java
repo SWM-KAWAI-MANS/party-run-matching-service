@@ -10,6 +10,7 @@ import online.partyrun.partyrunmatchingservice.domain.party.dto.PartyRequest;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.EntryCode;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.Party;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.PartyStatus;
+import online.partyrun.partyrunmatchingservice.domain.party.exception.PartyNotFoundException;
 import online.partyrun.partyrunmatchingservice.domain.party.repository.PartyRepository;
 import online.partyrun.partyrunmatchingservice.domain.waiting.root.RunningDistance;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,8 @@ public class PartyService {
 
     private Mono<Void> joinParty(String memberId, String entryCode) {
         return getWaitingParty(entryCode)
+                .switchIfEmpty(Mono.error(new PartyNotFoundException(entryCode)))
+                .doOnError(e -> partySinkHandler.disconnectIfExist(memberId))
                 .flatMap(party -> {
                             party.join(memberId);
                             return partyRepository.save(party);
@@ -51,7 +54,7 @@ public class PartyService {
     }
 
     private void multicast(Party party) {
-        party.getParticipants().forEach(
+        party.getParticipantIds().forEach(
                 member -> {
                     partySinkHandler.sendEvent(member, new PartyEvent(party));
                     if (party.isRecruitClosed()) {
@@ -67,7 +70,7 @@ public class PartyService {
     public Mono<Void> start(Mono<String> member, String code) {
         // TODO 방장 여부 확인
         return getWaitingParty(code).flatMap(party ->
-                        battleService.create(party.getParticipants(), party.getDistance().getMeter())
+                        battleService.create(party.getParticipantIds().stream().toList(), party.getDistance().getMeter())
                 ).flatMap(battleId ->
                         getWaitingParty(code).doOnNext(party -> party.start(battleId))
                                 .flatMap(partyRepository::save))
