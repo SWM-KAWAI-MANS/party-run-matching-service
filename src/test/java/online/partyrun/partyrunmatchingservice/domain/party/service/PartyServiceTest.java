@@ -3,6 +3,8 @@ package online.partyrun.partyrunmatchingservice.domain.party.service;
 import online.partyrun.partyrunmatchingservice.config.redis.RedisTestConfig;
 import online.partyrun.partyrunmatchingservice.domain.battle.service.BattleService;
 import online.partyrun.partyrunmatchingservice.domain.party.dto.PartyEvent;
+import online.partyrun.partyrunmatchingservice.domain.party.dto.PartyIdResponse;
+import online.partyrun.partyrunmatchingservice.domain.party.dto.PartyRequest;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.EntryCode;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.Party;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.PartyStatus;
@@ -20,7 +22,6 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -46,13 +47,28 @@ class PartyServiceTest {
     @AfterEach
     public void clear() {
         partyRepository.deleteAll().block();
+        partySinkHandler.shutdown();
+    }
+
+    @Test
+    @DisplayName("party 생성 후 EntryCode를 반환한다")
+    void createParty() {
+        final int distance = 1000;
+        final PartyIdResponse response = partyService.create(현준, new PartyRequest(distance)).block();
+
+        final Party findResult = partyRepository.findByEntryCodeAndStatus(new EntryCode(response.code()), PartyStatus.WAITING).block();
+
+        assertAll(
+                () -> assertThat(findResult.getDistance()).isEqualTo(RunningDistance.getBy(distance)),
+                () -> assertThat(findResult.getManagerId()).isEqualTo(현준.block())
+        );
     }
 
     @Nested
     @DisplayNameGeneration(ReplaceUnderscores.class)
     class 파티가_생성된_후 {
         EntryCode code = partyRepository.save(partySample).block().getEntryCode();
-        PartyEvent event = new PartyEvent(code.getCode(),1000, 현준.block(), PartyStatus.WAITING, List.of(현준.block()), null);
+        PartyEvent event = new PartyEvent(code.getCode(), 1000, 현준.block(), PartyStatus.WAITING, List.of(현준.block()), null);
 
         @BeforeEach
         void setUp() {
@@ -92,8 +108,21 @@ class PartyServiceTest {
         @Test
         @DisplayName("미구현 : 파티 나가기를 수행한다.")
         void quitParty() {
-            assertThatThrownBy(() -> partyService.quit(현준, "asdf"))
-                    .isInstanceOf(UnsupportedOperationException.class);
+            partyService.joinAndConnectSink(현준, code.getCode()).blockFirst();
+            partySinkHandler.create(현준.block());
+            partyService.joinAndConnectSink(성우, code.getCode()).blockFirst();
+            partySinkHandler.create(성우.block());
+
+            partyService.quit(현준, code.getCode()).block();
+            final Party partyResult = partyRepository.findByEntryCodeAndStatus(code, PartyStatus.CANCELLED).block();
+
+            assertAll(
+                    () -> assertThat(partySinkHandler.isExist(현준.block())).isFalse(),
+                    () -> assertThat(partySinkHandler.isExist(성우.block())).isFalse(),
+                    () -> assertThat(partyResult.getParticipants()).isNotIn(현준.block()),
+                    () -> assertThat(partyResult.getParticipants()).contains(성우.block())
+            );
+
         }
     }
 }

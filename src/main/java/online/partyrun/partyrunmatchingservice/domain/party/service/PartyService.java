@@ -46,14 +46,18 @@ public class PartyService {
                             return partyRepository.save(party);
                         }
                 )
-                .then(multicast(entryCode));
+                .doOnNext(this::multicast)
+                .then();
     }
 
-    private Mono<Void> multicast(String code) {
-        return getWaitingParty(code)
-                .doOnNext(party -> party.getParticipants().forEach(
-                        member -> partySinkHandler.sendEvent(member, new PartyEvent(party))
-                )).then();
+    private void multicast(Party party) {
+        party.getParticipants().forEach(
+                member -> {
+                    partySinkHandler.sendEvent(member, new PartyEvent(party));
+                    if (party.isRecruitClosed()) {
+                        partySinkHandler.complete(member);
+                    }
+                });
     }
 
     private Mono<Party> getWaitingParty(String code) {
@@ -67,15 +71,19 @@ public class PartyService {
                 ).flatMap(battleId ->
                         getWaitingParty(code).doOnNext(party -> party.start(battleId))
                                 .flatMap(partyRepository::save))
-                .doOnNext(party -> party.getParticipants().forEach(
-                        partyMember -> {
-                            partySinkHandler.sendEvent(partyMember, new PartyEvent(party));
-                            partySinkHandler.complete(partyMember);
-                        }
-                )).then();
+                .doOnNext(this::multicast).then();
     }
+
     public Mono<Void> quit(Mono<String> member, String code) {
-        // TODO
-        throw new UnsupportedOperationException("Not supported yet");
+        return getWaitingParty(code)
+                .flatMap(party ->
+                        member.flatMap(memberId -> {
+                            party.quit(memberId);
+                            partySinkHandler.complete(memberId);
+                            return partyRepository.save(party);
+                        })
+                )
+                .doOnNext(this::multicast)
+                .then();
     }
 }
