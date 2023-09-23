@@ -51,4 +51,5 @@ operation::join-party[snippets='http-request,http-response']
 operation::start-party[snippets='http-request,http-response']
 === party 나가기
 operation::quit-party[snippets='http-request,http-response']
-
+=== 탐색한 party가 없으면 예외
+operation::throw-exception-when-party-not-found[snippets='http-request,http-response']

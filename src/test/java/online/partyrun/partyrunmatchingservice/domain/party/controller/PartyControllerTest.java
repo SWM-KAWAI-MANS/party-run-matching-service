@@ -5,6 +5,7 @@ import online.partyrun.partyrunmatchingservice.domain.party.dto.PartyEvent;
 import online.partyrun.partyrunmatchingservice.domain.party.dto.PartyIdResponse;
 import online.partyrun.partyrunmatchingservice.domain.party.dto.PartyRequest;
 import online.partyrun.partyrunmatchingservice.domain.party.entity.PartyStatus;
+import online.partyrun.partyrunmatchingservice.domain.party.exception.PartyNotFoundException;
 import online.partyrun.partyrunmatchingservice.domain.party.service.PartyService;
 import online.partyrun.partyrunmatchingservice.global.controller.HttpControllerAdvice;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -53,9 +54,9 @@ class PartyControllerTest extends WebfluxDocsTest {
     @DisplayName("get : join party")
     void getPartyEventStream() {
         final Flux<PartyEvent> eventResult = Flux.just(
-                new PartyEvent(ENTRY_CODE,1000, "member1", PartyStatus.WAITING, List.of("member1"), null),
-                new PartyEvent(ENTRY_CODE, 1000, "member1", PartyStatus.WAITING, List.of("member1", "member2"), null),
-                new PartyEvent(ENTRY_CODE, 1000, "member1", PartyStatus.COMPLETED, List.of("member1", "member2"), "battle-id")
+                new PartyEvent(ENTRY_CODE,1000, "member1", PartyStatus.WAITING, Set.of("member1"), null),
+                new PartyEvent(ENTRY_CODE, 1000, "member1", PartyStatus.WAITING, Set.of("member1", "member2"), null),
+                new PartyEvent(ENTRY_CODE, 1000, "member1", PartyStatus.COMPLETED, Set.of("member1", "member2"), "battle-id")
         );
         given(partyService.joinAndConnectSink(any(Mono.class), any(String.class)))
                 .willReturn(eventResult);
@@ -98,6 +99,22 @@ class PartyControllerTest extends WebfluxDocsTest {
                 .isNoContent()
                 .expectBody()
                 .consumeWith(document("quit-party"));
+    }
+
+    @Test
+    @DisplayName("파티 join 시에 해당하는 entryCode가 없으면 예외")
+    void throwExceptionIfPartyNotFound() {
+        given(partyService.joinAndConnectSink(any(Mono.class), any(String.class)))
+                .willReturn(Flux.error(new PartyNotFoundException("123456")));
+
+        client.get()
+                .uri("/parties/{entryCode}/join", ENTRY_CODE)
+                .accept(MediaType.TEXT_EVENT_STREAM)
+                .exchange()
+                .expectStatus()
+                .isBadRequest()
+                .expectBody()
+                .consumeWith(document("throw-exception-when-party-not-found"));
     }
 
 }
