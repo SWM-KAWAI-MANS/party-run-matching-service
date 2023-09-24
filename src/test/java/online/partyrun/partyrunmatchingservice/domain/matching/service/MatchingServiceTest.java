@@ -144,8 +144,6 @@ class MatchingServiceTest {
 
         @BeforeEach
         void setup() {
-            matchingRepository.deleteAll().block();
-            sseHandler.shutdown();
             matching = matchingService.create(members, distance).block();
             matchingService.setMemberStatus(Mono.just(현준), 수락).block();
             matchingService.setMemberStatus(Mono.just(성우), 수락).block();
