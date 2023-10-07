@@ -72,7 +72,7 @@ public abstract class SinkHandlerTemplate<K, V> {
         return sinks.containsKey(key);
     }
 
-    private Duration timeout() {
+    protected Duration timeout() {
         return Duration.ofMinutes(DEFAULT_MINUTE);
     }
 
